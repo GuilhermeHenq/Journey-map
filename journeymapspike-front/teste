@@ -1,0 +1,20 @@
+-- Inserir dados em journeyPhaseData
+INSERT INTO journeyphase (journeyMap_id, linePos, posX, length, description, emojiTag)
+VALUES (3, 70, 10, 0, 'Descrição 1', 'Emoji 1');
+
+-- Inserir dados em thoughtData
+INSERT INTO thought (journeyMap_id, linePos, posX, length, description, emojiTag)
+VALUES (3, 471, 50, 0, 'Descrição 4', 'Emoji 4');
+
+-- Inserir dados em userActionData
+INSERT INTO useraction (journeyMap_id, linePos, posX, length, description, emojiTag)
+VALUES (3, 370, 40, 0, 'Descrição 3', 'Emoji 3');
+
+-- Inserir dados em emotionData
+INSERT INTO emotion (journeyMap_id, posX, lineY, emojiTag)
+VALUES (3, 172, 20, 'Emoji 2');
+
+-- Atualizar o registro no contactPoint com o ID 1
+UPDATE contactpoint
+SET posX = 20, linePos = 285
+WHERE contactPoint_id = 1;
