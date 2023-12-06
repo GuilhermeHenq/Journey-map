@@ -17,95 +17,6 @@ function adjustCircleXToInterval(x) {
   return adjustedX;
 }
 
-const EditableRect = ({ x, y, width, height, color, text, onTextChange, isActive, onActivate }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedText, setEditedText] = useState(text || "");
-
-  useEffect(() => {
-    setEditedText(text || "");
-  }, [text]);
-
-  const handleClick = () => {
-    setIsEditing(true);
-    onActivate();
-  };
-
-  const handleBlur = () => {
-    setIsEditing(false);
-    onTextChange(editedText);
-  };
-
-  const handleChange = (e) => {
-    setEditedText(e.target.value);
-  };
-
-  const handleSaveClick = () => {
-    setIsEditing(false);
-    onTextChange(editedText);
-  };
-
-  return (
-    <>
-      <Rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        fill={isActive ? "yellow" : color}
-        opacity={1}
-        draggable={false}
-        onClick={handleClick}
-        onTap={handleClick}
-        listening={true}
-      />
-      {isEditing && (
-        <>
-          <input
-            type="text"
-            value={editedText}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            autoFocus
-            style={{
-              position: "absolute",
-              top: y + height / 2,
-              left: x + width / 2,
-              transform: "translate(-50%, -50%)",
-              width: width,
-              fontSize: 20,
-            }}
-          />
-          <button
-            style={{
-              position: "absolute",
-              top: y + height / 2 + 40,
-              left: x + width / 2,
-              transform: "translate(-50%, -50%)",
-            }}
-            onClick={handleSaveClick}
-          >
-            Save
-          </button>
-        </>
-      )}
-      {text && (
-        <Text
-          x={x + width / 2}
-          y={y + height / 2}
-          text={text}
-          fontSize={20}
-          fill="#000"
-          align="center"
-          verticalAlign="middle"
-          width={width}
-          height={height}
-          listening={false}
-        />
-      )}
-    </>
-  );
-};
-
 
 
 
@@ -124,8 +35,25 @@ const getPhaseNameById = (id) => {
   }
 };
 
-
-
+const PhaseNames = ({ matrix }) => (
+  <Group>
+    {matrix && matrix.map((row, index) => (
+      <Text
+        key={index}
+        text={getPhaseNameById(String(index + 1))}
+        x={10}
+        y={row[0].y + row[0].height / 2}
+        fontSize={20}
+        fill="#000"
+        align="left"
+        verticalAlign="middle"
+        width={120}
+        height={row[0].height}
+        listening={false}
+      />
+    ))}
+  </Group>
+);
 
 const Square = ({ id, x, y, width, height, color, text, onTextChange, onDeleteClick }) => (
   <Group>
@@ -219,45 +147,46 @@ const App = () => {
       y: newY,
     });
   };
-  const handleAddSquare = (rowIndex) => {
-    const newMatrix = [...matrix];
 
-    // Verifica se a matriz na linha rowIndex está definida
-    if (!newMatrix[rowIndex]) {
-      newMatrix[rowIndex] = [];
-    }
-
-    const color = newMatrix[rowIndex].length > 0 ? matrix[rowIndex][0].color : "#000";
-    const newX = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 150 : 30;
-
-    if (rowIndex === 2) {
-      setMatrix((prevMatrix) => {
+const handleAddSquare = (rowIndex, colIndex) => {
+    setMatrix((prevMatrix) => {
         const newMatrix = [...prevMatrix];
-        newMatrix[rowIndex].push({
-          id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
-          x: newX,
-          y: rowIndex * 100 + 100,
-          color: color,
-        });
-        return newMatrix;
-      });
-    } else {
-      // Adiciona um novo quadrado na linha diferente de 2
-      setMatrix((prevMatrix) => {
-        const newMatrix = [...prevMatrix];
-        newMatrix[rowIndex].push({
-          id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
-          x: newX,
-          y: rowIndex * 100 + 61,
-          width: 120,
-          height: 85,
-          color: color,
-        });
-        return newMatrix;
-      });
-    }
-  };
 
+        // Verifica se a matriz na linha rowIndex está definida
+        if (!newMatrix[rowIndex]) {
+            newMatrix[rowIndex] = [];
+        }
+
+        const color = newMatrix[rowIndex].length > 0 ? matrix[rowIndex][0].color : "#000";
+
+        // Se colIndex estiver definido, insere o quadrado na posição correta
+        if (colIndex !== undefined && colIndex < newMatrix[rowIndex].length) {
+            const newX = colIndex === 0 ? 30 : newMatrix[rowIndex][colIndex - 1].x + 150;
+            newMatrix[rowIndex].splice(colIndex, 0, {
+                id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
+                x: newX,
+                y: rowIndex * 100 + (rowIndex === 2 ? 100 : 61),
+                width: 120,
+                height: 85,
+                color: color,
+            });
+        } else {
+            // Adiciona um novo quadrado no final da linha
+            const newX =
+                newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 150 : 30;
+            newMatrix[rowIndex].push({
+                id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
+                x: newX,
+                y: rowIndex * 100 + (rowIndex === 2 ? 100 : 61),
+                width: 120,
+                height: 85,
+                color: color,
+            });
+        }
+
+        return newMatrix;
+    });
+};
 
 
   const handleDeleteSquare = (rowIndex, colIndex) => {
@@ -468,8 +397,11 @@ const App = () => {
   return (
     <div>
       <NavBar />
-      <div className="map-container">
-        <Stage width={window.innerWidth} height={window.innerHeight}>
+      <div className="map-container" style={{ display: 'flex' }}>
+        <div style={{ width: '200px', paddingRight: '10px' }}>
+        <PhaseNames/>
+        </div>
+        <Stage width={window.innerWidth - 210} height={window.innerHeight}>
           <Layer>
             <Matrix
               matrix={matrix}

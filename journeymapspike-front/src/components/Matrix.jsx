@@ -48,6 +48,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                                 onTap={() => handleDeleteSquare(rowIndex, colIndex)}
                                 listening={true}
                                 style={{ cursor: 'pointer' }}
+                                cornerRadius={3}
                             />
                             <Text
                                 x={square.x + square.width - 13}
@@ -84,7 +85,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                                 onTap={() => handleDeleteSquare(rowIndex, colIndex)}
                                 listening={true}
                                 style={{ cursor: 'pointer' }}
-                                cornerRadius={10}
+                                cornerRadius={40}
                             />
                             <Text
                                 x={square.x + 106}
@@ -127,6 +128,39 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                     verticalAlign="middle"
                     listening={false}
                 />
+            </Group>
+
+        ))}
+        {matrix.map((row, rowIndex) => (
+            <Group key={`addButtonRow_${rowIndex}`}>
+                {row.map((square, colIndex) => (
+                    <Group key={`addButton_${square.id}`}>
+                        <Rect
+                            x={square.x + square.width}
+                            y={square.y + 30}
+                            width={30}
+                            height={30}
+                            fill="gray"
+                            opacity={1}
+                            draggable={false}
+                            onClick={() => handleAddSquare(rowIndex, colIndex)}
+                            onTap={() => handleAddSquare(rowIndex, colIndex)}
+                            listening={true}
+                            style={{ cursor: 'pointer' }}
+                            cornerRadius={10}
+                        />
+                        <Text
+                            x={square.x + square.width + 5}
+                            y={square.y + 34}
+                            text="+"
+                            fontSize={30}
+                            fill="#fff"
+                            align="center"
+                            verticalAlign="middle"
+                            listening={false}
+                        />
+                    </Group>
+                ))}
             </Group>
         ))}
     </>
