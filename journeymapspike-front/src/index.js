@@ -1,10 +1,10 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { Stage, Layer, Rect, Circle } from "react-konva";
 import axios from "axios";
 import Popup from "./Popup";
 import Matrix from './components/Matrix';
+
 
 const showAlert = () => {
   alert("Seu progresso foi salvo!");
@@ -22,66 +22,86 @@ function adjustCircleXToInterval(x) {
   return adjustedX;
 }
 
-const initialRedRectX1 = {
-  id: "1",
-  x: localStorage.getItem("redRectX1")
-    ? Number(localStorage.getItem("redRectX1"))
-    : 10,
-  y: 11.5 * window.innerHeight / 100,
-  isDragging: false,
-  color: "#7acefa",
-  width: 230,
-};
-
-const initialRedRectX2 = {
-  id: "2",
-  x: localStorage.getItem("redRectX2")
-    ? Number(localStorage.getItem("redRectX2"))
-    : 10,
-  y: 34.5 * window.innerHeight / 100,
-  isDragging: false,
-  color: "#f7ef87",
-  width: 160,
-};
-
-const initialRedRectX3 = {
-  id: "3",
-  x: localStorage.getItem("redRectX3")
-    ? Number(localStorage.getItem("redRectX3"))
-    : 10,
-  y: 80.5 * window.innerHeight / 100,
-  isDragging: false,
-  color: "#b49cdc",
-  width: 160,
-};
-
-const initialRedRectX4 = {
-  id: "4",
-  x: localStorage.getItem("redRectX4")
-    ? Number(localStorage.getItem("redRectX4"))
-    : 10,
-  y: 103.5 * window.innerHeight / 100,
-  isDragging: false,
-  color: "#6a96d7",
-  width: 160,
-};
-
-const initialRedCircle = {
-  id: "5",
-  x: localStorage.getItem("redCircleX")
-    ? Number(localStorage.getItem("redCircleX"))
-    : 10,
-  y: localStorage.getItem("redCircleY")
-    ? Number(localStorage.getItem("redCircleY"))
-    : (67.5 * window.innerHeight / 100),
-  isDragging: false,
-  color: "#383c43",
-  radius: 15,
-};
-
 const App = () => {
+
+  let initialRedRectX1, initialRedRectX2, initialRedRectX3, initialRedRectX4, initialRedCircle;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [
+          journeyData,
+          thoughtData,
+          userActionData,
+          contactPointData,
+          emotionData,
+        ] = await Promise.all([
+          axios.get("http://localhost:3000/journeyPhase?method=getAllItems"),
+          axios.get("http://localhost:3000/thought?method=getAllItems"),
+          axios.get("http://localhost:3000/userAction?method=getAllItems"),
+          axios.get("http://localhost:3000/contactPoint?method=getAllItems"),
+          axios.get("http://localhost:3000/emotion?method=getAllItems"),
+        ]);
+  
+        initialRedRectX1 = {
+          id: "1",
+          x: journeyData.data[0] ? Number(journeyData.data[0].posX) : 10,
+          y: 11.5 * window.innerHeight / 100,
+          isDragging: false,
+          color: "#7acefa",
+          width: 230,
+        };
+  
+        initialRedRectX2 = {
+          id: "2",
+          x: thoughtData.data[0] ? Number(thoughtData.data[0].posX) : 10,
+          y: 34.5 * window.innerHeight / 100,
+          isDragging: false,
+          color: "#f7ef87",
+          width: 160,
+        };
+  
+        initialRedRectX3 = {
+          id: "3",
+          x: userActionData.data[0] ? Number(userActionData.data[0].posX) : 10,
+          y: 80.5 * window.innerHeight / 100,
+          isDragging: false,
+          color: "#b49cdc",
+          width: 160,
+        };
+  
+        initialRedRectX4 = {
+          id: "4",
+          x: contactPointData.data[0] ? Number(contactPointData.data[0].posX) : 10,
+          y: 103.5 * window.innerHeight / 100,
+          isDragging: false,
+          color: "#6a96d7",
+          width: 160,
+        };
+  
+        initialRedCircle = {
+          id: "5",
+          x: emotionData.data[0] ? Number(emotionData.data[0].posX) : 10,
+          y: emotionData.data[0] ? Number(emotionData.data[0].lineY) : (67.5 * window.innerHeight / 100),
+          isDragging: false,
+          color: "#383c43",
+          radius: 15,
+        };
+  
+        setRects([initialRedRectX1, initialRedRectX2, initialRedRectX3, initialRedRectX4]);
+        setCircle(initialRedCircle);
+        setBalls(initialRedCircle);
+      } catch (error) {
+        console.error("Erro ao buscar os dados:", error);
+      }
+    };
+  
+    fetchData();
+  }, []);
+  
   const [rects, setRects] = React.useState([initialRedRectX1, initialRedRectX2, initialRedRectX3, initialRedRectX4]);
   const [circle, setCircle] = React.useState(initialRedCircle);
+  
 
   const handleDragMove = (e) => {
     const id = e.target.id();
@@ -133,36 +153,38 @@ const App = () => {
   };
 
   const handleSaveClick = () => {
-    localStorage.setItem("redRectX1", rects[0].x);
-    localStorage.setItem("redRectX2", rects[1].x);
-    localStorage.setItem("redRectX3", rects[2].x);
-    localStorage.setItem("redRectX4", rects[3].x);
-    localStorage.setItem("redCircleX", circle.x);
-    localStorage.setItem("redCircleY", circle.y);
+    const dataToPut = {
+      journeyPhaseData: { posX: rects[0].x, journeyPhase_id: 3 },
+      thoughtData: { posX: rects[1].x, thought_id: 3 },
+      userActionData: { posX: rects[2].x, userAction_id: 3 },
+      contactPointData: { posX: rects[3].x, contactPoint_id: 21 },
+      emotionData: { posX: circle.x, lineY: circle.y, emotion_id: 6 },
+    };
+
+    const putConfig = { method: "PUT" };
 
     axios
-      .put("/api/redRectX1", { x: rects[0].x })
+      .put("http://localhost:3000/journeyPhase?method=updateAllItems", dataToPut.journeyPhaseData, putConfig)
       .then(() => {
-        return axios.put("/api/redRectX2", { x: rects[1].x });
+        return axios.put("http://localhost:3000/thought?method=updateAllItems", dataToPut.thoughtData, putConfig);
       })
       .then(() => {
-        return axios.put("/api/redRectX3", { x: rects[2].x });
+        return axios.put("http://localhost:3000/userAction?method=updateAllItems", dataToPut.userActionData, putConfig);
       })
       .then(() => {
-        return axios.put("/api/redRectX4", { x: rects[3].x });
+        return axios.put("http://localhost:3000/contactPoint?method=updateAllItems", dataToPut.contactPointData, putConfig);
       })
       .then(() => {
-        return axios.put("/api/redCircle", { x: circle.x, y: circle.y });
+        return axios.put("http://localhost:3000/emotion?method=updateAllItems", dataToPut.emotionData, putConfig);
       })
       .then(() => {
-        console.log("Posições atualizadas com sucesso!");
-        showAlert();
+        console.log("Dados salvos com sucesso!");
       })
       .catch((error) => {
-        console.error("Erro ao atualizar posições:", error);
+        console.error("Erro ao salvar os dados:", error);
       });
   };
-
+  
   const [buttonPopup, setButtonPopup] = useState(false);
 
   const handleTextSubmit = () => {
