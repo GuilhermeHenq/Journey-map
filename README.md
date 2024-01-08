@@ -1,8 +1,8 @@
 <b><h1>How to start front-end interface:</h1></b>
 
-> cd .\journeymapspike-front\
-> npm i (only on first install)
-> npm start
+">" cd .\journeymapspike-front\
+">" npm i (only on first install)
+">" npm start
 
 React should start running on port 3000.
 
