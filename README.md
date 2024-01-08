@@ -4,7 +4,7 @@ Front-end made with React Native, utilizing the React Konva library, a popular s
 
 <b><h2>How to start front-end interface:</h2></b>
 
-- cd .\journeymapspike-front\
+- cd .\frontend\
 - npm i (only on first install)
 - npm start
 
@@ -12,7 +12,7 @@ React should start running on port 3000.
 
 <b><h2>How to start Node.JS server:</h2></b>
 
-- cd .\Back-Node\
+- cd .\backend\
 - npm i (only on first install)
 - cd .\public\
 - node server.js
