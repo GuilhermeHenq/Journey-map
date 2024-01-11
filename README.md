@@ -19,7 +19,7 @@ React should start running on port 5173.
 
 Server should start running on port 8080.
 
-<b><h2>How to create mapjourney table in MySQL:</h2></b>
+<b><h2>How to create <i>mapjourney</i> table in MySQL:</h2></b>
 
 - CREATE DATABASE mapjoruney;
 - USE DATABASE mapjourney;
