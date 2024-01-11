@@ -4,7 +4,7 @@ import { Stage, Layer, Rect, Circle } from "react-konva";
 import axios from "axios";
 import Popup from "../../components/Popup";
 import Matrix from "../../components/tool/Matrix";
-import './styles.css'
+import './tool.css'
 
 
 const showAlert = () => {
@@ -256,16 +256,16 @@ const [matrix, setMatrix] = useState([
     { id: "1", x: 30, y: 61, width: 230, height: 135, color: "#ff0000", text: "" },
   ],
   [
-    { id: "2", x: 30, y: 238, width: 230, height: 135, color: "#00ff00", text: "" },
+    { id: "2", x: 30, y: 231, width: 230, height: 135, color: "#00ff00", text: "" },
   ],
   [
-    { id: "3", x: 30, y: 470, width: 230, height: 135, color: "#0000ff", text: "" },
+    { id: "3", x: 30, y: 467, width: 230, height: 135, color: "#0000ff", text: "" },
   ],
   [
-    { id: "4", x: 30, y: 592, width: 230, height: 135, color: "#ffff00", text: "" },
+    { id: "4", x: 30, y: 571, width: 230, height: 135, color: "#ffff00", text: "" },
   ],
   [
-    { id: "5", x: 30, y: 769, width: 230, height: 135, color: "#ff00ff", text: "" },
+    { id: "5", x: 30, y: 741, width: 230, height: 135, color: "#ff00ff", text: "" },
   ],
 ]);
 
@@ -277,13 +277,13 @@ const [matrix, setMatrix] = useState([
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
-      <div className="scenario" style={{ textAlign: "left", padding: "1.5vh", fontSize: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="scenario" style={{ textAlign: "left", padding: "11px", fontSize: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span>Cenário 1 - X</span>
           <button className="button info" id="infoButton" style={{ marginRight: "3vh" }} onClick={() => { setButtonPopup(true); }}>
           i
           </button>
       </div>
-      <div className="separator1" style={{ marginTop: "9.2vh" }}></div>
+      <div className="separator1" style={{ marginTop: "61.9px" }}></div>
       <Popup trigger={buttonPopup} setTrigger={setButtonPopup} style={{ borderRadius: "25px" }}>
         <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
           <h1 style={{ fontSize: "50px" }}>Cenário</h1>

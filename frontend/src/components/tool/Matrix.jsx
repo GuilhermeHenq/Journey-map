@@ -126,7 +126,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
             >
                 <Rect
                     x={row.length > 0 ? row[row.length - 1].x + 259 : 30}
-                    y={rowIndex * 177 + 104}
+                    y={rowIndex * 170 + 104}
                     width={60}
                     height={45}
                     fill="gray"
@@ -140,7 +140,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                 />
                 <Text
                     x={row.length > 0 ? row[row.length - 1].x + 273 : 45}
-                    y={rowIndex * 177 + 106}
+                    y={rowIndex * 170 + 106}
                     text="+"
                     fontSize={50}
                     fill='#d9d9d9'

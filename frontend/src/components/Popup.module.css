@@ -12,11 +12,10 @@
     z-index: 3;
 }
 
-.popup-inner {
+.popupinner {
     position: relative;
     padding: 32px;
-    width: 100%;
-    max-width: 940px;
+    width: 70%;
     background-color: #EAEAEA;
     border-radius: 37px;
     font-size: 110%;
@@ -24,7 +23,7 @@
     font-weight: 500;
 }
 
-.popup-inner .close-btn {
+.popupinner .closebtn {
     position: absolute;
     top: -22px;
     right: -22px;
