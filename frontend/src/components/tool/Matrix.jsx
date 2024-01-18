@@ -1,12 +1,47 @@
 import React from "react";
-import { Stage, Layer, Rect, Circle, Text, Group } from "react-konva";
+import { Stage, Layer, Rect, Circle, Text, Group, Image } from "react-konva";
 import EditableRect from "./EditableRect";
+import useImage from 'use-image'
+
+const Fase = () => {
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2107/2107860.png');
+    return <Image image={image} width={20} height={20}/>;
+};
+
+const Acao = () => {
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/4056/4056901.png');
+    return <Image image={image} width={20} height={20}/>;
+};
+
+const Pensamento = () => {
+    const [image] = useImage('https://i.pinimg.com/originals/93/85/c7/9385c70611f3fc4082d35c6819b77635.png');
+    return <Image image={image} width={20} height={20}/>;
+};
+
+const Contato = () => {
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/108/108201.png');
+    return <Image image={image} width={20} height={20}/>;
+};
 
 const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd }) => (
     <>
         {matrix.map((row, rowIndex) => (
             row.map((square, colIndex) => (
-                <Group key={`square_${square.id}`}>
+                <Group key={`square_${square.id}`} 
+                draggable={true} 
+                x={0}
+                y={0}
+                onDragMove={(e) => {
+                    const newX = e.target.x();
+                    const newY = e.target.y();
+                    e.target.x(newX);
+                    e.target.y(0);
+                    e.target.opacity(0.5);
+                    e.target.moveToTop();
+                }}
+                  onDragEnd={(e) => {
+                    e.target.opacity(1);
+                }}>
                     {rowIndex !== 2 ? (
                         <>
                             <EditableRect
@@ -69,6 +104,26 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                                 verticalAlign="middle"
                                 listening={false}
                             />
+                            <Circle
+                                x={square.x}
+                                y={square.y}
+                                fill={square.color}
+                                stroke="#6E6E6E"
+                                strokeWidth={3}
+                                width={32}
+                                height={32}
+                            />
+                            <Group x={square.x - 10} y={square.y - 10} >
+                                {square.y < 230 ? (
+                                    <Fase />
+                                ) : square.y > 230 && square.y < 570 ? (
+                                    <Acao />
+                                ) : square.y > 570 && square.y < 740 ? (
+                                    <Pensamento />
+                                ) : square.y > 740 ? (
+                                    <Contato />
+                                ) : null}
+                            </Group>
                         </>
                     ) : (
                         <>
@@ -116,12 +171,12 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
             onMouseEnter={(e) => {
                 const container = e.target.getStage().container();
                 container.style.cursor = "pointer";
-                // e.target.opacity(1);
+                e.target.opacity(1);
             }}
             onMouseLeave={(e) => {
                 const container = e.target.getStage().container();
                 container.style.cursor = "default";
-                // e.target.opacity(0);
+                e.target.opacity(0);
             }}
             >
                 <Rect
@@ -130,7 +185,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                     width={60}
                     height={45}
                     fill="gray"
-                    opacity={1}
+                    opacity={0}
                     draggable={false}
                     onClick={() => handleAddSquare(rowIndex)}
                     onTap={() => handleAddSquare(rowIndex)}

@@ -26,7 +26,7 @@ function adjustCircleXToInterval(x) {
 const Tool = () => {
 
   let initialRedRectX1, initialRedRectX2, initialRedRectX3, initialRedRectX4, initialRedCircle;
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -49,7 +49,7 @@ const Tool = () => {
           x: journeyData.data[0] ? Number(journeyData.data[0].posX) : 10,
           y: 11.5 * window.innerHeight / 100,
           isDragging: false,
-          color: "#7acefa",
+          color: "gray",
           width: 230,
         };
   
@@ -58,7 +58,7 @@ const Tool = () => {
           x: thoughtData.data[0] ? Number(thoughtData.data[0].posX) : 10,
           y: 34.5 * window.innerHeight / 100,
           isDragging: false,
-          color: "#f7ef87",
+          color: "gray",
           width: 160,
         };
   
@@ -67,7 +67,7 @@ const Tool = () => {
           x: userActionData.data[0] ? Number(userActionData.data[0].posX) : 10,
           y: 80.5 * window.innerHeight / 100,
           isDragging: false,
-          color: "#b49cdc",
+          color: "gray",
           width: 160,
         };
   
@@ -76,7 +76,7 @@ const Tool = () => {
           x: contactPointData.data[0] ? Number(contactPointData.data[0].posX) : 10,
           y: 103.5 * window.innerHeight / 100,
           isDragging: false,
-          color: "#6a96d7",
+          color: "gray",
           width: 160,
         };
   
@@ -85,7 +85,7 @@ const Tool = () => {
           x: emotionData.data[0] ? Number(emotionData.data[0].posX) : 10,
           y: emotionData.data[0] ? Number(emotionData.data[0].lineY) : (67.5 * window.innerHeight / 100),
           isDragging: false,
-          color: "#383c43",
+          color: "gray",
           radius: 15,
         };
   
@@ -223,7 +223,7 @@ const handleAddSquare = (rowIndex, colIndex) => {
             newMatrix[rowIndex].splice(colIndex, 0, {
                 id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
                 x: newX,
-                y: rowIndex * 177 + (rowIndex === 2 ? 116 : 61),
+                y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
                 width: 120,
                 height: 85,
                 color: color,
@@ -235,7 +235,7 @@ const handleAddSquare = (rowIndex, colIndex) => {
             newMatrix[rowIndex].push({
                 id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
                 x: newX,
-                y: rowIndex * 177 + (rowIndex === 2 ? 116 : 61),
+                y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
                 width: 120,
                 height: 85,
                 color: color,
@@ -253,19 +253,19 @@ const [editedText, setEditedText] = useState("");
 const [editedRectId, setEditedRectId] = useState("");
 const [matrix, setMatrix] = useState([
   [
-    { id: "1", x: 30, y: 61, width: 230, height: 135, color: "#ff0000", text: "" },
+    { id: "1", x: 30, y: 61, width: 230, height: 135, color: "#a3defe", text: "" },
   ],
   [
-    { id: "2", x: 30, y: 231, width: 230, height: 135, color: "#00ff00", text: "" },
+    { id: "2", x: 30, y: 231, width: 230, height: 135, color: "#a3defe", text: "" },
   ],
   [
     { id: "3", x: 30, y: 467, width: 230, height: 135, color: "#0000ff", text: "" },
   ],
   [
-    { id: "4", x: 30, y: 571, width: 230, height: 135, color: "#ffff00", text: "" },
+    { id: "4", x: 30, y: 571, width: 230, height: 135, color: "#a3defe", text: "" },
   ],
   [
-    { id: "5", x: 30, y: 741, width: 230, height: 135, color: "#ff00ff", text: "" },
+    { id: "5", x: 30, y: 741, width: 230, height: 135, color: "#a3defe", text: "" },
   ],
 ]);
 
@@ -294,7 +294,7 @@ const [matrix, setMatrix] = useState([
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sit amet ex vel enim luctus molestie. Donec lacinia, magna id facilisis maximus, arcu ligula luctus nunc, vel facilisis justo lectus sit amet elit. Ut eu fringilla velit, congue luctus arcu. Cras tincidunt enim vitae facilisis vulputate. In eu tincidunt lorem, eget bibendum nunc. Quisque a aliquam turpis, eu elementum turpis. Vestibulum vitae posuere elit. Aenean venenatis condimentum faucibus. Mauris eleifend lorem finibus, efficitur nisi non, feugiat enim. Etiam interdum, augue ut commodo auctor, urna risus elementum sem, at vehicula nisi libero vel felis.</p>
         <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
           <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
-          <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
+        <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
         </div>
       </Popup>
       <div className="stage-container">
