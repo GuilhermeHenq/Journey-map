@@ -1,4 +1,6 @@
-const db = require('./db'); // Importa o módulo de configuração do banco de dados
+// EmotionModel.js
+
+const db = require('./db');
 
 class EmotionModel {
   getAllItems() {
@@ -13,29 +15,23 @@ class EmotionModel {
   }
 
   insertEmotion(data) {
-    // Certifique-se de que `data` contenha os campos necessários antes da inserção
     if (data.posX !== undefined && data.lineY !== undefined) {
-      const { posX, lineY, emojiTag, journeyMapId } = data;
-
-      // Execute a instrução SQL para inserção
-      return db.execute("INSERT INTO emotion (journeyMap_id, posX, lineY, emojiTag) VALUES (?, ?, ?, ?)",
-        [journeyMapId, posX, lineY, emojiTag])
-        .then(() => true) // Inserção bem-sucedida
+      const { posX, lineY } = data;
+      return db.execute("INSERT INTO emotion (posX, lineY) VALUES (?, ?)", [posX, lineY])
+        .then(() => true)
         .catch((error) => {
           console.error("Error inserting emotion:", error);
           throw error;
         });
     } else {
-      return Promise.resolve(false); // Campos necessários ausentes
+      return Promise.resolve(false);
     }
   }
 
   updateEmotion(data) {
     const { emotion_id, posX, lineY } = data;
-
-    // Atualize a instrução SQL
     return db.execute("UPDATE emotion SET posX = ?, lineY = ? WHERE emotion_id = ?", [posX, lineY, emotion_id])
-      .then(() => true) // Atualização bem-sucedida
+      .then(() => true)
       .catch((error) => {
         console.error("Error updating emotion:", error);
         throw error;

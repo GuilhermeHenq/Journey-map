@@ -1,10 +1,9 @@
 const express = require('express');
 const app = express();
-const port = 3000; // Ou a porta desejada
+const port = 3000;
 
 app.use(express.json());
 
-// Configuração do CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
@@ -12,46 +11,36 @@ app.use((req, res, next) => {
   next();
 });
 
-app.route('/:controller')
-  .get((req, res) => {
-    const controller = req.params.controller;
-    const controllerFileName = `../Controllers/${controller}Controller`;
+const emotionController = require('../Controllers/emotionController');
 
-    try {
-      const controllerInstance = require(controllerFileName);
+app.get('/emotion', emotionController.getAllItems);
+app.post('/emotion', emotionController.postItem);
+app.put('/emotion', emotionController.updateItem);
 
-      if (req.query.method && typeof controllerInstance[req.query.method] === 'function') {
-        controllerInstance[req.query.method](req, res);
-      } else {
-        res.status(404).json({ error: 'Método não encontrado' });
-      }
+const contactPointController = require('../Controllers/contactPointController');
 
-      console.log(`Controller: ${controller}`);
-      console.log(`Controller FileName: ${controllerFileName}`);
-    } catch (error) {
-      console.error(`Error loading controller: ${controllerFileName}`, error);
-      res.status(404).json({ error: 'Controlador não encontrado' });
-    }
-  })
-  .put((req, res) => {
-    const controller = req.params.controller;
-    const controllerFileName = `./Controllers/${controller}Controller`;
+app.get('/contactPoint', contactPointController.getAllItems);
+app.post('/contactPoint', contactPointController.postItem);
+app.put('/contactPoint', contactPointController.updateItem);
 
-    try {
-      const controllerInstance = require(controllerFileName);
+const journeyPhaseController = require('../Controllers/journeyPhaseController');
 
-      if (req.query.method && typeof controllerInstance[req.query.method] === 'function') {
-        console.log(`Controller and method loaded successfully: ${controllerFileName}.${req.query.method}`);
-        controllerInstance[req.query.method](req, res);
-      } else {
-        console.log(`Method not found: ${controllerFileName}.${req.query.method}`);
-        res.status(404).json({ error: 'Método não encontrado' });
-      }
-    } catch (error) {
-      console.log(`Error loading controller: ${controllerFileName}`);
-      res.status(404).json({ error: 'Controlador não encontrado' });
-    }
-  });
+app.get('/journeyPhase', journeyPhaseController.getAllItems);
+app.post('/journeyPhase', journeyPhaseController.postItem);
+app.put('/journeyPhase', journeyPhaseController.updateItem);
+
+const thoughtController = require('../Controllers/thoughtController');
+
+app.get('/thought', thoughtController.getAllItems);
+app.post('/thought', thoughtController.postItem);
+app.put('/thought', thoughtController.updateItem);
+
+const userActionController = require('../Controllers/userActionController');
+
+app.get('/userAction', userActionController.getAllItems);
+app.post('/userAction', userActionController.postItem);
+app.put('/userAction', userActionController.updateItem);
+
 
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);

@@ -1,4 +1,4 @@
-const db = require('./db'); // Importa o módulo de configuração do banco de dados
+const db = require('./db');
 
 class UserActionModel {
   getAllItems() {
@@ -7,39 +7,39 @@ class UserActionModel {
         return rows;
       })
       .catch((error) => {
-        console.error("Error fetching user actions:", error);
+        console.error("Error fetching userAction:", error);
         throw error;
       });
   }
 
   insertUserAction(data) {
-    // Certifique-se de que `data` contenha os campos necessários antes da inserção
     if (data.posX !== undefined) {
-      const { posX, linePos = 0 } = data; // Define um valor padrão se 'linePos' não estiver presente
-
-      // Execute a instrução SQL para inserção
-      return db.execute("INSERT INTO userAction (posX, linePos) VALUES (?, ?)", [posX, linePos])
-        .then(() => true) // Inserção bem-sucedida
+      const { posX } = data;
+      return db.execute("INSERT INTO userAction (posX) VALUES (?)", [posX])
+        .then(() => true)
         .catch((error) => {
-          console.error("Error inserting user action:", error);
+          console.error("Error inserting userAction:", error);
           throw error;
         });
     } else {
-      return Promise.resolve(false); // Campos necessários ausentes
+      return Promise.resolve(false);
     }
   }
+  
 
   updateUserAction(data) {
     const { userAction_id, posX } = data;
-
-    // Atualize a instrução SQL
-    return db.execute("UPDATE userAction SET posX = ? WHERE userAction_id = ?", [posX, userAction_id])
-      .then(() => true) // Atualização bem-sucedida
+  
+    return db.execute("UPDATE updateUserAction SET posX = ? WHERE userAction_id = ?", [posX, userAction_id])
+      .then(() => true)
       .catch((error) => {
-        console.error("Error updating user action:", error);
+        console.error("Error updating userAction:", error);
         throw error;
       });
   }
+  
+
+  
 }
 
 module.exports = UserActionModel;
