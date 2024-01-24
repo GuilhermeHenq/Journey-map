@@ -206,7 +206,7 @@ const Tool = () => {
     setMatrix(newMatrix);
   };
 
-const handleAddSquare = (rowIndex, colIndex) => {
+  const handleAddSquare = (rowIndex, colIndex) => {
     setMatrix((prevMatrix) => {
         const newMatrix = [...prevMatrix];
 
@@ -215,34 +215,42 @@ const handleAddSquare = (rowIndex, colIndex) => {
             newMatrix[rowIndex] = [];
         }
 
-        const color = newMatrix[rowIndex].length > 0 ? matrix[rowIndex][0].color : "#000";
+        // Determina a cor com base no comprimento da linha atual
+        const color = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][0].color : "#a3defe";
 
         // Se colIndex estiver definido, insere o quadrado na posição correta
         if (colIndex !== undefined && colIndex < newMatrix[rowIndex].length) {
-            const newX = colIndex === 0 ? 30 : newMatrix[rowIndex][colIndex - 1].x + 260;
-            newMatrix[rowIndex].splice(colIndex, 0, {
-                id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
-                x: newX,
-                y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-                width: 120,
-                height: 85,
-                color: color,
-            });
+            const newX = newMatrix[rowIndex][colIndex].x + 260;
+            newMatrix[rowIndex] = [
+                ...newMatrix[rowIndex].slice(0, colIndex + 1),
+                {
+                    id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
+                    x: newX,
+                    y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
+                    width: 120,
+                    height: 85,
+                    color: color,
+                },
+                ...newMatrix[rowIndex].slice(colIndex + 1),
+            ];
         } else {
             // Adiciona um novo quadrado no final da linha
             const newX =
                 newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
-            newMatrix[rowIndex].push({
-                id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
-                x: newX,
-                y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-                width: 120,
-                height: 85,
-                color: color,
-            });
+            newMatrix[rowIndex] = [
+                ...newMatrix[rowIndex],
+                {
+                    id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
+                    x: newX,
+                    y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
+                    width: 120,
+                    height: 85,
+                    color: color,
+                },
+            ];
         }
 
-        return newMatrix;
+        return [...newMatrix];
     });
 };
 
@@ -298,43 +306,8 @@ const [matrix, setMatrix] = useState([
         </div>
       </Popup>
       <div className="stage-container">
-        <Stage width={window.innerWidth} height={window.innerHeight+180}>
+        <Stage width={window.innerWidth-160} height={window.innerHeight+180}>
           <Layer>
-            {/* {rects.map((rect) => (
-              <Rect
-                key={rect.id}
-                id={rect.id}
-                x={rect.x}
-                y={rect.y}
-                width={rect.width}
-                height={18 * window.innerHeight / 100}
-                fill={rect.color}
-                opacity={1}
-                draggable={false}
-                cornerRadius={10}
-                onDragMove={handleDragMove}
-                onDragEnd={handleDragEnd}
-                dragBoundFunc={(pos) => ({
-                  x: Math.min(1410, Math.max(50, pos.x)),
-                  y: rect.y,
-                })}
-              />
-            ))}
-            <Circle
-              key={circle.id}
-              id={circle.id}
-              x={circle.x}
-              y={circle.y}
-              radius={circle.radius}
-              fill={circle.color}
-              opacity={1}
-              draggable={false}
-              onDragMove={handleCircleDragMove}
-              dragBoundFunc={(pos) => ({
-                x: adjustCircleXToInterval(pos.x), // Use a função para ajustar a posição do RedCircle
-                y: Math.min(550, Math.max(432, pos.y)),
-              })}
-            />  */}
             <Matrix
               matrix={matrix}
               activeRect={activeRect}

@@ -107,7 +107,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                             <Circle
                                 x={square.x}
                                 y={square.y}
-                                fill={square.color}
+                                fill="#f7ef87"
                                 stroke="#6E6E6E"
                                 strokeWidth={3}
                                 width={32}
@@ -205,7 +205,6 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                     opacity={1}
                 />
             </Group>
-
         ))}
         {matrix.map((row, rowIndex) => (
             <Group key={`addButtonRow_${rowIndex}`}>

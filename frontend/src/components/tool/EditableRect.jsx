@@ -10,8 +10,8 @@ const EditableRect = ({ x, y, width, height, color, text, onTextChange, isActive
     let person = prompt("Insira o texto:", textTest);
     if (person == null || person === "") {
       alert("Cancelou ou apagou o texto.");
-      setTextTest(person);
-      onTextChange(person);
+      setTextTest("");
+      onTextChange("");
     } else {
       setTextTest(person);
       onTextChange(person);
