@@ -37,11 +37,11 @@ const Tool = () => {
           contactPointData,
           emotionData,
         ] = await Promise.all([
-          axios.get("http://localhost:8080/journeyPhase?method=getAllItems"),
-          axios.get("http://localhost:8080/thought?method=getAllItems"),
-          axios.get("http://localhost:8080/userAction?method=getAllItems"),
-          axios.get("http://localhost:8080/contactPoint?method=getAllItems"),
-          axios.get("http://localhost:8080/emotion?method=getAllItems"),
+          axios.get("http://localhost:3000/journeyPhase?method=getAllItems"),
+          axios.get("http://localhost:3000/thought?method=getAllItems"),
+          axios.get("http://localhost:3000/userAction?method=getAllItems"),
+          axios.get("http://localhost:3000/contactPoint?method=getAllItems"),
+          axios.get("http://localhost:3000/emotion?method=getAllItems"),
         ]);
   
         initialRedRectX1 = {
@@ -165,18 +165,18 @@ const Tool = () => {
     const putConfig = { method: "PUT" };
 
     axios
-      .put("http://localhost:8080/journeyPhase?method=updateAllItems", dataToPut.journeyPhaseData, putConfig)
+      .put("http://localhost:3000/journeyPhase?method=updateAllItems", dataToPut.journeyPhaseData, putConfig)
       .then(() => {
-        return axios.put("http://localhost:8080/thought?method=updateAllItems", dataToPut.thoughtData, putConfig);
+        return axios.put("http://localhost:3000/thought?method=updateAllItems", dataToPut.thoughtData, putConfig);
       })
       .then(() => {
-        return axios.put("http://localhost:8080/userAction?method=updateAllItems", dataToPut.userActionData, putConfig);
+        return axios.put("http://localhost:3000/userAction?method=updateAllItems", dataToPut.userActionData, putConfig);
       })
       .then(() => {
-        return axios.put("http://localhost:8080/contactPoint?method=updateAllItems", dataToPut.contactPointData, putConfig);
+        return axios.put("http://localhost:3000/contactPoint?method=updateAllItems", dataToPut.contactPointData, putConfig);
       })
       .then(() => {
-        return axios.put("http://localhost:8080/emotion?method=updateAllItems", dataToPut.emotionData, putConfig);
+        return axios.put("http://localhost:3000/emotion?method=updateAllItems", dataToPut.emotionData, putConfig);
       })
       .then(() => {
         console.log("Dados salvos com sucesso!");
