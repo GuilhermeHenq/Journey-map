@@ -1,4 +1,4 @@
-// contactpointModel.js
+// ContactPointModel.js
 
 const db = require('./db');
 
@@ -27,11 +27,10 @@ class ContactPointModel {
       return Promise.resolve(false);
     }
   }
-  
 
   updateContactPoint(data) {
     const { contactPoint_id, posX } = data;
-  
+
     return db.execute("UPDATE contactpoint SET posX = ? WHERE contactPoint_id = ?", [posX, contactPoint_id])
       .then(() => true)
       .catch((error) => {
@@ -39,9 +38,15 @@ class ContactPointModel {
         throw error;
       });
   }
-  
 
-  
+  deleteContactPoint(contactPoint_id) {
+    return db.execute("DELETE FROM contactpoint WHERE contactPoint_id = ?", [contactPoint_id])
+      .then(() => true)
+      .catch((error) => {
+        console.error("Error deleting contactpoint:", error);
+        throw error;
+      });
+  }
 }
 
 module.exports = ContactPointModel;
