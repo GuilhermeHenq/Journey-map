@@ -4,7 +4,7 @@ import EditableRect from "./EditableRect";
 import useImage from 'use-image'
 
 const Fase = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2107/2107860.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/4/4357.png');
     return <Image image={image} width={20} height={20}/>;
 };
 
@@ -19,7 +19,7 @@ const Pensamento = () => {
 };
 
 const Contato = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/108/108201.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/3390/3390818.png');
     return <Image image={image} width={20} height={20}/>;
 };
 
