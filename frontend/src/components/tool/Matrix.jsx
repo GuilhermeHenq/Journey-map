@@ -28,7 +28,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
         {matrix.map((row, rowIndex) => (
             row.map((square, colIndex) => (
                 <Group key={`square_${square.id}`} 
-                draggable={true} 
+                draggable={false} 
                 x={0}
                 y={0}
                 onDragMove={(e) => {

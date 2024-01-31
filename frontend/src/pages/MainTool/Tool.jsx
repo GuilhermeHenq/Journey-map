@@ -228,36 +228,39 @@ const Tool = () => {
         // Determina a cor com base no comprimento da linha atual
         const color = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][0].color : "#a3defe";
 
-        // Se colIndex estiver definido, insere o quadrado na posição correta
         if (colIndex !== undefined && colIndex < newMatrix[rowIndex].length) {
+            // Adiciona um novo quadrado entre quadrados existentes
             const newX = newMatrix[rowIndex][colIndex].x + 260;
-            newMatrix[rowIndex] = [
-                ...newMatrix[rowIndex].slice(0, colIndex + 1),
-                {
-                    id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
-                    x: newX,
-                    y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-                    width: 120,
-                    height: 85,
-                    color: color,
-                },
-                ...newMatrix[rowIndex].slice(colIndex + 1),
-            ];
+
+            // Empurra os quadrados seguintes para frente
+            newMatrix[rowIndex].forEach((square, index) => {
+                if (index > colIndex) {
+                    square.x += 260;
+                    square.id = `${rowIndex + 1}_${index + 2}`; // Atualiza a chave (key) do quadrado
+                    console.log(`Quadrado ${square.id} foi empurrado para frente.`);
+                }
+            });
+
+            newMatrix[rowIndex].splice(colIndex + 1, 0, {
+                id: `${rowIndex + 1}_${colIndex + 2}`,
+                x: newX,
+                y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
+                width: 120,
+                height: 85,
+                color: color,
+            });
         } else {
             // Adiciona um novo quadrado no final da linha
-            const newX =
-                newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
-            newMatrix[rowIndex] = [
-                ...newMatrix[rowIndex],
-                {
-                    id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
-                    x: newX,
-                    y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-                    width: 120,
-                    height: 85,
-                    color: color,
-                },
-            ];
+            const newSquareIndex = newMatrix[rowIndex].length + 1;
+            const newX = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
+            newMatrix[rowIndex].push({
+                id: `${rowIndex + 1}_${newSquareIndex}`,
+                x: newX,
+                y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
+                width: 120,
+                height: 85,
+                color: color,
+            });
         }
 
         return [...newMatrix];
