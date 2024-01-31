@@ -202,9 +202,19 @@ const Tool = () => {
 
   const handleTextChange = (rowIndex, colIndex, newText) => {
     const newMatrix = [...matrix];
-    newMatrix[rowIndex][colIndex].text = newText;
-    setMatrix(newMatrix);
-  };
+    const originalText = newMatrix[rowIndex][colIndex].text; // Guarda o texto original
+  
+    // Se o novo texto tiver mais de 30 caracteres, abrevie com reticências
+    const abbreviatedText = newText.length > 30 ? newText.slice(0, 27) + '...' : newText;
+  
+    newMatrix[rowIndex][colIndex].text = abbreviatedText; // Atualiza o texto na matriz
+    setMatrix(newMatrix); // Atualiza a matriz
+  
+    // Crie uma nova constante que guarde o valor do texto original
+    const newTextOriginal = newText;
+    setEditedText(newTextOriginal); // Atualize a constante do texto original
+    setEditedRectId(newMatrix[rowIndex][colIndex].id); // Atualize o ID do retângulo editado
+  };  
 
   const handleAddSquare = (rowIndex, colIndex) => {
     setMatrix((prevMatrix) => {

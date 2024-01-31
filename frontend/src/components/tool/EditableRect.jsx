@@ -7,6 +7,7 @@ const EditableRect = ({ x, y, width, height, color, text, onTextChange, isActive
   const [textTest, setTextTest] = useState(text);
 
   const myFunction = () => {
+    
     let person = prompt("Insira o texto:", textTest);
     if (person == null || person === "") {
       alert("Cancelou ou apagou o texto.");
