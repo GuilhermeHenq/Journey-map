@@ -37,6 +37,14 @@ class EmotionModel {
         throw error;
       });
   }
+  deleteEmotion(emotion_id) {
+    return db.execute("DELETE FROM emotion WHERE emotion_id = ?", [emotion_id])
+      .then(() => true)
+      .catch((error) => {
+        console.error("Error deleting emotion:", error);
+        throw error;
+      });
+  }
 }
 
 module.exports = EmotionModel;

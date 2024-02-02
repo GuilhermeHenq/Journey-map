@@ -16,7 +16,7 @@ const emotionController = require('../Controllers/emotionController');
 app.get('/emotion', emotionController.getAllItems);
 app.post('/emotion', emotionController.postItem);
 app.put('/emotion', emotionController.updateItem);
-//app.delete('/emotion', emotionController.deleteItem);
+app.delete('/emotion', emotionController.deleteItem);
 
 const contactPointController = require('../Controllers/contactPointController');
 
