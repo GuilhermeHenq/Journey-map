@@ -30,21 +30,21 @@ const journeyPhaseController = require('../Controllers/journeyPhaseController');
 app.get('/journeyPhase', journeyPhaseController.getAllItems);
 app.post('/journeyPhase', journeyPhaseController.postItem);
 app.put('/journeyPhase', journeyPhaseController.updateItem);
-//app.delete('/journeyPhase', journeyPhaseController.deleteItem);
+app.delete('/journeyPhase', journeyPhaseController.deleteItem);
 
 const thoughtController = require('../Controllers/thoughtController');
 
 app.get('/thought', thoughtController.getAllItems);
 app.post('/thought', thoughtController.postItem);
 app.put('/thought', thoughtController.updateItem);
-//app.delete('/thought', thoughtController.deleteItem);
+app.delete('/thought', thoughtController.deleteItem);
 
 const userActionController = require('../Controllers/userActionController');
 
 app.get('/userAction', userActionController.getAllItems);
 app.post('/userAction', userActionController.postItem);
 app.put('/userAction', userActionController.updateItem);
-//app.delete('/userAction', userActionController.deleteItem);
+app.delete('/userAction', userActionController.deleteItem);
 
 
 app.listen(port, () => {
