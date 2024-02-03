@@ -53,8 +53,29 @@ const journeyPhaseController = {
       console.error("Error updating JourneyPhase:", error);
       res.status(500).json({ error: 'Erro ao atualizar fases da jornada' });
     }
-  }
+  },
   
+  deleteItem: async (req, res) => {
+    try {
+      const deleteData = req.body;
+      if (deleteData && deleteData.journeyPhase_id !== undefined) {
+        const journeyPhaseModel = new JourneyPhaseModel();
+        const success = await journeyPhaseModel.deleteJourneyPhase(deleteData.journeyPhase_id);
+
+        if (success) {
+          res.status(200).json({ message: 'Fase da jornada excluída com sucesso' });
+        } else {
+          res.status(500).json({ error: 'Erro ao excluir a Fase da jornada' });
+        }
+      } else {
+        res.status(400).json({ error: 'Dados de solicitação DELETE ausentes ou inválidos' });
+      }
+    } catch (error) {
+      console.error("Error deleting Journey Phase:", error);
+      res.status(500).json({ error: 'Erro ao excluir Fase da jornada' });
+    }
+  }
+
 };
 
 module.exports = journeyPhaseController;
