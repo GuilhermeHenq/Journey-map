@@ -53,6 +53,27 @@ const thoughtController = {
       console.error("Error updating thought:", error);
       res.status(500).json({ error: 'Erro ao atualizar pensamentos' });
     }
+  },
+
+  deleteItem: async (req, res) => {
+    try {
+      const deleteData = req.body;
+      if (deleteData && deleteData.thought_id !== undefined) {
+        const thoughtModel = new ThoughtModel();
+        const success = await thoughtModel.deleteThought(deleteData.thought_id);
+
+        if (success) {
+          res.status(200).json({ message: 'Pensamento excluído com sucesso' });
+        } else {
+          res.status(500).json({ error: 'Erro ao excluir o Pensamento' });
+        }
+      } else {
+        res.status(400).json({ error: 'Dados de solicitação DELETE ausentes ou inválidos' });
+      }
+    } catch (error) {
+      console.error("Error deleting thought:", error);
+      res.status(500).json({ error: 'Erro ao excluir pensamento' });
+    }
   }
   
 };
