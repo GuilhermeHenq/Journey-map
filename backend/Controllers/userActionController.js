@@ -53,6 +53,27 @@ const userActionController = {
       console.error("Error updating userAction:", error);
       res.status(500).json({ error: 'Erro ao atualizar ações do usuario' });
     }
+  },
+
+  deleteItem: async (req, res) => {
+    try {
+      const deleteData = req.body;
+      if (deleteData && deleteData.userAction_id !== undefined) {
+        const userActionModel = new UserActionModel();
+        const success = await userActionModel.deleteUserAction(deleteData.userAction_id);
+
+        if (success) {
+          res.status(200).json({ message: 'Ação do usuário excluído com sucesso' });
+        } else {
+          res.status(500).json({ error: 'Erro ao excluir a Ação do usuário' });
+        }
+      } else {
+        res.status(400).json({ error: 'Dados de solicitação DELETE ausentes ou inválidos' });
+      }
+    } catch (error) {
+      console.error("Error deleting UserAction:", error);
+      res.status(500).json({ error: 'Erro ao excluir Ação do usuário' });
+    }
   }
   
 };
