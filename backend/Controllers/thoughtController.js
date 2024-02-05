@@ -21,7 +21,8 @@ const thoughtController = {
         const success = await thoughtModel.insertThought(dataToInsert);
 
         if (success) {
-          res.status(201).json({ message: 'Dados inseridos com sucesso' });
+          const insertedId = await thoughtModel.getLastInsertedId();
+          res.status(201).json({ id: insertedId, message: 'Dados inseridos com sucesso' });
         } else {
           res.status(500).json({ error: 'Erro ao inserir dados' });
         }

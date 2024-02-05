@@ -47,6 +47,16 @@ class JourneyPhaseModel {
       });
   }
 
+  getLastInsertedId() {
+    return db.query("SELECT LAST_INSERT_ID() as last_inserted_id")
+      .then(([rows]) => {
+        return rows[0].last_inserted_id;
+      })
+      .catch((error) => {
+        console.error("Error getting last inserted ID:", error);
+        throw error;
+      });
+  }
   
 }
 

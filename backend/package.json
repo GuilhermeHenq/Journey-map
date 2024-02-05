@@ -4,9 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server"
   },
-  "author": "",
+  "author": "Guilherme Henrique",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
