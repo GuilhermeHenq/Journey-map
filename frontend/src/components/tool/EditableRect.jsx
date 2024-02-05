@@ -2,23 +2,23 @@ import React, { useState } from 'react';
 import { Rect } from 'react-konva';
 import Modal from './Modal';
 
-const EditableRect = ({ x, y, width, height, color, text, onTextChange, isActive, onActivate }) => {
+const EditableRect = ({ x, y, width, height, color, text, onTextChange, isActive, onActivate, onClick }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [textTest, setTextTest] = useState(text);
 
-  const myFunction = () => {
+  // const myFunction = () => {
     
-    let person = prompt("Insira o texto:", textTest);
-    if (person == null || person === "") {
-      alert("Cancelou ou apagou o texto.");
-      setTextTest("");
-      onTextChange("");
-    } else {
-      setTextTest(person);
-      onTextChange(person);
-    }
-    setIsEditing(true);
-  };
+  //   let person = prompt("Insira o texto:", textTest);
+  //   if (person == null || person === "") {
+  //     alert("Cancelou ou apagou o texto.");
+  //     setTextTest("");
+  //     onTextChange("");
+  //   } else {
+  //     setTextTest(person);
+  //     onTextChange(person);
+  //   }
+  //   setIsEditing(true);
+  // };
 
   return (
     <>
@@ -31,7 +31,7 @@ const EditableRect = ({ x, y, width, height, color, text, onTextChange, isActive
         fill={isActive ? 'yellow' : color}
         opacity={1}
         draggable={false}
-        onClick={myFunction}
+        onClick={onClick}
         listening={true}
         cornerRadius={8}
         onMouseEnter={(e) => {

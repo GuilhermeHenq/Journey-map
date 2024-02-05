@@ -214,59 +214,66 @@ const Tool = () => {
     const newTextOriginal = newText;
     setEditedText(newTextOriginal); // Atualize a constante do texto original
     setEditedRectId(newMatrix[rowIndex][colIndex].id); // Atualize o ID do retângulo editado
-  };  
+  };
 
   const handleAddSquare = (rowIndex, colIndex) => {
     setMatrix((prevMatrix) => {
-        const newMatrix = [...prevMatrix];
-
-        // Verifica se a matriz na linha rowIndex está definida
-        if (!newMatrix[rowIndex]) {
-            newMatrix[rowIndex] = [];
+      const newMatrix = [...prevMatrix];
+  
+      // Verifica se a matriz na linha rowIndex está definida
+      if (!newMatrix[rowIndex]) {
+        newMatrix[rowIndex] = [];
+      }
+  
+      // Determina a cor com base no comprimento da linha atual
+      const color = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][0].color : "#a3defe";
+  
+      if (colIndex !== undefined && colIndex < newMatrix[rowIndex].length) {
+        // Verifica se existem outros quadrados com o mesmo colIndex
+        const sameColSquares = newMatrix.flatMap(row => row.filter(square => square && square.x === newMatrix[rowIndex][colIndex].x));
+  
+        if (sameColSquares.length > 1) {
+          // Se houver outros quadrados com o mesmo colIndex, empurra os quadrados subsequentes em todas as linhas para frente
+          newMatrix.forEach((row, rIndex) => {
+            row.forEach((square, cIndex) => {
+              if (rIndex === rowIndex && cIndex > colIndex) {
+                square.x += 260;
+              }
+            });
+          });
         }
-
-        // Determina a cor com base no comprimento da linha atual
-        const color = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][0].color : "#a3defe";
-
-        if (colIndex !== undefined && colIndex < newMatrix[rowIndex].length) {
-            // Adiciona um novo quadrado entre quadrados existentes
-            const newX = newMatrix[rowIndex][colIndex].x + 260;
-
-            // Empurra os quadrados seguintes para frente
-            newMatrix[rowIndex].forEach((square, index) => {
-                if (index > colIndex) {
-                    square.x += 260;
-                    square.id = `${rowIndex + 1}_${index + 2}`; // Atualiza a chave (key) do quadrado
-                    console.log(`Quadrado ${square.id} foi empurrado para frente.`);
-                }
-            });
-
-            newMatrix[rowIndex].splice(colIndex + 1, 0, {
-                id: `${rowIndex + 1}_${colIndex + 2}`,
-                x: newX,
-                y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-                width: 120,
-                height: 85,
-                color: color,
-            });
-        } else {
-            // Adiciona um novo quadrado no final da linha
-            const newSquareIndex = newMatrix[rowIndex].length + 1;
-            const newX = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
-            newMatrix[rowIndex].push({
-                id: `${rowIndex + 1}_${newSquareIndex}`,
-                x: newX,
-                y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-                width: 120,
-                height: 85,
-                color: color,
-            });
-        }
-
-        return [...newMatrix];
+  
+        // Insere o novo quadrado na posição desejada
+        newMatrix[rowIndex].splice(colIndex + 1, 0, {
+          id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
+          x: newMatrix[rowIndex][colIndex].x + 260,
+          y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
+          width: 120,
+          height: 85,
+          color: color,
+        });
+      } else {
+        // Adiciona um novo quadrado no final da linha
+        const newSquareIndex = newMatrix[rowIndex].length + 1;
+        const newX = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
+        newMatrix[rowIndex].push({
+          id: `${rowIndex + 1}_${newSquareIndex}`,
+          x: newX,
+          y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
+          width: 120,
+          height: 85,
+          color: color,
+        });
+      }
+  
+      // Printa todos os IDs dos quadrados em todas as linhas
+      newMatrix.forEach((row, rIndex) => {
+        console.log(`IDs dos quadrados na linha ${rIndex + 1}:`, row.map(square => square.id));
+      });
+  
+      return [...newMatrix];
     });
-};
-
+  };  
 
 const [activeRect, setActiveRect] = useState(null);
 const [balls, setBalls] = useState([]);
@@ -291,11 +298,42 @@ const [matrix, setMatrix] = useState([
   ],
 ]);
 
-  const handleDeleteSquare = (rowIndex, colIndex) => {
-    const newMatrix = [...matrix];
-    newMatrix[rowIndex] = newMatrix[rowIndex].filter((_, index) => index !== colIndex);
-    setMatrix(newMatrix);
+const handleDeleteSquare = (rowIndex, colIndex) => {
+  setMatrix((prevMatrix) => {
+      const newMatrix = [...prevMatrix];
+
+      if (newMatrix[rowIndex] && newMatrix[rowIndex][colIndex]) {
+          const deletedSquareId = newMatrix[rowIndex][colIndex].id;
+
+          // Remove o quadrado da matriz
+          newMatrix[rowIndex].splice(colIndex, 1);
+
+          // Diminui o rowIndex dos quadrados subsequentes
+          newMatrix[rowIndex].forEach((square, index) => {
+              if (index >= colIndex) {
+                  square.id = `${rowIndex + 1}_${index + 1}`;
+                  console.log(`Quadrado ${square.id} teve seu rowIndex ajustado.`);
+              }
+          });
+
+          // Printa todos os IDs dos quadrados na linha
+          console.log(`IDs dos quadrados na linha ${rowIndex + 1}:`, newMatrix[rowIndex].map(square => square.id));
+
+          return [...newMatrix];
+      }
+
+      return prevMatrix;
+    });
   };
+
+  const [textEdit, setTextEdit] = useState(false)
+
+  const handleSquareClick = (currentText, squareId) => {
+    setEditedText(currentText); // Define o texto atual para edição no popup
+    setEditedRectId(squareId); // Define o ID do quadrado atual para edição no popup
+    setButtonPopup(true); // Abre o popup
+    setTextEdit(true); // Define a edição de texto como verdadeira
+};
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -307,17 +345,41 @@ const [matrix, setMatrix] = useState([
       </div>
       <div className="separator1" style={{ marginTop: "61.9px" }}></div>
       <Popup trigger={buttonPopup} setTrigger={setButtonPopup} style={{ borderRadius: "25px" }}>
-        <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-          <h1 style={{ fontSize: "50px" }}>Cenário</h1>
-          <button className="button info" style={{ marginLeft: "1.5vh" }}>
-            i
-          </button>
-        </div>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sit amet ex vel enim luctus molestie. Donec lacinia, magna id facilisis maximus, arcu ligula luctus nunc, vel facilisis justo lectus sit amet elit. Ut eu fringilla velit, congue luctus arcu. Cras tincidunt enim vitae facilisis vulputate. In eu tincidunt lorem, eget bibendum nunc. Quisque a aliquam turpis, eu elementum turpis. Vestibulum vitae posuere elit. Aenean venenatis condimentum faucibus. Mauris eleifend lorem finibus, efficitur nisi non, feugiat enim. Etiam interdum, augue ut commodo auctor, urna risus elementum sem, at vehicula nisi libero vel felis.</p>
-        <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-          <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
-        <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
-        </div>
+        {textEdit ? (
+          <>
+            <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+              <h1 style={{ fontSize: "50px" }}>Editar card</h1>
+            </div>
+            <div>
+              <input
+                type="text"
+                value={editedText}
+                placeholder="Texto vazio"
+                className="textolegal"
+                onChange={(e) => setEditedText(e.target.value)}
+              />
+              <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }}>
+                Associar Texto
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+              <h1 style={{ fontSize: "50px" }}>Cenário</h1>
+              <button className="button info" style={{ marginLeft: "1.5vh" }}>
+                i
+              </button>
+            </div>
+            <div>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+              <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+                <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
+                <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
+              </div>
+            </div>
+          </>
+        )}
       </Popup>
       <div className="stage-container">
         <Stage width={window.innerWidth-160} height={window.innerHeight+180}>
@@ -331,6 +393,7 @@ const [matrix, setMatrix] = useState([
               handleDeleteSquare={handleDeleteSquare}
               onDragMove={handleDragMove}
               onDragEnd={handleDragEnd}
+              handleSquareClick={handleSquareClick}
             />
           </Layer>
         </Stage>

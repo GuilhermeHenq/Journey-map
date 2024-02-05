@@ -4,7 +4,7 @@ import EditableRect from "./EditableRect";
 import useImage from 'use-image'
 
 const Fase = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/4/4357.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/30/30630.png');
     return <Image image={image} width={20} height={20}/>;
 };
 
@@ -19,11 +19,11 @@ const Pensamento = () => {
 };
 
 const Contato = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/3390/3390818.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/4121/4121823.png');
     return <Image image={image} width={20} height={20}/>;
 };
 
-const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd }) => (
+const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd, handleSquareClick }) => (
     <>
         {matrix.map((row, rowIndex) => (
             row.map((square, colIndex) => (
@@ -51,6 +51,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                                 width={230}
                                 height={135}
                                 color={square.color}
+                                onClick={() => handleSquareClick(square.text, square.id)}
                                 onTextChange={(newText) => handleTextChange(rowIndex, colIndex, newText)}
                                 isActive={activeRect === square.id}
                                 onActivate={() => setActiveRect(square.id)}
@@ -58,7 +59,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                             <Text
                                 x={square.x + 13}
                                 y={square.y + 13}
-                                text={square.text}
+                                text={square.text.length > 30 ? square.text.slice(0, 27) + '...' : square.text}
                                 fontSize={20}
                                 fill="#000000"
                                 width={200}
