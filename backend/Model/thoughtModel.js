@@ -12,7 +12,7 @@ class ThoughtModel {
       });
   }
 
-  insertThough(data) {
+  insertThought(data) {
     if (data.posX !== undefined) {
       const { posX } = data;
       return db.execute("INSERT INTO thought (posX) VALUES (?)", [posX])
@@ -38,7 +38,14 @@ class ThoughtModel {
       });
   }
   
-
+  deleteThought(thought_id) {
+    return db.execute("DELETE FROM thought WHERE thought_id = ?", [thought_id])
+      .then(() => true)
+      .catch((error) => {
+        console.error("Error deleting thought:", error);
+        throw error;
+      });
+  }
   
 }
 

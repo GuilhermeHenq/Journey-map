@@ -37,7 +37,15 @@ class JourneyPhaseModel {
         throw error;
       });
   }
-  
+
+  deleteJourneyPhase(journeyPhase_id) {
+    return db.execute("DELETE FROM journeyPhase WHERE journeyPhase_id = ?", [journeyPhase_id])
+      .then(() => true)
+      .catch((error) => {
+        console.error("Error deleting journeyPhase:", error);
+        throw error;
+      });
+  }
 
   
 }

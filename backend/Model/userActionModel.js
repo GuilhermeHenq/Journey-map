@@ -30,7 +30,7 @@ class UserActionModel {
   updateUserAction(data) {
     const { userAction_id, posX } = data;
   
-    return db.execute("UPDATE updateUserAction SET posX = ? WHERE userAction_id = ?", [posX, userAction_id])
+    return db.execute("UPDATE userAction SET posX = ? WHERE userAction_id = ?", [posX, userAction_id])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating userAction:", error);
@@ -38,6 +38,14 @@ class UserActionModel {
       });
   }
   
+  deleteUserAction(userAction_id) {
+    return db.execute("DELETE FROM userAction WHERE userAction_id = ?", [userAction_id])
+      .then(() => true)
+      .catch((error) => {
+        console.error("Error deleting userAction:", error);
+        throw error;
+      });
+  }
 
   
 }
