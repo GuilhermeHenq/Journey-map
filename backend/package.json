@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server"
+    "start": "node public/server.js",
+    "dev": "node public/server.js"
   },
   "author": "Guilherme Henrique",
   "license": "ISC",
