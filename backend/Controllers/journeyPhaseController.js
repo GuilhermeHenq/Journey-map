@@ -15,10 +15,11 @@ const journeyPhaseController = {
   postItem: async (req, res) => {
     try {
       const postData = req.body;
-      if (postData && postData.posX !== undefined) {
+      if (postData && postData.posX !== undefined && postData.journeyMap_id 
+        !== undefined && postData.linePos !== undefined && postData.length !== undefined && 
+        postData.description !== undefined && postData.emojiTag !== undefined) {
         const journeyPhaseModel = new JourneyPhaseModel();
-        const dataToInsert = { posX: postData.posX};
-        const success = await journeyPhaseModel.insertJourneyPhase(dataToInsert);
+        const success = await journeyPhaseModel.insertJourneyPhase(postData);
 
         if (success) {
           const insertedId = await journeyPhaseModel.getLastInsertedId();

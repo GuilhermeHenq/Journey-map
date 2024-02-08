@@ -14,8 +14,9 @@ class JourneyPhaseModel {
 
   insertJourneyPhase(data) {
     if (data.posX !== undefined) {
-      const { posX } = data;
-      return db.execute("INSERT INTO journeyPhase (posX) VALUES (?)", [posX])
+      const { posX, journeyMap_id, linePos, length, description, emojiTag } = data;
+      return db.execute("INSERT INTO journeyPhase (posX, journeyMap_id, linePos, length, description, emojiTag) VALUES (?, ?, ?, ?, ?, ?)",
+      [posX, journeyMap_id, linePos, length, description, emojiTag])
         .then(() => true)
         .catch((error) => {
           console.error("Error inserting journeyPhase:", error);
