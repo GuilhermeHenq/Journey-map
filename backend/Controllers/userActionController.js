@@ -15,10 +15,11 @@ const userActionController = {
   postItem: async (req, res) => {
     try {
       const postData = req.body;
-      if (postData && postData.posX !== undefined) {
+      if (postData && postData.posX !== undefined && postData.journeyMap_id 
+      !== undefined && postData.linePos !== undefined && postData.length !== undefined && 
+      postData.description !== undefined && postData.emojiTag !== undefined) {
         const userActionModel = new UserActionModel();
-        const dataToInsert = { posX: postData.posX};
-        const success = await userActionModel.insertUserAction(dataToInsert);
+        const success = await userActionModel.insertUserAction(postData);
 
         if (success) {
           const insertedId = await userActionModel.getLastInsertedId();
