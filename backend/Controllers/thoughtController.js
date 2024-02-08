@@ -15,10 +15,11 @@ const thoughtController = {
   postItem: async (req, res) => {
     try {
       const postData = req.body;
-      if (postData && postData.posX !== undefined) {
+      if (postData && postData.posX !== undefined && postData.journeyMap_id 
+      !== undefined && postData.linePos !== undefined && postData.length !== undefined && 
+      postData.description !== undefined && postData.emojiTag !== undefined) {
         const thoughtModel = new ThoughtModel();
-        const dataToInsert = { posX: postData.posX};
-        const success = await thoughtModel.insertThought(dataToInsert);
+        const success = await thoughtModel.insertThought(postData);
 
         if (success) {
           const insertedId = await thoughtModel.getLastInsertedId();
