@@ -9,17 +9,17 @@ const Fase = () => {
 };
 
 const Acao = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/4056/4056901.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/1589/1589051.png');
     return <Image image={image} width={20} height={20}/>;
 };
 
 const Pensamento = () => {
-    const [image] = useImage('https://i.pinimg.com/originals/93/85/c7/9385c70611f3fc4082d35c6819b77635.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2258/2258911.png');
     return <Image image={image} width={20} height={20}/>;
 };
 
 const Contato = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/4121/4121823.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2199/2199553.png');
     return <Image image={image} width={20} height={20}/>;
 };
 
@@ -28,7 +28,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
         {matrix.map((row, rowIndex) => (
             row.map((square, colIndex) => (
                 <Group key={`square_${square.id}`} 
-                draggable={false} 
+                draggable={true} 
                 x={0}
                 y={0}
                 onDragMove={(e) => {
@@ -58,13 +58,15 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                             />
                             <Text
                                 x={square.x + 13}
-                                y={square.y + 13}
-                                text={square.text.length > 30 ? square.text.slice(0, 27) + '...' : square.text}
+                                y={square.y}
+                                text={square.text && square.text.length > 60 ? `${square.text.slice(0, 57)}...` : square.text}
                                 fontSize={20}
                                 fill="#000000"
                                 width={200}
-                                height={125}
+                                height={135}
+                                verticalAlign="middle"
                                 listening={false}
+                                fontFamily="Inter"
                             />
                             {activeRect === square.id && (
                                 <Rect

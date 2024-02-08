@@ -351,16 +351,18 @@ const handleDeleteSquare = (rowIndex, colIndex) => {
               <h1 style={{ fontSize: "50px" }}>Editar card</h1>
             </div>
             <div>
-              <input
+              <textarea
                 type="text"
                 value={editedText}
                 placeholder="Texto vazio"
                 className="textolegal"
                 onChange={(e) => setEditedText(e.target.value)}
+                style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
               />
               <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }}>
-                Associar Texto
-              </button>
+                Adicionar texto
+              </button> 
+              {/* adicionar limpar texto */}
             </div>
           </>
         ) : (
