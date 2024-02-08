@@ -16,8 +16,9 @@ class EmotionModel {
 
   insertEmotion(data) {
     if (data.posX !== undefined && data.lineY !== undefined) {
-      const { posX, lineY } = data;
-      return db.execute("INSERT INTO emotion (posX, lineY) VALUES (?, ?)", [posX, lineY])
+      const { journeyMap_id, posX, lineY, emojiTag } = data;
+      return db.execute("INSERT INTO emotion (journeyMap_id, posX, lineY, emojiTag) VALUES (?, ?, ?, ?)", 
+      [journeyMap_id, posX, lineY, emojiTag])
         .then(() => true)
         .catch((error) => {
           console.error("Error inserting emotion:", error);
