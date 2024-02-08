@@ -17,10 +17,11 @@ const contactPointController = {
   postItem: async (req, res) => {
     try {
       const postData = req.body;
-      if (postData && postData.posX !== undefined) {
+      if (postData && postData.posX !== undefined && postData.journeyMap_id 
+      !== undefined && postData.linePos !== undefined && postData.length !== undefined && 
+      postData.description !== undefined && postData.emojiTag !== undefined) {
         const contactPointModel = new ContactPointModel();
-        const dataToInsert = { posX: postData.posX };
-        const success = await contactPointModel.insertContactPoint(dataToInsert);
+        const success = await contactPointModel.insertContactPoint(postData);
 
         if (success) {
           const insertedId = await contactPointModel.getLastInsertedId();
