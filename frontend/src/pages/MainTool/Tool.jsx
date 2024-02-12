@@ -4,11 +4,12 @@ import { Stage, Layer, Rect, Circle } from "react-konva";
 import axios from "axios";
 import Popup from "../../components/Popup";
 import Matrix from "../../components/tool/Matrix";
+import { toast } from 'sonner'
 import './tool.css'
 
 
 const showAlert = () => {
-  alert("Seu progresso foi salvo!");
+  toast.success('Progresso salvo com sucesso!')
 };
 
 function adjustPositionToInterval(x, interval) {
@@ -370,7 +371,7 @@ const [matrix, setMatrix] = useState([
       {/*<div style={{ background: "repeating-linear-gradient(0deg,#d3d3d3,#d3d3d3 100px,white 100px,white 200px)" }} >*/}
       <div className="espaco"></div>
       <div className="footer">
-        <button className="button save" id="saveButton" onClick={() => { handleSaveClick(); showAlert(); }}>
+        <button className="button save" id="saveButton" onClick={() => { showAlert(); }}>
           Salvar
         </button>
       </div>
