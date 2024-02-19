@@ -4,44 +4,94 @@ import EditableRect from "./EditableRect";
 import useImage from 'use-image'
 
 const Fase = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/4/4357.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/30/30630.png');
     return <Image image={image} width={20} height={20}/>;
 };
 
 const Acao = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/4056/4056901.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/1589/1589051.png');
     return <Image image={image} width={20} height={20}/>;
 };
 
 const Pensamento = () => {
-    const [image] = useImage('https://i.pinimg.com/originals/93/85/c7/9385c70611f3fc4082d35c6819b77635.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2258/2258911.png');
     return <Image image={image} width={20} height={20}/>;
 };
 
 const Contato = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/3390/3390818.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2199/2199553.png');
     return <Image image={image} width={20} height={20}/>;
 };
 
-const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd }) => (
+const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd, handleSquareClick }) => (
     <>
         {matrix.map((row, rowIndex) => (
             row.map((square, colIndex) => (
-                <Group key={`square_${square.id}`} 
-                draggable={false} 
-                x={0}
-                y={0}
-                onDragMove={(e) => {
-                    const newX = e.target.x();
-                    const newY = e.target.y();
-                    e.target.x(newX);
-                    e.target.y(0);
-                    e.target.opacity(0.5);
-                    e.target.moveToTop();
-                }}
-                  onDragEnd={(e) => {
-                    e.target.opacity(1);
-                }}>
+                <Group
+                    key={`square_${square.id}`}
+                    draggable={true}
+                    x={0}
+                    y={0}
+                    onDragMove={(e) => {
+                        const newX = e.target.x();
+                        e.target.x(newX);
+                        e.target.y(0);
+                        e.target.opacity(0.5);
+                        e.target.moveToTop();
+                    }}
+                    onDragEnd={(e) => {
+                        const newX = Math.round(e.target.x() / 260) * 260;
+                        e.target.x(newX);
+                        e.target.opacity(1);
+                    }}
+                >
+                    {/* Botão de adição de quadrados */}
+                    <Rect
+                        x={square.x + 230} // Ajuste conforme necessário
+                        y={square.y + 50} // Ajuste conforme necessário
+                        width={30}
+                        height={30}
+                        fill="gray"
+                        opacity={1}
+                        draggable={false}
+                        onClick={() => handleAddSquare(rowIndex, colIndex)}
+                        onTap={() => handleAddSquare(rowIndex, colIndex)}
+                        listening={true}
+                        style={{ cursor: 'pointer' }}
+                        cornerRadius={10}
+                        onMouseEnter={(e) => {
+                            const container = e.target.getStage().container();
+                            container.style.cursor = "pointer";
+                            // e.target.opacity(1);
+                        }}
+                        onMouseLeave={(e) => {
+                            const container = e.target.getStage().container();
+                            container.style.cursor = "default";
+                            // e.target.opacity(0);
+                        }}
+                    />
+                    <Text
+                        x={square.x + 236.5} // Ajuste conforme necessário
+                        y={square.y + 53} // Ajuste conforme necessário
+                        text="+"
+                        fontSize={30}
+                        fill="#d9d9d9"
+                        align="center"
+                        verticalAlign="middle"
+                        listening={false}
+                        onMouseEnter={(e) => {
+                            const container = e.target.getStage().container();
+                            container.style.cursor = "pointer";
+                            // e.target.opacity(1);
+                        }}
+                        onMouseLeave={(e) => {
+                            const container = e.target.getStage().container();
+                            container.style.cursor = "default";
+                            // e.target.opacity(0);
+                        }}
+                    />
+
+                    {/* Resto do seu código */}
                     {rowIndex !== 2 ? (
                         <>
                             <EditableRect
@@ -51,19 +101,22 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                                 width={230}
                                 height={135}
                                 color={square.color}
+                                onClick={() => handleSquareClick(square.text, square.id)}
                                 onTextChange={(newText) => handleTextChange(rowIndex, colIndex, newText)}
                                 isActive={activeRect === square.id}
                                 onActivate={() => setActiveRect(square.id)}
                             />
                             <Text
                                 x={square.x + 13}
-                                y={square.y + 13}
-                                text={square.text}
+                                y={square.y}
+                                text={square.text && square.text.length > 60 ? `${square.text.slice(0, 57)}...` : square.text}
                                 fontSize={20}
                                 fill="#000000"
                                 width={200}
-                                height={125}
+                                height={135}
+                                verticalAlign="middle"
                                 listening={false}
+                                fontFamily="Inter"
                             />
                             {activeRect === square.id && (
                                 <Rect
@@ -204,49 +257,6 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                     listening={false}
                     opacity={1}
                 />
-            </Group>
-        ))}
-        {matrix.map((row, rowIndex) => (
-            <Group key={`addButtonRow_${rowIndex}`}>
-                {row.map((square, colIndex) => (
-                    <Group key={`addButton_${square.id}`}
-                    onMouseEnter={(e) => {
-                        const container = e.target.getStage().container();
-                        container.style.cursor = "pointer";
-                        // e.target.opacity(1);
-                    }}
-                    onMouseLeave={(e) => {
-                        const container = e.target.getStage().container();
-                        container.style.cursor = "default";
-                        // e.target.opacity(0);
-                    }}
-                    >
-                        <Rect
-                            x={square.x + 230}
-                            y={square.y + 50}
-                            width={30}
-                            height={30}
-                            fill="gray"
-                            opacity={1}
-                            draggable={false}
-                            onClick={() => handleAddSquare(rowIndex, colIndex)}
-                            onTap={() => handleAddSquare(rowIndex, colIndex)}
-                            listening={true}
-                            style={{ cursor: 'pointer' }}
-                            cornerRadius={10}
-                        />
-                        <Text
-                            x={square.x + 236.5}
-                            y={square.y + 53}
-                            text="+"
-                            fontSize={30}
-                            fill="#d9d9d9"
-                            align="center"
-                            verticalAlign="middle"
-                            listening={false}
-                        />
-                    </Group>
-                ))}
             </Group>
         ))}
     </>
