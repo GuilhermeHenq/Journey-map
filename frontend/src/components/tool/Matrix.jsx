@@ -27,8 +27,9 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
     <>
         {matrix.map((row, rowIndex) => (
             row.map((square, colIndex) => (
+                
                 <Group
-                    key={`square_${square.id}`}
+                    key={`square_${rowIndex}_${colIndex}_${square.id}`}
                     draggable={true}
                     x={0}
                     y={0}
@@ -71,8 +72,8 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                         }}
                     />
                     <Text
-                        x={square.x + 236.5} // Ajuste conforme necessário
-                        y={square.y + 53} // Ajuste conforme necessário
+                        x={square.x + 236.5} 
+                        y={square.y + 53} 
                         text="+"
                         fontSize={30}
                         fill="#d9d9d9"
@@ -101,7 +102,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                                 width={230}
                                 height={135}
                                 color={square.color}
-                                onClick={() => handleSquareClick(square.text, square.id)}
+                                onClick={() => handleSquareClick(square.text, square.id, square.y)}
                                 onTextChange={(newText) => handleTextChange(rowIndex, colIndex, newText)}
                                 isActive={activeRect === square.id}
                                 onActivate={() => setActiveRect(square.id)}

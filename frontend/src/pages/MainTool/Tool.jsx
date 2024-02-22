@@ -26,111 +26,105 @@ function adjustCircleXToInterval(x) {
 
 const Tool = () => {
 
-  let initialRedRectX1, initialRedRectX2, initialRedRectX3, initialRedRectX4, initialRedCircle;
-  
+  const [matrix, setMatrix] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [
           journeyData,
-          thoughtData,
           userActionData,
-          contactPointData,
           emotionData,
+          thoughtData,
+          contactPointData,
         ] = await Promise.all([
-          axios.get("http://localhost:3000/journeyPhase?method=getAllItems"),
-          axios.get("http://localhost:3000/thought?method=getAllItems"),
-          axios.get("http://localhost:3000/userAction?method=getAllItems"),
-          axios.get("http://localhost:3000/contactPoint?method=getAllItems"),
-          axios.get("http://localhost:3000/emotion?method=getAllItems"),
+          axios.get("http://localhost:3000/journeyPhase"),
+          axios.get("http://localhost:3000/userAction"),
+          axios.get("http://localhost:3000/emotion"),
+          axios.get("http://localhost:3000/thought"),
+          axios.get("http://localhost:3000/contactPoint"),
         ]);
-  
-        initialRedRectX1 = {
-          id: "1",
-          x: journeyData.data[0] ? Number(journeyData.data[0].posX) : 10,
-          y: 11.5 * window.innerHeight / 100,
-          isDragging: false,
-          color: "gray",
+
+        // Mapeie os dados da API para o formato desejado na matriz
+        const journeyMatrix = journeyData.data.map(item => ({
+          id: item.journeyMap_id.toString(),
+          x: item.posX,
+          y: 61,
           width: 230,
-        };
-  
-        initialRedRectX2 = {
-          id: "2",
-          x: thoughtData.data[0] ? Number(thoughtData.data[0].posX) : 10,
-          y: 34.5 * window.innerHeight / 100,
-          isDragging: false,
-          color: "gray",
-          width: 160,
-        };
-  
-        initialRedRectX3 = {
-          id: "3",
-          x: userActionData.data[0] ? Number(userActionData.data[0].posX) : 10,
-          y: 80.5 * window.innerHeight / 100,
-          isDragging: false,
-          color: "gray",
-          width: 160,
-        };
-  
-        initialRedRectX4 = {
-          id: "4",
-          x: contactPointData.data[0] ? Number(contactPointData.data[0].posX) : 10,
-          y: 103.5 * window.innerHeight / 100,
-          isDragging: false,
-          color: "gray",
-          width: 160,
-        };
-  
-        initialRedCircle = {
-          id: "5",
-          x: emotionData.data[0] ? Number(emotionData.data[0].posX) : 10,
-          y: emotionData.data[0] ? Number(emotionData.data[0].lineY) : (67.5 * window.innerHeight / 100),
-          isDragging: false,
-          color: "gray",
-          radius: 15,
-        };
-  
-        setRects([initialRedRectX1, initialRedRectX2, initialRedRectX3, initialRedRectX4]);
-        setCircle(initialRedCircle);
-        setBalls(initialRedCircle);
+          height: 135,
+          color: "#FFAC81",
+          text: item.description,
+        }));
+
+        const userActionMatrix = userActionData.data.map(item => ({
+          id: item.userAction_id.toString(),
+          x: item.posX,
+          y: 231,
+          width: 230,
+          height: 135,
+          color: "#FF928B",
+          text: item.description,
+        }));
+
+        const emotionMatrix = emotionData.data.map(item => ({
+          id: item.emotion_id.toString(),
+          x: item.posX,
+          y: 467,
+          width: 230,
+          height: 135,
+          color: "#FEC3A6",
+          text: item.description,
+        }));
+
+        const thoughtMatrix = thoughtData.data.map(item => ({
+          id: item.thought_id.toString(),
+          x: item.posX,
+          y: 571,
+          width: 230,
+          height: 135,
+          color: "#EFE9AE",
+          text: item.description,
+        }));
+
+        const contactPointMatrix = contactPointData.data.map(item => ({
+          id: item.contactPoint_id.toString(),
+          x: item.posX,
+          y: 741,
+          width: 230,
+          height: 135,
+          color: "#CDEAC0",
+          text: item.description,
+        }));
+
+        const newMatrix = [journeyMatrix, userActionMatrix, emotionMatrix, thoughtMatrix, contactPointMatrix];
+        console.log(newMatrix);
+        setMatrix(newMatrix);
       } catch (error) {
         console.error("Erro ao buscar os dados:", error);
       }
     };
-  
+
     fetchData();
   }, []);
-  
-  const [rects, setRects] = React.useState([initialRedRectX1, initialRedRectX2, initialRedRectX3, initialRedRectX4]);
-  const [circle, setCircle] = React.useState(initialRedCircle);
-  
+
+
 
   const handleDragMove = (e) => {
     const id = e.target.id();
     const newX = e.target.x();
 
-    const updatedRects = rects.map((rect) => {
-      if (rect.id === id) {
-        return {
-          ...rect,
-          x: newX,
-        };
-      }
-      return rect;
-    });
+    const updatedMatrix = matrix.map((row) =>
+      row.map((rect) => (rect.id === id ? { ...rect, x: newX } : rect))
+    );
 
-    setRects(updatedRects);
+    setMatrix(updatedMatrix);
   };
 
   const handleCircleDragMove = (e) => {
     const newX = e.target.x();
     const newY = Math.min(550, Math.max(432, e.target.y()));
 
-    setCircle({
-      ...circle,
-      x: newX,
-      y: newY,
-    });
+    setBalls([{ x: newX, y: newY }]);
   };
 
   const handleDragEnd = (e) => {
@@ -186,31 +180,40 @@ const Tool = () => {
         console.error("Erro ao salvar os dados:", error);
       });
   };
-  
+
   const [buttonPopup, setButtonPopup] = useState(false);
+  const [editedRowIndex, setEditedRowIndex] = useState(61);
 
   const handleTextSubmit = () => {
     // Salvar o texto editado quando o usuário confirmar
     const updatedMatrix = matrix.map((row) =>
       row.map((rect) =>
-        rect.id === editedRectId ? { ...rect, text: editedText } : rect
+        rect.id === editedRectId && rect.y === editedRowIndex
+          ? { ...rect, text: editedText }
+          : rect
       )
     );
+    //console.log("rect.id:", rect.id);
+    console.log("rectid:", editedRectId);
+    console.log("editedRowIndex:", editedRowIndex),
     setMatrix(updatedMatrix);
     setEditedText("");
     setEditedRectId("");
   };
+  
+
+
 
   const handleTextChange = (rowIndex, colIndex, newText) => {
     const newMatrix = [...matrix];
     const originalText = newMatrix[rowIndex][colIndex].text; // Guarda o texto original
-  
+
     // Se o novo texto tiver mais de 30 caracteres, abrevie com reticências
     const abbreviatedText = newText.length > 30 ? newText.slice(0, 27) + '...' : newText;
-  
+
     newMatrix[rowIndex][colIndex].text = abbreviatedText; // Atualiza o texto na matriz
     setMatrix(newMatrix); // Atualiza a matriz
-  
+
     // Crie uma nova constante que guarde o valor do texto original
     const newTextOriginal = newText;
     setEditedText(newTextOriginal); // Atualize a constante do texto original
@@ -220,19 +223,19 @@ const Tool = () => {
   const handleAddSquare = (rowIndex, colIndex) => {
     setMatrix((prevMatrix) => {
       const newMatrix = [...prevMatrix];
-  
+
       // Verifica se a matriz na linha rowIndex está definida
       if (!newMatrix[rowIndex]) {
         newMatrix[rowIndex] = [];
       }
-  
+
       // Determina a cor com base no comprimento da linha atual
       const color = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][0].color : "#a3defe";
-  
+
       if (colIndex !== undefined && colIndex < newMatrix[rowIndex].length) {
         // Verifica se existem outros quadrados com o mesmo colIndex
         const sameColSquares = newMatrix.flatMap(row => row.filter(square => square && square.x === newMatrix[rowIndex][colIndex].x));
-  
+
         if (sameColSquares.length > 1) {
           // Se houver outros quadrados com o mesmo colIndex, empurra os quadrados subsequentes em todas as linhas para frente
           newMatrix.forEach((row, rIndex) => {
@@ -243,10 +246,14 @@ const Tool = () => {
             });
           });
         }
-  
+
+        // Combinação única de ID com o índice da linha
+        const newSquareIndex = newMatrix[rowIndex].length + 1;
+        const newSquareId = `${rowIndex + 1}_${newSquareIndex}`;
+
         // Insere o novo quadrado na posição desejada
         newMatrix[rowIndex].splice(colIndex + 1, 0, {
-          id: `${rowIndex + 1}_${newMatrix[rowIndex].length + 1}`,
+          id: newSquareId,
           x: newMatrix[rowIndex][colIndex].x + 260,
           y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
           width: 120,
@@ -254,11 +261,14 @@ const Tool = () => {
           color: color,
         });
       } else {
-        // Adiciona um novo quadrado no final da linha
+        // Combinação única de ID com o índice da linha
         const newSquareIndex = newMatrix[rowIndex].length + 1;
+        const newSquareId = `${rowIndex + 1}_${newSquareIndex}`;
+
+        // Adiciona um novo quadrado no final da linha
         const newX = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
         newMatrix[rowIndex].push({
-          id: `${rowIndex + 1}_${newSquareIndex}`,
+          id: newSquareId,
           x: newX,
           y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
           width: 120,
@@ -266,61 +276,46 @@ const Tool = () => {
           color: color,
         });
       }
-  
+
       // Printa todos os IDs dos quadrados em todas as linhas
       newMatrix.forEach((row, rIndex) => {
         console.log(`IDs dos quadrados na linha ${rIndex + 1}:`, row.map(square => square.id));
       });
-  
+
       return [...newMatrix];
     });
-  };  
+  };
 
-const [activeRect, setActiveRect] = useState(null);
-const [balls, setBalls] = useState([]);
-const [activePhase, setActivePhase] = useState(1);
-const [editedText, setEditedText] = useState("");
-const [editedRectId, setEditedRectId] = useState("");
-const [matrix, setMatrix] = useState([
-  [
-    { id: "1", x: 30, y: 61, width: 230, height: 135, color: "#FFAC81", text: "" },
-  ],
-  [
-    { id: "2", x: 30, y: 231, width: 230, height: 135, color: "#FF928B", text: "" },
-  ],
-  [
-    { id: "3", x: 30, y: 467, width: 230, height: 135, color: "#FEC3A6", text: "" },
-  ],
-  [
-    { id: "4", x: 30, y: 571, width: 230, height: 135, color: "#EFE9AE", text: "" },
-  ],
-  [
-    { id: "5", x: 30, y: 741, width: 230, height: 135, color: "#CDEAC0", text: "" },
-  ],
-]);
 
-const handleDeleteSquare = (rowIndex, colIndex) => {
-  setMatrix((prevMatrix) => {
+  const [activeRect, setActiveRect] = useState(null);
+  const [balls, setBalls] = useState([{ x: 0, y: 0 }]);
+  const [activePhase, setActivePhase] = useState(1);
+  const [editedText, setEditedText] = useState("");
+  const [editedRectId, setEditedRectId] = useState("");
+  
+
+  const handleDeleteSquare = (rowIndex, colIndex) => {
+    setMatrix((prevMatrix) => {
       const newMatrix = [...prevMatrix];
 
       if (newMatrix[rowIndex] && newMatrix[rowIndex][colIndex]) {
-          const deletedSquareId = newMatrix[rowIndex][colIndex].id;
+        const deletedSquareId = newMatrix[rowIndex][colIndex].id;
 
-          // Remove o quadrado da matriz
-          newMatrix[rowIndex].splice(colIndex, 1);
+        // Remove o quadrado da matriz
+        newMatrix[rowIndex].splice(colIndex, 1);
 
-          // Diminui o rowIndex dos quadrados subsequentes
-          newMatrix[rowIndex].forEach((square, index) => {
-              if (index >= colIndex) {
-                  square.id = `${rowIndex + 1}_${index + 1}`;
-                  console.log(`Quadrado ${square.id} teve seu rowIndex ajustado.`);
-              }
-          });
+        // Diminui o rowIndex dos quadrados subsequentes
+        newMatrix[rowIndex].forEach((square, index) => {
+          if (index >= colIndex) {
+            square.id = `${rowIndex + 1}_${index + 1}`;
+            console.log(`Quadrado ${square.id} teve seu rowIndex ajustado.`);
+          }
+        });
 
-          // Printa todos os IDs dos quadrados na linha
-          console.log(`IDs dos quadrados na linha ${rowIndex + 1}:`, newMatrix[rowIndex].map(square => square.id));
+        // Printa todos os IDs dos quadrados na linha
+        console.log(`IDs dos quadrados na linha ${rowIndex + 1}:`, newMatrix[rowIndex].map(square => square.id));
 
-          return [...newMatrix];
+        return [...newMatrix];
       }
 
       return prevMatrix;
@@ -329,20 +324,22 @@ const handleDeleteSquare = (rowIndex, colIndex) => {
 
   const [textEdit, setTextEdit] = useState(false)
 
-  const handleSquareClick = (currentText, squareId) => {
+  const handleSquareClick = (currentText, squareId, rectY) => {
     setEditedText(currentText); // Define o texto atual para edição no popup
     setEditedRectId(squareId); // Define o ID do quadrado atual para edição no popup
+    setEditedRowIndex(rectY); // Define a posição y do retângulo atual para edição no popup
     setButtonPopup(true); // Abre o popup
     setTextEdit(true); // Define a edição de texto como verdadeira
-};
+  };
+  
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <div className="scenario" style={{ textAlign: "left", padding: "11px", fontSize: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span>Cenário 1 - X</span>
-          <button className="button info" id="infoButton" style={{ marginRight: "3vh" }} onClick={() => { setButtonPopup(true); }}>
+        <button className="button info" id="infoButton" style={{ marginRight: "3vh" }} onClick={() => { setButtonPopup(true); }}>
           i
-          </button>
+        </button>
       </div>
       <div className="separator1" style={{ marginTop: "61.9px" }}></div>
       <Popup trigger={buttonPopup} setTrigger={setButtonPopup} style={{ borderRadius: "25px" }}>
@@ -362,7 +359,8 @@ const handleDeleteSquare = (rowIndex, colIndex) => {
               />
               <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }}>
                 Adicionar texto
-              </button> 
+              </button>
+
               {/* adicionar limpar texto */}
             </div>
           </>
@@ -385,7 +383,7 @@ const handleDeleteSquare = (rowIndex, colIndex) => {
         )}
       </Popup>
       <div className="stage-container">
-        <Stage width={window.innerWidth-160} height={window.innerHeight+180}>
+        <Stage width={window.innerWidth - 160} height={window.innerHeight + 180}>
           <Layer>
             <Matrix
               matrix={matrix}
@@ -448,4 +446,4 @@ const container = document.getElementById("root");
 const root = createRoot(container);
 root.render(<Tool />);
 
-export default Tool
+export default Tool;
