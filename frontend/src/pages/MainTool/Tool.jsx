@@ -191,10 +191,8 @@ const Tool = () => {
 
   const handleTextSubmit = () => {
     // Salvar o texto editado quando o usuário confirmar
-    const updatedMatrix = matrix.map((row) =>
-      row.map((rect) =>
-        rect.id === editedRectId ? { ...rect, text: editedText } : rect
-      )
+    const updatedMatrix = matrix.map((rect) =>
+      rect.id === editedRectId ? { ...rect, text: editedText } : rect
     );
     setMatrix(updatedMatrix);
     setEditedText("");
@@ -282,21 +280,11 @@ const [activePhase, setActivePhase] = useState(1);
 const [editedText, setEditedText] = useState("");
 const [editedRectId, setEditedRectId] = useState("");
 const [matrix, setMatrix] = useState([
-  [
-    { id: "1", x: 30, y: 61, width: 230, height: 135, color: "#FFAC81", text: "" },
-  ],
-  [
-    { id: "2", x: 30, y: 231, width: 230, height: 135, color: "#FF928B", text: "" },
-  ],
-  [
-    { id: "3", x: 30, y: 467, width: 230, height: 135, color: "#FEC3A6", text: "" },
-  ],
-  [
-    { id: "4", x: 30, y: 571, width: 230, height: 135, color: "#EFE9AE", text: "" },
-  ],
-  [
-    { id: "5", x: 30, y: 741, width: 230, height: 135, color: "#CDEAC0", text: "" },
-  ],
+  { id: "1", x: 30, y: 61, width: 230, height: 135, color: "#FFAC81", text: "", },
+  { id: "2", x: 30, y: 231, width: 230, height: 135, color: "#FF928B", text: "", },
+  { id: "3", x: 30, y: 467, width: 230, height: 135, color: "#FEC3A6", text: "", },
+  { id: "4", x: 30, y: 571, width: 230, height: 135, color: "#EFE9AE", text: "", },
+  { id: "5", x: 30, y: 741, width: 230, height: 135, color: "#CDEAC0", text: "", },
 ]);
 
 const handleDeleteSquare = (rowIndex, colIndex) => {
