@@ -5,29 +5,28 @@ import useImage from 'use-image'
 
 const Fase = () => {
     const [image] = useImage('https://cdn-icons-png.flaticon.com/512/30/30630.png');
-    return <Image image={image} width={20} height={20}/>;
+    return <Image image={image} width={20} height={20} />;
 };
 
 const Acao = () => {
     const [image] = useImage('https://cdn-icons-png.flaticon.com/512/1589/1589051.png');
-    return <Image image={image} width={20} height={20}/>;
+    return <Image image={image} width={20} height={20} />;
 };
 
 const Pensamento = () => {
     const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2258/2258911.png');
-    return <Image image={image} width={20} height={20}/>;
+    return <Image image={image} width={20} height={20} />;
 };
 
 const Contato = () => {
     const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2199/2199553.png');
-    return <Image image={image} width={20} height={20}/>;
+    return <Image image={image} width={20} height={20} />;
 };
 
-const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd, handleSquareClick }) => (
+const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, handleCircleClick,  setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd, handleSquareClick }) => (
     <>
         {matrix.map((row, rowIndex) => (
             row.map((square, colIndex) => (
-                
                 <Group
                     key={`square_${rowIndex}_${colIndex}_${square.id}`}
                     draggable={true}
@@ -35,20 +34,27 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                     y={0}
                     onDragMove={(e) => {
                         const newX = e.target.x();
+                        //console.log("Começou movem com = " + newX);
                         e.target.x(newX);
+                        //console.log("Começou movem com e target = " + e.target.x());
                         e.target.y(0);
                         e.target.opacity(0.5);
                         e.target.moveToTop();
                         onDragMove(e);
                     }}
                     onDragEnd={(e) => {
-                        const id = square.id; // Passe o ID diretamente aqui
-                        const newX = Math.round(e.target.x() / 260) * 250;
-                        e.target.x(newX);
+                        const tipo = square.type;
+                        const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id; // Use a propriedade de ID específica
+                        console.log("E Target X antes = " + e.target.x());
+                        const newX = e.target.x();
+                        const minX = 20;
+                        const maxX = 780;
+                        const restrictedX = Math.max(minX, Math.min(newX, maxX));
+                        e.target.x(restrictedX);
+                        console.log("newX = " + newX);
+                        console.log("E Target X Depois = " + e.target.x());
                         e.target.opacity(1);
-                        // Chame a função onDragEnd passando o evento e o ID do quadrado
-                        console.log("ID do quadrado: ", square.id);
-                        onDragEnd(e, id);
+                        onDragEnd(e, id, tipo);
                     }}
                 >
                     {/* Botão de adição de quadrados */}
@@ -77,8 +83,8 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                         }}
                     />
                     <Text
-                        x={square.x + 236.5} 
-                        y={square.y + 53} 
+                        x={square.x + 236.5}
+                        y={square.y + 53}
                         text="+"
                         fontSize={30}
                         fill="#d9d9d9"
@@ -196,6 +202,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                                 draggable={false}
                                 listening={true}
                                 style={{ cursor: 'pointer' }}
+                                onClick={handleCircleClick}
                             />
                             <Rect
                                 x={square.x + 100}
@@ -228,16 +235,16 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
         ))}
         {matrix.map((row, rowIndex) => (
             <Group key={`addButtonRow_${rowIndex}`}
-            onMouseEnter={(e) => {
-                const container = e.target.getStage().container();
-                container.style.cursor = "pointer";
-                e.target.opacity(1);
-            }}
-            onMouseLeave={(e) => {
-                const container = e.target.getStage().container();
-                container.style.cursor = "default";
-                e.target.opacity(0);
-            }}
+                onMouseEnter={(e) => {
+                    const container = e.target.getStage().container();
+                    container.style.cursor = "pointer";
+                    e.target.opacity(1);
+                }}
+                onMouseLeave={(e) => {
+                    const container = e.target.getStage().container();
+                    container.style.cursor = "default";
+                    e.target.opacity(0);
+                }}
             >
                 <Rect
                     x={row.length > 0 ? row[row.length - 1].x + 259 : 30}

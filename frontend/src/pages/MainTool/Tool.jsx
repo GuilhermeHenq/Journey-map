@@ -4,7 +4,9 @@ import { Stage, Layer, Rect, Circle } from "react-konva";
 import axios from "axios";
 import Popup from "../../components/Popup";
 import Matrix from "../../components/tool/Matrix";
-import { toast } from 'sonner'
+import { toast } from 'sonner';
+import Picker from '@emoji-mart/react';
+import data from '@emoji-mart/data'
 import './tool.css'
 
 
@@ -23,6 +25,21 @@ function adjustCircleXToInterval(x) {
   const adjustedX = Math.floor((x - startX) / interval) * interval + startX;
   return adjustedX;
 }
+
+const updateMatrixWithX = (matrix, id, newX, tipo) => {
+  return matrix.map((row) =>
+    row.map((rect) =>
+      (rect[tipo + '_id'] !== undefined && rect[tipo + '_id'].toString() === id.toString())
+        ? {
+            ...rect,
+            x: newX
+            // Adicione as propriedades específicas aqui (se necessário)
+          }
+        : rect
+    )
+  );
+};
+
 
 const Tool = () => {
 
@@ -47,6 +64,7 @@ const Tool = () => {
 
         // Mapeie os dados da API para o formato desejado na matriz
         const journeyMatrix = journeyData.data.map(item => ({
+          type: 'journeyPhase',
           journeyPhase_id: item.journeyMap_id.toString(),
           x: item.posX,
           y: 61,
@@ -57,6 +75,7 @@ const Tool = () => {
         }));
 
         const userActionMatrix = userActionData.data.map(item => ({
+          type: 'userAction',
           userAction_id: item.userAction_id.toString(),
           x: item.posX,
           y: 231,
@@ -67,6 +86,7 @@ const Tool = () => {
         }));
 
         const emotionMatrix = emotionData.data.map(item => ({
+          type: 'emotion',
           emotion_id: item.emotion_id.toString(),
           x: item.posX,
           y: 467,
@@ -78,6 +98,7 @@ const Tool = () => {
         }));
 
         const thoughtMatrix = thoughtData.data.map(item => ({
+          type: 'thought',
           thought_id: item.thought_id.toString(),
           x: item.posX,
           y: 571,
@@ -88,6 +109,7 @@ const Tool = () => {
         }));
 
         const contactPointMatrix = contactPointData.data.map(item => ({
+          type: 'contactPoint',
           contactPoint_id: item.contactPoint_id.toString(),
           x: item.posX,
           y: 741,
@@ -118,6 +140,7 @@ const Tool = () => {
         )
       )
     );
+    //setEditedRectId = JSON.stringify(id);
   };
 
   const handleCircleDragMove = (e) => {
@@ -127,44 +150,27 @@ const Tool = () => {
     setBalls([{ x: newX, y: newY }]);
   };
 
-  const handleDragEnd = (e, id) => {
+  const handleDragEnd = (e, id, tipo) => {
     const identificador = id;
-    const newX= e.target.x();
+    const newX = e.target.x();
+
   
-    console.log("id: " + identificador);
+    console.log("id:", id);
+    console.log("newX:", newX);
+    console.log("tipo:", tipo);
+  
     // Use a função para ajustar a posição dos RedRects
-    const adjustedX = adjustPositionToInterval(newX, 140);
+    
   
     // Atualize diretamente a matriz com a nova posição posX
-    setMatrix((prevMatrix) =>
-      prevMatrix.map((row) =>
-        row.map((rect) =>
-          rect.id === id
-            ? {
-                ...rect,
-                x: adjustedX,
-                // Adicione as propriedades específicas aqui (se necessário)
-              }
-            : rect
-        )
-      )
-    );
-  
-    // Verifique se é um quadrado 'emotion' e atualize as propriedades específicas
-    if (id === "emotion") {
-      const linePos = 467;
-      setMatrix((prevMatrix) =>
-        prevMatrix.map((row) =>
-          row.map((rect) =>
-            rect.id === id ? { ...rect, x: adjustedX, linePos } : rect
-          )
-        )
-      );
-    }
-  
-    console.log("adjustedX: " + adjustedX);
-  
+    setMatrix((prevMatrix) => {
+      const updatedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo);
+      return updatedMatrix;
+    });
   };
+  
+  
+  
   
   
 
@@ -269,7 +275,20 @@ const Tool = () => {
     setEditedRectId(newMatrix[rowIndex][colIndex].id); // Atualize o ID do retângulo editado
   };
 
-  const handleAddSquare = (rowIndex, colIndex) => {
+const handleAddSquare = async (rowIndex, colIndex) => {
+  try {
+    const response = await axios.post(`http://localhost:/${matrix[rowIndex][0].type}`, {
+      // Os dados para a criação do novo quadrado
+      "journeyMap_id": 3,
+      "linePos": 285,
+      "posX": 125,
+      "length": 0,
+      "description": "Nova descrição",
+      "emojiTag": "Novo emoji"
+    });
+
+    const newSquare = response.data;
+
     setMatrix((prevMatrix) => {
       const newMatrix = [...prevMatrix];
 
@@ -297,8 +316,7 @@ const Tool = () => {
         }
 
         // Combinação única de ID com o índice da linha
-        const newSquareIndex = newMatrix[rowIndex].length + 1;
-        const newSquareId = `${rowIndex + 1}_${newSquareIndex}`;
+        const newSquareId = newSquare.id.toString();
 
         // Insere o novo quadrado na posição desejada
         newMatrix[rowIndex].splice(colIndex + 1, 0, {
@@ -311,8 +329,7 @@ const Tool = () => {
         });
       } else {
         // Combinação única de ID com o índice da linha
-        const newSquareIndex = newMatrix[rowIndex].length + 1;
-        const newSquareId = `${rowIndex + 1}_${newSquareIndex}`;
+        const newSquareId = newSquare.id.toString();
 
         // Adiciona um novo quadrado no final da linha
         const newX = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
@@ -333,7 +350,10 @@ const Tool = () => {
 
       return [...newMatrix];
     });
-  };
+  } catch (error) {
+    console.error("Erro ao adicionar quadrado:", error);
+  }
+};
 
 
   const [activeRect, setActiveRect] = useState(null);
@@ -372,6 +392,12 @@ const Tool = () => {
   };
 
   const [textEdit, setTextEdit] = useState(false)
+  const [isPickerAvailable, setPickerAvailable] = useState(false);
+  const [currentEmoji, setCurrentEmoji] = useState(null);
+
+  const handleCircleClick = () => {
+     setPickerAvailable(!isPickerAvailable);
+  }
 
   const handleSquareClick = (currentText, squareId, rectY) => {
     setEditedText(currentText); // Define o texto atual para edição no popup
@@ -391,6 +417,19 @@ const Tool = () => {
         </button>
       </div>
       <div className="separator1" style={{ marginTop: "61.9px" }}></div>
+      <div>
+        {isPickerAvailable ?
+        <> 
+        <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+          <h1 style={{ fontSize: "50px" }}>Adicionar emoji</h1>
+        </div>
+        <Picker className="Picker" data={data} previewPosition="none" onEmojiSelect={(e) => { setCurrentEmoji(e.native); setPickerAvailable(!isPickerAvailable); }} 
+        /> 
+
+        </>
+        : 
+        null}
+      </div>
       <Popup trigger={buttonPopup} setTrigger={setButtonPopup} style={{ borderRadius: "25px" }}>
         {textEdit ? (
           <>
@@ -444,6 +483,7 @@ const Tool = () => {
               onDragMove={handleDragMove}
               onDragEnd={handleDragEnd}
               handleSquareClick={handleSquareClick}
+              handleCircleClick={handleCircleClick}
             />
           </Layer>
         </Stage>
