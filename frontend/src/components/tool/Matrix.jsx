@@ -23,7 +23,7 @@ const Contato = () => {
     return <Image image={image} width={20} height={20} />;
 };
 
-const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, handleCircleClick,  setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd, handleSquareClick }) => (
+const Matrix = ({ matrix, activeRect, handleTextSubmit, currentEmoji, handleTextChange, handleCircleClick, setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd, handleSquareClick }) => (
     <>
         {matrix.map((row, rowIndex) => (
             row.map((square, colIndex) => (
@@ -193,15 +193,14 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, handle
                         </>
                     ) : (
                         <>
-                            <Circle
-                                x={square.x + 60}
-                                y={square.y}
-                                radius={10}
-                                fill={square.color}
-                                opacity={1}
-                                draggable={false}
-                                listening={true}
-                                style={{ cursor: 'pointer' }}
+                            <Text
+                                x={square.x + 60 - 18}  // Ajuste conforme necessário
+                                y={square.y - 10}       // Ajuste conforme necessário
+                                fontSize={40}           // Ajuste conforme necessário
+                                fill="#000"             // Ajuste conforme necessário
+                                align="center"
+                                verticalAlign="middle"
+                                text={currentEmoji || "+" }
                                 onClick={handleCircleClick}
                             />
                             <Rect

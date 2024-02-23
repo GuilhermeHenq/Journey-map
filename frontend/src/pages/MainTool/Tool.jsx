@@ -425,7 +425,7 @@ const handleAddSquare = async (rowIndex, colIndex) => {
         </div>
         <Picker className="Picker" data={data} previewPosition="none" onEmojiSelect={(e) => { setCurrentEmoji(e.native); setPickerAvailable(!isPickerAvailable); }} 
         /> 
-
+        {console.log("currentEmoji = " + JSON.stringify(currentEmoji))}
         </>
         : 
         null}
@@ -484,6 +484,7 @@ const handleAddSquare = async (rowIndex, colIndex) => {
               onDragEnd={handleDragEnd}
               handleSquareClick={handleSquareClick}
               handleCircleClick={handleCircleClick}
+              currentEmoji={currentEmoji}
             />
           </Layer>
         </Stage>
