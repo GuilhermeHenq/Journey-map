@@ -47,7 +47,7 @@ const Tool = () => {
 
         // Mapeie os dados da API para o formato desejado na matriz
         const journeyMatrix = journeyData.data.map(item => ({
-          id: item.journeyMap_id.toString(),
+          journeyPhase_id: item.journeyMap_id.toString(),
           x: item.posX,
           y: 61,
           width: 230,
@@ -57,7 +57,7 @@ const Tool = () => {
         }));
 
         const userActionMatrix = userActionData.data.map(item => ({
-          id: item.userAction_id.toString(),
+          userAction_id: item.userAction_id.toString(),
           x: item.posX,
           y: 231,
           width: 230,
@@ -67,9 +67,10 @@ const Tool = () => {
         }));
 
         const emotionMatrix = emotionData.data.map(item => ({
-          id: item.emotion_id.toString(),
+          emotion_id: item.emotion_id.toString(),
           x: item.posX,
           y: 467,
+          lineY: item.lineY,
           width: 230,
           height: 135,
           color: "#FEC3A6",
@@ -77,7 +78,7 @@ const Tool = () => {
         }));
 
         const thoughtMatrix = thoughtData.data.map(item => ({
-          id: item.thought_id.toString(),
+          thought_id: item.thought_id.toString(),
           x: item.posX,
           y: 571,
           width: 230,
@@ -87,7 +88,7 @@ const Tool = () => {
         }));
 
         const contactPointMatrix = contactPointData.data.map(item => ({
-          id: item.contactPoint_id.toString(),
+          contactPoint_id: item.contactPoint_id.toString(),
           x: item.posX,
           y: 741,
           width: 230,
@@ -109,15 +110,14 @@ const Tool = () => {
 
 
 
-  const handleDragMove = (e) => {
-    const id = e.target.id();
-    const newX = e.target.x();
-
-    const updatedMatrix = matrix.map((row) =>
-      row.map((rect) => (rect.id === id ? { ...rect, x: newX } : rect))
+  const handleDragMove = (id, newX) => {
+    setMatrix((prevMatrix) =>
+      prevMatrix.map((row) =>
+        row.map((rect) =>
+          rect.id === id ? { ...rect, x: newX } : rect
+        )
+      )
     );
-
-    setMatrix(updatedMatrix);
   };
 
   const handleCircleDragMove = (e) => {
@@ -127,59 +127,108 @@ const Tool = () => {
     setBalls([{ x: newX, y: newY }]);
   };
 
-  const handleDragEnd = (e) => {
-    const id = e.target.id();
-    const newX = e.target.x();
-
+  const handleDragEnd = (e, id) => {
+    const identificador = id;
+    const newX= e.target.x();
+  
+    console.log("id: " + identificador);
     // Use a função para ajustar a posição dos RedRects
     const adjustedX = adjustPositionToInterval(newX, 140);
-    e.target.x(adjustedX);
-
-    const updatedRects = rects.map((rect) => {
-      if (rect.id === id) {
-        return {
-          ...rect,
-          x: adjustedX,
-        };
-      }
-      return rect;
-    });
-
-    setRects(updatedRects);
+  
+    // Atualize diretamente a matriz com a nova posição posX
+    setMatrix((prevMatrix) =>
+      prevMatrix.map((row) =>
+        row.map((rect) =>
+          rect.id === id
+            ? {
+                ...rect,
+                x: adjustedX,
+                // Adicione as propriedades específicas aqui (se necessário)
+              }
+            : rect
+        )
+      )
+    );
+  
+    // Verifique se é um quadrado 'emotion' e atualize as propriedades específicas
+    if (id === "emotion") {
+      const linePos = 467;
+      setMatrix((prevMatrix) =>
+        prevMatrix.map((row) =>
+          row.map((rect) =>
+            rect.id === id ? { ...rect, x: adjustedX, linePos } : rect
+          )
+        )
+      );
+    }
+  
+    console.log("adjustedX: " + adjustedX);
+  
   };
+  
+  
 
   const handleSaveClick = () => {
-    const dataToPut = {
-      journeyPhaseData: { posX: rects[0].x, journeyPhase_id: 3 },
-      thoughtData: { posX: rects[1].x, thought_id: 3 },
-      userActionData: { posX: rects[2].x, userAction_id: 3 },
-      contactPointData: { posX: rects[3].x, contactPoint_id: 21 },
-      emotionData: { posX: circle.x, lineY: circle.y, emotion_id: 6 },
-    };
-
     const putConfig = { method: "PUT" };
-
-    axios
-      .put("http://localhost:3000/journeyPhase?method=updateAllItems", dataToPut.journeyPhaseData, putConfig)
-      .then(() => {
-        return axios.put("http://localhost:3000/thought?method=updateAllItems", dataToPut.thoughtData, putConfig);
-      })
-      .then(() => {
-        return axios.put("http://localhost:3000/userAction?method=updateAllItems", dataToPut.userActionData, putConfig);
-      })
-      .then(() => {
-        return axios.put("http://localhost:3000/contactPoint?method=updateAllItems", dataToPut.contactPointData, putConfig);
-      })
-      .then(() => {
-        return axios.put("http://localhost:3000/emotion?method=updateAllItems", dataToPut.emotionData, putConfig);
-      })
+  
+    // Mapeie os dados da matriz para os dados necessários para cada tipo de entidade
+    const dataToPut = matrix.reduce((acc, row) => {
+      row.forEach((rect) => {
+        console.log("Saving data for rect:", rect);
+  
+        if (rect.contactPoint_id !== undefined) {
+          acc.push({
+            endpoint: "contactPoint",
+            data: { contactPoint_id: rect.contactPoint_id, posX: rect.x, description: rect.text },
+          });
+        } else if (rect.userAction_id !== undefined) {
+          acc.push({
+            endpoint: "userAction",
+            data: { userAction_id: rect.userAction_id, posX: rect.x, description: rect.text},
+          });
+        } else if (rect.emotion_id !== undefined) {
+          acc.push({
+            endpoint: "emotion",
+            data: { emotion_id: rect.emotion_id, posX: rect.x, lineY: rect.lineY },
+          });
+        } else if (rect.thought_id !== undefined) {
+          acc.push({
+            endpoint: "thought",
+            data: { thought_id: rect.thought_id, posX: rect.x, description: rect.text },
+          });
+        } else if (rect.journeyPhase_id !== undefined) {
+          acc.push({
+            endpoint: "journeyPhase",
+        data: { journeyPhase_id: rect.journeyPhase_id, posX: rect.x, description: rect.text},
+          });
+        }
+      });
+      return acc;
+    }, []);
+  
+    console.log("Data to put:", dataToPut);
+  
+    // Envie as solicitações para a API usando os dados mapeados
+    const requests = dataToPut.map(({ endpoint, data }) => {
+      const url = `http://localhost:3000/${endpoint}`;
+      return axios.put(url, data, putConfig);
+    });
+  
+    // Execute todas as solicitações
+    Promise.all(requests)
       .then(() => {
         console.log("Dados salvos com sucesso!");
+        showAlert();
       })
       .catch((error) => {
         console.error("Erro ao salvar os dados:", error);
       });
   };
+  
+  
+  
+  
+  
 
   const [buttonPopup, setButtonPopup] = useState(false);
   const [editedRowIndex, setEditedRowIndex] = useState(61);
@@ -434,7 +483,7 @@ const Tool = () => {
       {/*<div style={{ background: "repeating-linear-gradient(0deg,#d3d3d3,#d3d3d3 100px,white 100px,white 200px)" }} >*/}
       <div className="espaco"></div>
       <div className="footer">
-        <button className="button save" id="saveButton" onClick={() => { showAlert(); }}>
+        <button className="button save" id="saveButton" onClick={() => { handleSaveClick(); }}>
           Salvar
         </button>
       </div>

@@ -39,11 +39,16 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                         e.target.y(0);
                         e.target.opacity(0.5);
                         e.target.moveToTop();
+                        onDragMove(e);
                     }}
                     onDragEnd={(e) => {
-                        const newX = Math.round(e.target.x() / 260) * 260;
+                        const id = square.id; // Passe o ID diretamente aqui
+                        const newX = Math.round(e.target.x() / 260) * 250;
                         e.target.x(newX);
                         e.target.opacity(1);
+                        // Chame a função onDragEnd passando o evento e o ID do quadrado
+                        console.log("ID do quadrado: ", square.id);
+                        onDragEnd(e, id);
                     }}
                 >
                     {/* Botão de adição de quadrados */}
@@ -97,6 +102,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                         <>
                             <EditableRect
                                 key={`square_${square.id}`}
+                                id={square.id}
                                 x={square.x}
                                 y={square.y}
                                 width={230}
