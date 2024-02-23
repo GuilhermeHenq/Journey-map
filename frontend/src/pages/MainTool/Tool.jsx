@@ -417,19 +417,6 @@ const handleAddSquare = async (rowIndex, colIndex) => {
         </button>
       </div>
       <div className="separator1" style={{ marginTop: "61.9px" }}></div>
-      <div>
-        {isPickerAvailable ?
-        <> 
-        <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-          <h1 style={{ fontSize: "50px" }}>Adicionar emoji</h1>
-        </div>
-        <Picker className="Picker" data={data} previewPosition="none" onEmojiSelect={(e) => { setCurrentEmoji(e.native); setPickerAvailable(!isPickerAvailable); }} 
-        /> 
-        {console.log("currentEmoji = " + JSON.stringify(currentEmoji))}
-        </>
-        : 
-        null}
-      </div>
       <Popup trigger={buttonPopup} setTrigger={setButtonPopup} style={{ borderRadius: "25px" }}>
         {textEdit ? (
           <>
@@ -488,6 +475,16 @@ const handleAddSquare = async (rowIndex, colIndex) => {
             />
           </Layer>
         </Stage>
+      </div>
+      <div className="selectemote">
+        {isPickerAvailable ?
+        <> 
+        <Picker className="Picker" data={data} previewPosition="none" onEmojiSelect={(e) => { setCurrentEmoji(e.native); setPickerAvailable(!isPickerAvailable); }} 
+        /> 
+        {console.log("currentEmoji = " + JSON.stringify(currentEmoji))}
+        </>
+        : 
+        null}
       </div>
       <div className="fases-container">
         <div className="fases-content">
