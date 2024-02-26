@@ -6,6 +6,7 @@ import Popup from "../../components/Popup";
 import Matrix from "../../components/tool/Matrix";
 import { toast } from 'sonner';
 import Picker from '@emoji-mart/react';
+import { Github } from 'lucide-react';
 import data from '@emoji-mart/data'
 import './tool.css'
 
@@ -31,10 +32,10 @@ const updateMatrixWithX = (matrix, id, newX, tipo) => {
     row.map((rect) =>
       (rect[tipo + '_id'] !== undefined && rect[tipo + '_id'].toString() === id.toString())
         ? {
-            ...rect,
-            x: newX
-            // Adicione as propriedades específicas aqui (se necessário)
-          }
+          ...rect,
+          x: newX
+          // Adicione as propriedades específicas aqui (se necessário)
+        }
         : rect
     )
   );
@@ -65,7 +66,7 @@ const Tool = () => {
         // Mapeie os dados da API para o formato desejado na matriz
         const journeyMatrix = journeyData.data.map(item => ({
           type: 'journeyPhase',
-          journeyPhase_id: item.journeyMap_id.toString(),
+          journeyPhase_id: item.journeyPhase_id.toString(),
           x: item.posX,
           y: 61,
           width: 230,
@@ -154,34 +155,33 @@ const Tool = () => {
     const identificador = id;
     const newX = e.target.x();
 
-  
+
     console.log("id:", id);
     console.log("newX:", newX);
     console.log("tipo:", tipo);
-  
-    // Use a função para ajustar a posição dos RedRects
-    
-  
+
     // Atualize diretamente a matriz com a nova posição posX
     setMatrix((prevMatrix) => {
       const updatedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo);
       return updatedMatrix;
     });
+
+    setEditedRectId(id);
   };
-  
-  
-  
-  
-  
+
+
+
+
+
 
   const handleSaveClick = () => {
     const putConfig = { method: "PUT" };
-  
+
     // Mapeie os dados da matriz para os dados necessários para cada tipo de entidade
     const dataToPut = matrix.reduce((acc, row) => {
       row.forEach((rect) => {
         console.log("Saving data for rect:", rect);
-  
+
         if (rect.contactPoint_id !== undefined) {
           acc.push({
             endpoint: "contactPoint",
@@ -190,7 +190,7 @@ const Tool = () => {
         } else if (rect.userAction_id !== undefined) {
           acc.push({
             endpoint: "userAction",
-            data: { userAction_id: rect.userAction_id, posX: rect.x, description: rect.text},
+            data: { userAction_id: rect.userAction_id, posX: rect.x, description: rect.text },
           });
         } else if (rect.emotion_id !== undefined) {
           acc.push({
@@ -205,21 +205,21 @@ const Tool = () => {
         } else if (rect.journeyPhase_id !== undefined) {
           acc.push({
             endpoint: "journeyPhase",
-        data: { journeyPhase_id: rect.journeyPhase_id, posX: rect.x, description: rect.text},
+            data: { journeyPhase_id: rect.journeyPhase_id, posX: rect.x, description: rect.text },
           });
         }
       });
       return acc;
     }, []);
-  
+
     console.log("Data to put:", dataToPut);
-  
+
     // Envie as solicitações para a API usando os dados mapeados
     const requests = dataToPut.map(({ endpoint, data }) => {
       const url = `http://localhost:3000/${endpoint}`;
       return axios.put(url, data, putConfig);
     });
-  
+
     // Execute todas as solicitações
     Promise.all(requests)
       .then(() => {
@@ -230,32 +230,26 @@ const Tool = () => {
         console.error("Erro ao salvar os dados:", error);
       });
   };
-  
-  
-  
-  
-  
+
+
+
+
+
 
   const [buttonPopup, setButtonPopup] = useState(false);
-  const [editedRowIndex, setEditedRowIndex] = useState(61);
+  const [editedRowIndex, setEditedRowIndex] = useState("0");
+  const [editedText, setEditedText] = useState("");
+  const [editedRectId, setEditedRectId] = useState("");
+  const [selectedRectId, setSelectedRectId] = useState(null);
+  const [textEdit, setTextEdit] = useState(false)
 
-  const handleTextSubmit = () => {
-    // Salvar o texto editado quando o usuário confirmar
-    const updatedMatrix = matrix.map((row) =>
-      row.map((rect) =>
-        rect.id === editedRectId && rect.y === editedRowIndex
-          ? { ...rect, text: editedText }
-          : rect
-      )
-    );
-    //console.log("rect.id:", rect.id);
-    console.log("rectid:", editedRectId);
-    console.log("editedRowIndex:", editedRowIndex),
-    setMatrix(updatedMatrix);
-    setEditedText("");
-    setEditedRectId("");
+  const handleRectClick = (currentText, id, rectY) => {
+    setEditedText(currentText); // Define o texto atual para edição no popup
+    setEditedRectId(id);
+    setEditedRowIndex(rectY);
+    setButtonPopup(true); // Abre o popup
+    setTextEdit(true); // Define a edição de texto como verdadeira
   };
-  
 
 
 
@@ -266,151 +260,206 @@ const Tool = () => {
     // Se o novo texto tiver mais de 30 caracteres, abrevie com reticências
     const abbreviatedText = newText.length > 30 ? newText.slice(0, 27) + '...' : newText;
 
-    newMatrix[rowIndex][colIndex].text = abbreviatedText; // Atualiza o texto na matriz
-    setMatrix(newMatrix); // Atualiza a matriz
-
     // Crie uma nova constante que guarde o valor do texto original
     const newTextOriginal = newText;
     setEditedText(newTextOriginal); // Atualize a constante do texto original
-    setEditedRectId(newMatrix[rowIndex][colIndex].id); // Atualize o ID do retângulo editado
+    setEditedRowIndex(rowIndex);
+
+    // Atualize o texto na matriz
+    newMatrix[rowIndex][colIndex].text = abbreviatedText;
+    setMatrix(newMatrix); // Atualiza a matriz
+
+    // Atualize o ID do retângulo editado
+    const novoId = newMatrix[rowIndex][colIndex].id;
   };
 
-const handleAddSquare = async (rowIndex, colIndex) => {
-  try {
-    const response = await axios.post(`http://localhost:/${matrix[rowIndex][0].type}`, {
-      // Os dados para a criação do novo quadrado
-      "journeyMap_id": 3,
-      "linePos": 285,
-      "posX": 125,
-      "length": 0,
-      "description": "Nova descrição",
-      "emojiTag": "Novo emoji"
-    });
+  const handleTextSubmit = () => {
+    console.log("rectid:", editedRectId);
+    console.log("editedRowIndex:", editedRowIndex);
 
-    const newSquare = response.data;
+    // Salvar o texto editado quando o usuário confirmar
+    const updatedMatrix = matrix.map((row) =>
+      row.map((rect) => {
+        const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
 
-    setMatrix((prevMatrix) => {
-      const newMatrix = [...prevMatrix];
+        return (
+          rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex
+            ? { ...rect, text: editedText }
+            : rect
+        );
+      })
+    );
 
-      // Verifica se a matriz na linha rowIndex está definida
-      if (!newMatrix[rowIndex]) {
-        newMatrix[rowIndex] = [];
+    console.log("editedText:", editedText);
+    setMatrix(updatedMatrix);
+    setEditedText("");
+    setEditedRectId("");
+  };
+
+
+  const handleAddSquare = async (rowIndex, colIndex) => {
+    try {
+      // Mapeia o rowIndex para o tipo correspondente
+      const rowIndexToType = {
+        0: 'journeyPhase',
+        1: 'userAction',
+        2: 'emotion',
+        3: 'thought',
+        4: 'contactPoint'
+      };
+
+      // Obtém o tipo com base no rowIndex
+      const type = rowIndexToType[rowIndex];
+
+      if (!type) {
+        console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
+        return;
       }
 
-      // Determina a cor com base no comprimento da linha atual
-      const color = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][0].color : "#a3defe";
+      const response = await axios.post(`http://localhost:3000/${type}`, {
+        "journeyMap_id": 3,
+        "linePos": 285,
+        "posX": 125,
+        "length": 0,
+        "description": "",
+        "emojiTag": "Novo emoji"
+      });
 
-      if (colIndex !== undefined && colIndex < newMatrix[rowIndex].length) {
-        // Verifica se existem outros quadrados com o mesmo colIndex
-        const sameColSquares = newMatrix.flatMap(row => row.filter(square => square && square.x === newMatrix[rowIndex][colIndex].x));
+      const newSquare = response.data;
 
-        if (sameColSquares.length > 1) {
-          // Se houver outros quadrados com o mesmo colIndex, empurra os quadrados subsequentes em todas as linhas para frente
-          newMatrix.forEach((row, rIndex) => {
-            row.forEach((square, cIndex) => {
-              if (rIndex === rowIndex && cIndex > colIndex) {
-                square.x += 260;
-              }
+      console.log("id: " + newSquare.id);
+
+      setMatrix((prevMatrix) => {
+        const newMatrix = [...prevMatrix];
+
+        if (!newMatrix[rowIndex]) {
+          newMatrix[rowIndex] = [];
+        }
+
+        const color = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][0].color : "#a3defe";
+
+        if (colIndex !== undefined && colIndex < newMatrix[rowIndex].length) {
+          const sameColSquares = newMatrix[rowIndex].filter(square => square && square.x === newMatrix[rowIndex][colIndex].x);
+
+          if (sameColSquares.length > 1) {
+            newMatrix.forEach((row, rIndex) => {
+              row.forEach((square, cIndex) => {
+                if (rIndex === rowIndex && cIndex > colIndex) {
+                  square.x += 260;
+                }
+              });
             });
+          }
+
+          const newSquareId = `${type}_${newSquare.id}`;
+
+          newMatrix[rowIndex].splice(colIndex + 1, 0, {
+            id: newSquareId,
+            x: newMatrix[rowIndex][colIndex].x + 260,
+            y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
+            width: 120,
+            height: 85,
+            color: color,
+          });
+        } else {
+          const newSquareId = `${type}_${newSquare.id}`;
+
+          const newX = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
+          newMatrix[rowIndex].push({
+            id: newSquareId,
+            x: newX + 260,
+            y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
+            width: 120,
+            height: 85,
+            color: color,
           });
         }
 
-        // Combinação única de ID com o índice da linha
-        const newSquareId = newSquare.id.toString();
-
-        // Insere o novo quadrado na posição desejada
-        newMatrix[rowIndex].splice(colIndex + 1, 0, {
-          id: newSquareId,
-          x: newMatrix[rowIndex][colIndex].x + 260,
-          y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-          width: 120,
-          height: 85,
-          color: color,
+        newMatrix.forEach((row, rIndex) => {
+          console.log(`IDs dos quadrados na linha ${rIndex + 1}:`, row.map(square => square.id));
         });
-      } else {
-        // Combinação única de ID com o índice da linha
-        const newSquareId = newSquare.id.toString();
 
-        // Adiciona um novo quadrado no final da linha
-        const newX = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
-        newMatrix[rowIndex].push({
-          id: newSquareId,
-          x: newX,
-          y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-          width: 120,
-          height: 85,
-          color: color,
-        });
-      }
-
-      // Printa todos os IDs dos quadrados em todas as linhas
-      newMatrix.forEach((row, rIndex) => {
-        console.log(`IDs dos quadrados na linha ${rIndex + 1}:`, row.map(square => square.id));
+        return [...newMatrix];
       });
+    } catch (error) {
+      console.error("Erro ao adicionar quadrado:", error);
+    }
+  };
 
-      return [...newMatrix];
-    });
-  } catch (error) {
-    console.error("Erro ao adicionar quadrado:", error);
-  }
-};
 
 
   const [activeRect, setActiveRect] = useState(null);
   const [balls, setBalls] = useState([{ x: 0, y: 0 }]);
   const [activePhase, setActivePhase] = useState(1);
-  const [editedText, setEditedText] = useState("");
-  const [editedRectId, setEditedRectId] = useState("");
-  
 
-  const handleDeleteSquare = (rowIndex, colIndex) => {
-    setMatrix((prevMatrix) => {
-      const newMatrix = [...prevMatrix];
 
-      if (newMatrix[rowIndex] && newMatrix[rowIndex][colIndex]) {
-        const deletedSquareId = newMatrix[rowIndex][colIndex].id;
 
-        // Remove o quadrado da matriz
-        newMatrix[rowIndex].splice(colIndex, 1);
+  const handleDeleteSquare = async (rowIndex, colIndex) => {
+    try {
+      const square = matrix[rowIndex][colIndex];
+      const squareType = square.type;
+      const squareId = square[`${squareType}_id`];
 
-        // Diminui o rowIndex dos quadrados subsequentes
-        newMatrix[rowIndex].forEach((square, index) => {
-          if (index >= colIndex) {
-            square.id = `${rowIndex + 1}_${index + 1}`;
-            console.log(`Quadrado ${square.id} teve seu rowIndex ajustado.`);
-          }
-        });
+      console.log(`Iniciando exclusão do quadrado: ${squareId}`);
+      console.log(`Iniciando exclusão do quadrado: ${squareType}`);
 
-        // Printa todos os IDs dos quadrados na linha
-        console.log(`IDs dos quadrados na linha ${rowIndex + 1}:`, newMatrix[rowIndex].map(square => square.id));
+      const response = await axios.delete(`http://localhost:3000/${squareType}/${squareId}`);
 
-        return [...newMatrix];
-      }
+      console.log(`Quadrado ${squareId} excluído com sucesso!`, response);
 
-      return prevMatrix;
-    });
+
+      setMatrix((prevMatrix) => {
+        const newMatrix = [...prevMatrix];
+
+        if (newMatrix[rowIndex]) {
+          // Remove o quadrado da matriz
+          newMatrix[rowIndex].splice(colIndex, 1);
+
+          // Diminui o rowIndex dos quadrados subsequentes
+          newMatrix[rowIndex].forEach((square, index) => {
+            if (index >= colIndex) {
+              square.id = `${rowIndex + 1}_${index + 1}`;
+              console.log(`Quadrado ${square.id} teve seu rowIndex ajustado.`);
+            }
+          });
+
+          // Printa todos os IDs dos quadrados na linha
+          console.log(`IDs dos quadrados na linha ${rowIndex + 1}:`, newMatrix[rowIndex].map(square => square.id));
+
+          return [...newMatrix];
+        }
+
+        return prevMatrix;
+      });
+    } catch (error) {
+      console.error("Erro ao excluir quadrado:", error);
+    }
   };
 
-  const [textEdit, setTextEdit] = useState(false)
+
+
+
+
   const [isPickerAvailable, setPickerAvailable] = useState(false);
   const [currentEmoji, setCurrentEmoji] = useState(null);
 
   const handleCircleClick = () => {
-     setPickerAvailable(!isPickerAvailable);
+    setPickerAvailable(!isPickerAvailable);
   }
 
-  const handleSquareClick = (currentText, squareId, rectY) => {
-    setEditedText(currentText); // Define o texto atual para edição no popup
-    setEditedRectId(squareId); // Define o ID do quadrado atual para edição no popup
-    setEditedRowIndex(rectY); // Define a posição y do retângulo atual para edição no popup
-    setButtonPopup(true); // Abre o popup
-    setTextEdit(true); // Define a edição de texto como verdadeira
-  };
-  
+  // const handleSquareClick = (currentText, squareId, rectY) => {
+  //   //setEditedText(currentText); // Define o texto atual para edição no popup
+  //   //setEditedRectId(squareId); // Define o ID do quadrado atual para edição no popup
+  //   setEditedRowIndex(rectY); // Define a posição y do retângulo atual para edição no popup
+  //   setButtonPopup(true); // Abre o popup
+  //   setTextEdit(true); // Define a edição de texto como verdadeira
+  // };
+
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
-      <div className="scenario" style={{ textAlign: "left", padding: "11px", fontSize: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="scenario" style={{ textAlign: "left", padding: "31px", fontSize: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "3.5%", textAlign: "left" }} alt="cu"></img>
         <span>Cenário 1 - X</span>
         <button className="button info" id="infoButton" style={{ marginRight: "3vh" }} onClick={() => { setButtonPopup(true); }}>
           i
@@ -449,6 +498,10 @@ const handleAddSquare = async (rowIndex, colIndex) => {
             </div>
             <div>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+              <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ width: "70%", textAlign: "center", display: "flex", padding: "5px"}} > 
+              <Github style={{ marginTop: "15px", marginRight: "5px"}}  />
+              <p>Repositório Git</p>
+              </a>
               <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
                 <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
                 <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
@@ -469,22 +522,22 @@ const handleAddSquare = async (rowIndex, colIndex) => {
               handleDeleteSquare={handleDeleteSquare}
               onDragMove={handleDragMove}
               onDragEnd={handleDragEnd}
-              handleSquareClick={handleSquareClick}
               handleCircleClick={handleCircleClick}
               currentEmoji={currentEmoji}
+              handleRectClick={handleRectClick}
             />
           </Layer>
         </Stage>
       </div>
       <div className="selectemote">
         {isPickerAvailable ?
-        <> 
-        <Picker className="Picker" data={data} previewPosition="none" onEmojiSelect={(e) => { setCurrentEmoji(e.native); setPickerAvailable(!isPickerAvailable); }} 
-        /> 
-        {console.log("currentEmoji = " + JSON.stringify(currentEmoji))}
-        </>
-        : 
-        null}
+          <>
+            <Picker className="Picker" data={data} previewPosition="none" onEmojiSelect={(e) => { setCurrentEmoji(e.native); setPickerAvailable(!isPickerAvailable); }}
+            />
+            {console.log("currentEmoji = " + JSON.stringify(currentEmoji))}
+          </>
+          :
+          null}
       </div>
       <div className="fases-container">
         <div className="fases-content">
