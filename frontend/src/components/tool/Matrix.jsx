@@ -23,7 +23,7 @@ const Contato = () => {
     return <Image image={image} width={20} height={20} />;
 };
 
-const Matrix = ({ matrix, activeRect, handleTextSubmit, currentEmoji, handleTextChange, handleCircleClick, setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd, handleSquareClick }) => (
+const Matrix = ({ matrix, activeRect, handleTextSubmit, handleRectClick ,currentEmoji, handleTextChange, handleCircleClick, setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd, handleSquareClick }) => (
     <>
         {matrix.map((row, rowIndex) => (
             row.map((square, colIndex) => (
@@ -45,6 +45,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, currentEmoji, handleText
                     onDragEnd={(e) => {
                         const tipo = square.type;
                         const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id; // Use a propriedade de ID específica
+                        console.log("O ID ANTES é " + id);
                         console.log("E Target X antes = " + e.target.x());
                         const newX = e.target.x();
                         const minX = 20;
@@ -114,7 +115,10 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, currentEmoji, handleText
                                 width={230}
                                 height={135}
                                 color={square.color}
-                                onClick={() => handleSquareClick(square.text, square.id, square.y)}
+                                onClick={() => { 
+                                const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;    
+                                handleRectClick(square.text, id, square.y)
+                                }}
                                 onTextChange={(newText) => handleTextChange(rowIndex, colIndex, newText)}
                                 isActive={activeRect === square.id}
                                 onActivate={() => setActiveRect(square.id)}
@@ -131,21 +135,6 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, currentEmoji, handleText
                                 listening={false}
                                 fontFamily="Inter"
                             />
-                            {activeRect === square.id && (
-                                <Rect
-                                    x={square.x + square.width}
-                                    y={square.y}
-                                    width={30}
-                                    height={30}
-                                    fill="green"
-                                    opacity={1}
-                                    draggable={false}
-                                    onClick={() => handleTextSubmit(rowIndex, colIndex)}
-                                    onTap={() => handleTextSubmit(rowIndex, colIndex)}
-                                    listening={true}
-                                    style={{ cursor: 'pointer' }}
-                                />
-                            )}
                             <Rect
                                 x={square.x + 210}
                                 y={square.y}
