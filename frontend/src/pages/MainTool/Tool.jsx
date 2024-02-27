@@ -459,7 +459,7 @@ const Tool = () => {
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <div className="scenario" style={{ textAlign: "left", padding: "31px", fontSize: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "3.5%", textAlign: "left" }} alt="cu"></img>
+        <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "3%", textAlign: "left" }} alt="cu"></img>
         <span>Cenário 1 - X</span>
         <button className="button info" id="infoButton" style={{ marginRight: "3vh" }} onClick={() => { setButtonPopup(true); }}>
           i
@@ -498,8 +498,8 @@ const Tool = () => {
             </div>
             <div>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-              <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ width: "70%", textAlign: "center", display: "flex", padding: "5px"}} > 
-              <Github style={{ marginTop: "15px", marginRight: "5px"}}  />
+              <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "20px", width: "70%", textAlign: "center", display: "flex", padding: "5px"}} > 
+              <Github style={{ marginTop: "px", marginRight: "5px"}}  />
               <p>Repositório Git</p>
               </a>
               <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
