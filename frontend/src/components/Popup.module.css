@@ -16,7 +16,7 @@
     position: relative;
     padding: 32px;
     width: 70%;
-    background-color: #E2BEFF;
+    background-color: #B8B8B8;
     border-radius: 37px;
     font-size: 110%;
     font-family: Inter;
@@ -31,7 +31,7 @@
     border-radius: 50%;
     background-color: #353535;
     color: white;         
-    padding: 5px 15px;
+    padding: 3px 15px;
     cursor: pointer;
     font-size: 4vb;
     align-items: center;
@@ -45,7 +45,7 @@
     border-radius: 50%;
     background-color: #FF4F4F;
     color: white;         
-    padding: 5px 15px;
+    padding: 4px 16px;
     cursor: pointer;
     font-size: 4vb;
     align-items: center;

@@ -19,8 +19,14 @@ function Login() {
     toast.success('Login realizado com sucesso!')
   };
 
-  const showError = () => {
-    toast.error('Login inválido!')
+  const showError = (error) => {
+    if (error.code === "auth/invalid-email") {
+      toast.error("Email inválido!");
+    } else if (error.code === "auth/invalid-credential") {
+      toast.error("Senha ou email incorretos!");
+    } else {
+      toast.error("Login inválido!");
+    }
   };
 
   if (loggedIn) {
@@ -38,7 +44,7 @@ function Login() {
         setLoggedIn(true);
     } catch (error) {
         console.error(error);
-        showError();
+        showError(error);
     }
   };
 

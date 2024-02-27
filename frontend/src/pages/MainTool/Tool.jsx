@@ -6,9 +6,12 @@ import Popup from "../../components/Popup";
 import Matrix from "../../components/tool/Matrix";
 import { toast } from 'sonner';
 import Picker from '@emoji-mart/react';
-import { Github } from 'lucide-react';
-import data from '@emoji-mart/data'
-import './tool.css'
+import { Github, LogOut } from 'lucide-react';
+import data from '@emoji-mart/data';
+import { auth } from '../../services/firebase';
+import {  signOut } from 'firebase/auth';
+
+import './tool.css';
 
 
 const showAlert = () => {
@@ -42,7 +45,18 @@ const updateMatrixWithX = (matrix, id, newX, tipo) => {
 };
 
 
-const Tool = () => {
+
+const Tool = ({ navigate }) => {
+
+
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  }
+
 
   const [matrix, setMatrix] = useState([]);
 
@@ -315,15 +329,26 @@ const Tool = () => {
         console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
         return;
       }
-
-      const response = await axios.post(`http://localhost:3000/${type}`, {
+      
+      let postData = {
         "journeyMap_id": 3,
         "linePos": 285,
         "posX": 125,
         "length": 0,
         "description": "",
         "emojiTag": "Novo emoji"
-      });
+      };
+  
+      if (type === 'emotion') {
+        postData = {
+          "posX": 100,
+          "lineY": 200,
+          "emojiTag": "Emoji 1",
+          "journeyMap_id": 3
+        };
+      }
+  
+      const response = await axios.post(`http://localhost:3000/${type}`, postData);
 
       const newSquare = response.data;
 
@@ -459,20 +484,28 @@ const Tool = () => {
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <div className="scenario" style={{ textAlign: "left", padding: "31px", fontSize: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "3%", textAlign: "left" }} alt="cu"></img>
+        <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "50px", textAlign: "left" }} alt="cu"></img>
         <span>Cenário 1 - X</span>
-        <button className="button info" id="infoButton" style={{ marginRight: "3vh" }} onClick={() => { setButtonPopup(true); }}>
+        <div className="botoes">
+        <button className="button save" id="saveButton" onClick={() => { handleSaveClick(); }}>
+          Salvar
+        </button>
+        <button className="button info" id="infoButton" style={{ marginLeft: "3vh", marginRight: "3vh" }} onClick={() => { setButtonPopup(true); }}>
           i
         </button>
+        <button className="button logout" onClick={handleLogout}>
+          <LogOut/>
+        </button>
+        </div>
       </div>
       <div className="separator1" style={{ marginTop: "61.9px" }}></div>
-      <Popup trigger={buttonPopup} setTrigger={setButtonPopup} style={{ borderRadius: "25px" }}>
+      <Popup trigger={buttonPopup} setTrigger={setButtonPopup} setTextEdit={setTextEdit} style={{ borderRadius: "25px" }}>
         {textEdit ? (
           <>
             <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-              <h1 style={{ fontSize: "50px" }}>Editar card</h1>
+              <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px"  }}>Editar card</h1>
             </div>
-            <div>
+            <div className="areatexto">
               <textarea
                 type="text"
                 value={editedText}
@@ -481,11 +514,17 @@ const Tool = () => {
                 onChange={(e) => setEditedText(e.target.value)}
                 style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
               />
+
+              <div className="separarbotoes">
+
               <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }}>
                 Adicionar texto
               </button>
 
-              {/* adicionar limpar texto */}
+              <button className="buttonconf2" onClick={() => setEditedText('')}>
+                Limpar texto
+              </button>
+              </div>
             </div>
           </>
         ) : (
@@ -572,12 +611,7 @@ const Tool = () => {
         FasesX: {rects[0].x} | AçõesX: {rects[1].x} | EmoçõesX: {circle.x} | EmoçõesY: {circle.y} | PensamentosX: {rects[2].x} | PontosX: {rects[3].x}
       </div> */}
       {/*<div style={{ background: "repeating-linear-gradient(0deg,#d3d3d3,#d3d3d3 100px,white 100px,white 200px)" }} >*/}
-      <div className="espaco"></div>
-      <div className="footer">
-        <button className="button save" id="saveButton" onClick={() => { handleSaveClick(); }}>
-          Salvar
-        </button>
-      </div>
+      <div className="separator1"></div>
     </div>
   );
 };

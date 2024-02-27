@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { auth } from '../../services/firebase'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from 'firebase/auth'
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react'
 
@@ -14,13 +14,25 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const showSucess = () => {
     toast.success('Cadastro realizado com sucesso!')
   };
 
-  const showError = () => {
-    toast.error('Cadastro invalido!')
+  const showError2 = () => {
+    toast.error('Senhas não são iguais!')
+  }
+
+  const showError = (error) => {
+    if (error.code === "auth/email-already-in-use") {
+      toast.error("Email já cadastrado!");
+    } else if (error.code === "auth/invalid-email") {
+      toast.error("Email inválido!");
+    } else {
+      toast.error("Erro ao inserir o cadastro");
+    }
   };
 
   if (loggedIn) {
@@ -30,6 +42,12 @@ function Signup() {
   const handleLogin = async (e) => {
     
     e.preventDefault();
+
+    if (password !== confirmPassword) {
+      showError2();
+      return;
+    }
+
     try { 
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         //console.log(userCredential);
@@ -41,10 +59,11 @@ function Signup() {
         
     } catch (error) {
         console.error(error);
-        showError();
+        showError(error);
     }
 
   };
+
 
   return (
     <div className="container">
@@ -81,6 +100,22 @@ function Signup() {
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <Eye/> : <EyeOff/>}
+              </button>
+            </div>
+            <div className="wrap-input">
+              <input
+                className={confirmPassword !== "" ? "has-val input" : "input"}
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <span className="focus-input" data-placeholder="Confirme sua senha"></span>
+              <button
+                type="button"
+                className="show-password-button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? <Eye/> : <EyeOff/>}
               </button>
             </div>
 
