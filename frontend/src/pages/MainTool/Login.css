@@ -54,10 +54,17 @@ body {
 }
 
 .wrap-input {
+  display: flex;
   width: 100%;
   position: relative;
   border-bottom: 2px solid #adadad;
   margin-bottom: 37px;
+}
+
+.show-password-button {
+  background-color: #333;
+  border: none;
+  color: #fff;
 }
 
 .input {
