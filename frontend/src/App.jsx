@@ -2,8 +2,9 @@ import React from 'react'
 import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
-import Tool from './pages/MainTool/Tool'
 import Login from './pages/MainTool/Login'
+import Protected from './pages/MainTool/Protected'
+import Signup from './pages/MainTool/Signup'
 
 function App() {
 
@@ -11,8 +12,9 @@ function App() {
     <div>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/home" element={<Tool />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Protected />} />
         </Routes>
       </BrowserRouter>
     </div>
