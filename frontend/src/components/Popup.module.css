@@ -16,7 +16,7 @@
     position: relative;
     padding: 32px;
     width: 70%;
-    background-color: #EAEAEA;
+    background-color: #B7CDE2;
     border-radius: 37px;
     font-size: 110%;
     font-family: Inter;
@@ -29,9 +29,23 @@
     right: -22px;
     border: none;       
     border-radius: 50%;
-    background-color: #808080;
+    background-color: #353535;
     color: white;         
-    padding: 8px 15px;
+    padding: 5px 15px;
+    cursor: pointer;
+    font-size: 4vb;
+    align-items: center;
+}
+
+.popupinner .closebtn:hover {
+    position: absolute;
+    top: -22px;
+    right: -22px;
+    border: none;       
+    border-radius: 50%;
+    background-color: #FF4F4F;
+    color: white;         
+    padding: 5px 15px;
     cursor: pointer;
     font-size: 4vb;
     align-items: center;
