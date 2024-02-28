@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef  } from "react";
 import { createRoot } from "react-dom/client";
 import { Stage, Layer, Rect, Circle } from "react-konva";
 import axios from "axios";
@@ -30,19 +30,6 @@ function adjustCircleXToInterval(x) {
   return adjustedX;
 }
 
-const updateMatrixWithX = (matrix, id, newX, tipo) => {
-  return matrix.map((row) =>
-    row.map((rect) =>
-      (rect[tipo + '_id'] !== undefined && rect[tipo + '_id'].toString() === id.toString())
-        ? {
-          ...rect,
-          x: newX
-          // Adicione as propriedades específicas aqui (se necessário)
-        }
-        : rect
-    )
-  );
-};
 
 
 
@@ -59,6 +46,21 @@ const Tool = ({ navigate }) => {
 
 
   const [matrix, setMatrix] = useState([]);
+  const matrixRef = useRef(matrix);
+
+  const updateMatrixWithX = (matrix, id, newX, tipo) => {
+    return matrix.map((row) =>
+      row.map((rect) =>
+        (rect[tipo + '_id'] !== undefined && rect[tipo + '_id'].toString() === id.toString())
+          ? {
+            ...rect,
+            x: newX
+            // Adicione as propriedades específicas aqui (se necessário)
+          }
+          : rect
+      )
+    );
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -142,21 +144,21 @@ const Tool = ({ navigate }) => {
       }
     };
 
-    fetchData();
+    fetchData(matrixRef);
   }, []);
 
 
 
-  const handleDragMove = (id, newX) => {
-    setMatrix((prevMatrix) =>
-      prevMatrix.map((row) =>
-        row.map((rect) =>
-          rect.id === id ? { ...rect, x: newX } : rect
-        )
-      )
-    );
-    //setEditedRectId = JSON.stringify(id);
-  };
+  // const handleDragMove = (id, newX) => {
+  //   setMatrix((prevMatrix) =>
+  //     prevMatrix.map((row) =>
+  //       row.map((rect) =>
+  //         rect.id === id ? { ...rect, x: newX } : rect
+  //       )
+  //     )
+  //   );
+  //   //setEditedRectId = JSON.stringify(id);
+  // };
 
   const handleCircleDragMove = (e) => {
     const newX = e.target.x();
@@ -167,18 +169,14 @@ const Tool = ({ navigate }) => {
 
   const handleDragEnd = (e, id, tipo) => {
     const identificador = id;
-    const newX = e.target.x();
+    const newX = e.target.x() + 20;
 
+    matrixRef.current = updateMatrixWithX(matrixRef.current, id, newX, tipo);
 
     console.log("id:", id);
     console.log("newX:", newX);
     console.log("tipo:", tipo);
 
-    // Atualize diretamente a matriz com a nova posição posX
-    setMatrix((prevMatrix) => {
-      const updatedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo);
-      return updatedMatrix;
-    });
 
     setEditedRectId(id);
   };
@@ -333,7 +331,7 @@ const Tool = ({ navigate }) => {
       let postData = {
         "journeyMap_id": 3,
         "linePos": 285,
-        "posX": 125,
+        "posX": 20,
         "length": 0,
         "description": "",
         "emojiTag": "Novo emoji"
@@ -413,7 +411,7 @@ const Tool = ({ navigate }) => {
 
 
 
-  const [activeRect, setActiveRect] = useState(null);
+  const [activeRect, setActiveRect] = useState("");
   const [balls, setBalls] = useState([{ x: 0, y: 0 }]);
   const [activePhase, setActivePhase] = useState(1);
 
@@ -555,12 +553,12 @@ const Tool = ({ navigate }) => {
             <Matrix
               matrix={matrix}
               activeRect={activeRect}
+              setActiveRect={setActiveRect}
               handleTextSubmit={handleTextSubmit}
               handleTextChange={handleTextChange}
               handleAddSquare={handleAddSquare}
               handleDeleteSquare={handleDeleteSquare}
-              onDragMove={handleDragMove}
-              onDragEnd={handleDragEnd}
+              handleDragEnd={handleDragEnd}
               handleCircleClick={handleCircleClick}
               currentEmoji={currentEmoji}
               handleRectClick={handleRectClick}

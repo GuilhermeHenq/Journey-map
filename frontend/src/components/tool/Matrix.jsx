@@ -23,7 +23,7 @@ const Contato = () => {
     return <Image image={image} width={20} height={20} />;
 };
 
-const Matrix = ({ matrix, activeRect, handleTextSubmit, handleRectClick ,currentEmoji, handleTextChange, handleCircleClick, setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd, handleSquareClick }) => (
+const Matrix = ({ matrix, handleTextSubmit, handleRectClick ,currentEmoji, handleTextChange, handleCircleClick, handleDeleteSquare, handleAddSquare, handleDragEnd, handleSquareClick }) => (
     <>
         {matrix.map((row, rowIndex) => (
             row.map((square, colIndex) => (
@@ -40,23 +40,34 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleRectClick ,current
                         e.target.y(0);
                         e.target.opacity(0.5);
                         e.target.moveToTop();
-                        onDragMove(e);
+                        // onDragMove(square.id , newX);
                     }}
                     onDragEnd={(e) => {
                         const tipo = square.type;
-                        const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id; // Use a propriedade de ID específica
+                        const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;
                         console.log("O ID ANTES é " + id);
                         console.log("E Target X antes = " + e.target.x());
-                        const newX = e.target.x();
-                        const minX = 20;
-                        const maxX = 780;
-                        const restrictedX = Math.max(minX, Math.min(newX, maxX));
-                        e.target.x(restrictedX);
+                        const initialX = square.x; // Posição inicial do quadrado
+                    
+                        const intervalWidth = 270; // Largura do intervalo
+                    
+                        // Calcula a nova posição x com base na diferença entre a posição do mouse e a posição inicial
+                        const diffX = e.target.x() - initialX;
+                        let newX = initialX + diffX;
+                        
+                        // Garante que newX não seja negativo
+                        //newX = Math.max(0, newX);
+                    
+                        // Ajusta para o múltiplo de 270 mais próximo
+                        const closestMultiple = Math.round(newX / intervalWidth) * intervalWidth;
+                    
+                        e.target.x(closestMultiple);
                         console.log("newX = " + newX);
                         console.log("E Target X Depois = " + e.target.x());
                         e.target.opacity(1);
-                        onDragEnd(e, id, tipo);
+                        handleDragEnd(e, id, tipo);
                     }}
+                    
                 >
                     {/* Botão de adição de quadrados */}
                     <Rect
@@ -120,8 +131,6 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleRectClick ,current
                                 handleRectClick(square.text, id, square.y)
                                 }}
                                 onTextChange={(newText) => handleTextChange(rowIndex, colIndex, newText)}
-                                isActive={activeRect === square.id}
-                                onActivate={() => setActiveRect(square.id)}
                             />
                             <Text
                                 x={square.x + 13}
