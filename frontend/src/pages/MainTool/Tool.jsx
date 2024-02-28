@@ -56,7 +56,7 @@ const Tool = ({ navigate }) => {
 
     // Switch case based on newX ranges
     switch (true) {
-        case newX >= -249 && newX <= 249:
+        case newX >= -269 && newX <= 269:
             constantToAdd = 1;
             break;
         case newX >= 250 && newX <= 499:
@@ -66,10 +66,34 @@ const Tool = ({ navigate }) => {
             updatedX = -270;
             break;
         case newX >= 500 && newX <= 749:
-            updatedX = 560;
+            updatedX = 540;
             break;
         case newX >= -749 && newX <= -500:
-            updatedX = -560;
+            updatedX = -540;
+            break;
+        case newX >= 750 && newX <= 999:
+            updatedX = 810;
+            break;
+        case newX >= -999 && newX <= -750:
+            updatedX = -810;
+            break;
+        case newX >= 1000 && newX <= 1249:
+            updatedX = 1080;
+            break;
+        case newX >= -1249 && newX <= -1000:
+            updatedX = -1080;
+            break;
+        case newX >= 1250 && newX <= 1499:
+            updatedX = 1350;
+            break;
+        case newX >= -1499 && newX <= -1250:
+            updatedX = -1350;
+            break;
+        case newX >= 1500 && newX <= 1749:
+            updatedX = 1620;
+            break;
+        case newX >= -1749 && newX <= -1500:
+            updatedX = -1620;
             break;
         default:
             constantToAdd = 1;
@@ -87,7 +111,7 @@ const Tool = ({ navigate }) => {
             rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()
                 ? {
                     ...rect,
-                    x: Math.max(20, Math.min(1740, rect.x + updatedX)),
+                    x: Math.max(20, Math.min(1620, rect.x + updatedX)),
                 }
                 : rect
         )
@@ -203,7 +227,7 @@ const Tool = ({ navigate }) => {
 
   const handleDragEnd = (e, id, tipo) => {
     const identificador = id;
-    const newX = e.target.x() + 20;
+    const newX = e.target.x();
 
     setMatrix((prevMatrix) => {
       const updatedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo);
