@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef  } from "react";
+import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { Stage, Layer, Rect, Circle } from "react-konva";
 import axios from "axios";
@@ -9,7 +9,7 @@ import Picker from '@emoji-mart/react';
 import { Github, LogOut } from 'lucide-react';
 import data from '@emoji-mart/data';
 import { auth } from '../../services/firebase';
-import {  signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 
 import './tool.css';
 
@@ -46,21 +46,55 @@ const Tool = ({ navigate }) => {
 
 
   const [matrix, setMatrix] = useState([]);
-  const matrixRef = useRef(matrix);
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   const updateMatrixWithX = (matrix, id, newX, tipo) => {
+    let updatedX;
+    let constantToAdd = 0;
+
+    console.log("o valor de x antes de passar pelos cases é: " + newX);
+
+    // Switch case based on newX ranges
+    switch (true) {
+        case newX >= -249 && newX <= 249:
+            constantToAdd = 1;
+            break;
+        case newX >= 250 && newX <= 499:
+            updatedX = 270;
+            break;
+        case newX >= -499 && newX <= -250:
+            updatedX = -270;
+            break;
+        case newX >= 500 && newX <= 749:
+            updatedX = 560;
+            break;
+        case newX >= -749 && newX <= -500:
+            updatedX = -560;
+            break;
+        default:
+            constantToAdd = 1;
+    }
+
+    if (constantToAdd !== 0) {
+        return matrix;
+    }
+
+
+    console.log("o valor de x passando pelos cases é: " + updatedX);
+
     return matrix.map((row) =>
-      row.map((rect) =>
-        (rect[tipo + '_id'] !== undefined && rect[tipo + '_id'].toString() === id.toString())
-          ? {
-            ...rect,
-            x: newX
-            // Adicione as propriedades específicas aqui (se necessário)
-          }
-          : rect
-      )
+        row.map((rect) =>
+            rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()
+                ? {
+                    ...rect,
+                    x: Math.max(20, Math.min(1740, rect.x + updatedX)),
+                }
+                : rect
+        )
     );
-  };
+};
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -144,7 +178,7 @@ const Tool = ({ navigate }) => {
       }
     };
 
-    fetchData(matrixRef);
+    fetchData();
   }, []);
 
 
@@ -171,7 +205,10 @@ const Tool = ({ navigate }) => {
     const identificador = id;
     const newX = e.target.x() + 20;
 
-    matrixRef.current = updateMatrixWithX(matrixRef.current, id, newX, tipo);
+    setMatrix((prevMatrix) => {
+      const updatedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo);
+      return updatedMatrix;
+    });
 
     console.log("id:", id);
     console.log("newX:", newX);
@@ -179,6 +216,7 @@ const Tool = ({ navigate }) => {
 
 
     setEditedRectId(id);
+    setForceUpdate(prev => prev + 1);
   };
 
 
@@ -327,7 +365,7 @@ const Tool = ({ navigate }) => {
         console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
         return;
       }
-      
+
       let postData = {
         "journeyMap_id": 3,
         "linePos": 285,
@@ -336,7 +374,7 @@ const Tool = ({ navigate }) => {
         "description": "",
         "emojiTag": "Novo emoji"
       };
-  
+
       if (type === 'emotion') {
         postData = {
           "posX": 100,
@@ -345,7 +383,7 @@ const Tool = ({ navigate }) => {
           "journeyMap_id": 3
         };
       }
-  
+
       const response = await axios.post(`http://localhost:3000/${type}`, postData);
 
       const newSquare = response.data;
@@ -485,15 +523,15 @@ const Tool = ({ navigate }) => {
         <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "50px", textAlign: "left" }} alt="cu"></img>
         <span>Cenário 1 - X</span>
         <div className="botoes">
-        <button className="button save" id="saveButton" onClick={() => { handleSaveClick(); }}>
-          Salvar
-        </button>
-        <button className="button info" id="infoButton" style={{ marginLeft: "3vh", marginRight: "3vh" }} onClick={() => { setButtonPopup(true); }}>
-          i
-        </button>
-        <button className="button logout" onClick={handleLogout}>
-          <LogOut/>
-        </button>
+          <button className="button save" id="saveButton" onClick={() => { handleSaveClick(); }}>
+            Salvar
+          </button>
+          <button className="button info" id="infoButton" style={{ marginLeft: "3vh", marginRight: "3vh" }} onClick={() => { setButtonPopup(true); }}>
+            i
+          </button>
+          <button className="button logout" onClick={handleLogout}>
+            <LogOut />
+          </button>
         </div>
       </div>
       <div className="separator1" style={{ marginTop: "61.9px" }}></div>
@@ -501,7 +539,7 @@ const Tool = ({ navigate }) => {
         {textEdit ? (
           <>
             <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-              <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px"  }}>Editar card</h1>
+              <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px" }}>Editar card</h1>
             </div>
             <div className="areatexto">
               <textarea
@@ -515,13 +553,13 @@ const Tool = ({ navigate }) => {
 
               <div className="separarbotoes">
 
-              <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }}>
-                Adicionar texto
-              </button>
+                <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }}>
+                  Adicionar texto
+                </button>
 
-              <button className="buttonconf2" onClick={() => setEditedText('')}>
-                Limpar texto
-              </button>
+                <button className="buttonconf2" onClick={() => setEditedText('')}>
+                  Limpar texto
+                </button>
               </div>
             </div>
           </>
@@ -535,9 +573,9 @@ const Tool = ({ navigate }) => {
             </div>
             <div>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-              <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "20px", width: "70%", textAlign: "center", display: "flex", padding: "5px"}} > 
-              <Github style={{ marginTop: "px", marginRight: "5px"}}  />
-              <p>Repositório Git</p>
+              <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "20px", width: "70%", textAlign: "center", display: "flex", padding: "5px" }} >
+                <Github style={{ marginTop: "px", marginRight: "5px" }} />
+                <p>Repositório Git</p>
               </a>
               <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
                 <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
@@ -551,6 +589,7 @@ const Tool = ({ navigate }) => {
         <Stage width={window.innerWidth - 160} height={window.innerHeight + 180}>
           <Layer>
             <Matrix
+              key={forceUpdate}
               matrix={matrix}
               activeRect={activeRect}
               setActiveRect={setActiveRect}
