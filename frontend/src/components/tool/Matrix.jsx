@@ -23,7 +23,7 @@ const Contato = () => {
     return <Image image={image} width={20} height={20} />;
 };
 
-const Matrix = ({ matrix, handleTextSubmit, handleRectClick ,currentEmoji, handleTextChange, handleCircleClick, handleDeleteSquare, handleAddSquare, handleDragEnd, handleSquareClick }) => (
+const Matrix = ({ matrix, handleTextSubmit, handleRectClick, currentEmoji, handleTextChange, handleCircleClick, handleDeleteSquare, handleAddSquare, handleDragEnd, handleSquareClick }) => (
     <>
         {matrix.map((row, rowIndex) => (
             row.map((square, colIndex) => (
@@ -48,31 +48,31 @@ const Matrix = ({ matrix, handleTextSubmit, handleRectClick ,currentEmoji, handl
                         console.log("O ID ANTES é " + id);
                         console.log("E Target X antes = " + e.target.x());
                         const initialX = square.x; // Posição inicial do quadrado
-                    
+
                         const intervalWidth = 270; // Largura do intervalo
-                    
+
                         // Calcula a nova posição x com base na diferença entre a posição do mouse e a posição inicial
                         const diffX = e.target.x() - initialX;
                         let newX = initialX + diffX;
-                        
+
                         // Garante que newX não seja negativo
                         //newX = Math.max(0, newX);
-                    
+
                         // Ajusta para o múltiplo de 270 mais próximo
                         const closestMultiple = Math.round(newX / intervalWidth) * intervalWidth;
-                    
+
                         e.target.x(closestMultiple);
                         console.log("newX = " + newX);
                         console.log("E Target X Depois = " + e.target.x());
                         e.target.opacity(1);
                         handleDragEnd(e, id, tipo);
                     }}
-                    
+
                 >
                     {/* Botão de adição de quadrados */}
                     <Rect
-                        x={square.x + 230} // Ajuste conforme necessário
-                        y={square.y + 50} // Ajuste conforme necessário
+                        x={rowIndex === 2 ? square.x + 230 : square.x + 230} 
+                        y={rowIndex === 2 ? square.y + 0 : square.y + 50} 
                         width={30}
                         height={30}
                         fill="gray"
@@ -94,9 +94,10 @@ const Matrix = ({ matrix, handleTextSubmit, handleRectClick ,currentEmoji, handl
                             // e.target.opacity(0);
                         }}
                     />
+
                     <Text
-                        x={square.x + 236.5}
-                        y={square.y + 53}
+                        x={rowIndex === 2 ? square.x + 235 : square.x + 235} 
+                        y={rowIndex === 2 ? square.y + 2 : square.y + 52} 
                         text="+"
                         fontSize={30}
                         fill="#d9d9d9"
@@ -126,9 +127,9 @@ const Matrix = ({ matrix, handleTextSubmit, handleRectClick ,currentEmoji, handl
                                 width={230}
                                 height={135}
                                 color={square.color}
-                                onClick={() => { 
-                                const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;    
-                                handleRectClick(square.text, id, square.y)
+                                onClick={() => {
+                                    const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;
+                                    handleRectClick(square.text, id, square.y)
                                 }}
                                 onTextChange={(newText) => handleTextChange(rowIndex, colIndex, newText)}
                             />
@@ -198,7 +199,7 @@ const Matrix = ({ matrix, handleTextSubmit, handleRectClick ,currentEmoji, handl
                                 fill="#000"             // Ajuste conforme necessário
                                 align="center"
                                 verticalAlign="middle"
-                                text={currentEmoji || "+" }
+                                text={currentEmoji || "+"}
                                 onClick={handleCircleClick}
                             />
                             <Rect
@@ -245,7 +246,7 @@ const Matrix = ({ matrix, handleTextSubmit, handleRectClick ,currentEmoji, handl
             >
                 <Rect
                     x={row.length > 0 ? row[row.length - 1].x + 259 : 30}
-                    y={rowIndex * 170 + 104}
+                    y={rowIndex === 2 ? rowIndex * 170 + 104 + 13 : rowIndex * 170 + 104}
                     width={60}
                     height={45}
                     fill="gray"
@@ -259,7 +260,7 @@ const Matrix = ({ matrix, handleTextSubmit, handleRectClick ,currentEmoji, handl
                 />
                 <Text
                     x={row.length > 0 ? row[row.length - 1].x + 273 : 45}
-                    y={rowIndex * 170 + 106}
+                    y={rowIndex === 2 ? rowIndex * 170 + 104 + 13 : rowIndex * 170 + 104}
                     text="+"
                     fontSize={50}
                     fill='#d9d9d9'
