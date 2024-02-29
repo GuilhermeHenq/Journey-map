@@ -30,6 +30,8 @@ function Signup() {
       toast.error("Email já cadastrado!");
     } else if (error.code === "auth/invalid-email") {
       toast.error("Email inválido!");
+    } else if (error.code === "auth/weak-password") {
+      toast.error("Senha deve conter mais de 6 caracteres!");
     } else {
       toast.error("Erro ao inserir o cadastro");
     }
