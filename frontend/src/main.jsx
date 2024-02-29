@@ -1,11 +1,13 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import { Toaster } from 'sonner'
+import React from 'react';
+import ReactDOM from 'react-dom/client'; // Importe createRoot de 'react-dom/client'
+import App from './App.jsx';
+import { Toaster } from 'sonner';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-    <React.StrictMode>
-        <App />
-        <Toaster richColors="true" />
-    </React.StrictMode>
-)
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+root.render(
+  <React.StrictMode>
+    <App />
+    <Toaster richColors="true" />
+  </React.StrictMode>
+);

@@ -18,24 +18,11 @@ const showAlert = () => {
   toast.success('Progresso salvo com sucesso!')
 };
 
-function adjustPositionToInterval(x, interval) {
-  const adjustedX = Math.floor(x / interval) * interval + 50;
-  return adjustedX;
-}
-
-function adjustCircleXToInterval(x) {
-  const interval = 71;
-  const startX = 67;
-  const adjustedX = Math.floor((x - startX) / interval) * interval + startX;
-  return adjustedX;
-}
 
 
 
 
 const Tool = ({ navigate }) => {
-
-
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -206,25 +193,6 @@ const Tool = ({ navigate }) => {
   }, []);
 
 
-
-  // const handleDragMove = (id, newX) => {
-  //   setMatrix((prevMatrix) =>
-  //     prevMatrix.map((row) =>
-  //       row.map((rect) =>
-  //         rect.id === id ? { ...rect, x: newX } : rect
-  //       )
-  //     )
-  //   );
-  //   //setEditedRectId = JSON.stringify(id);
-  // };
-
-  const handleCircleDragMove = (e) => {
-    const newX = e.target.x();
-    const newY = Math.min(550, Math.max(432, e.target.y()));
-
-    setBalls([{ x: newX, y: newY }]);
-  };
-
   const handleDragEnd = (e, id, tipo) => {
     const identificador = id;
     const newX = e.target.x();
@@ -242,10 +210,6 @@ const Tool = ({ navigate }) => {
     setEditedRectId(id);
     setForceUpdate(prev => prev + 1);
   };
-
-
-
-
 
 
   const handleSaveClick = () => {
@@ -307,14 +271,10 @@ const Tool = ({ navigate }) => {
 
 
 
-
-
-
   const [buttonPopup, setButtonPopup] = useState(false);
   const [editedRowIndex, setEditedRowIndex] = useState("0");
   const [editedText, setEditedText] = useState("");
   const [editedRectId, setEditedRectId] = useState("");
-  const [selectedRectId, setSelectedRectId] = useState(null);
   const [textEdit, setTextEdit] = useState(false)
 
   const handleRectClick = (currentText, id, rectY) => {
@@ -329,7 +289,6 @@ const Tool = ({ navigate }) => {
 
   const handleTextChange = (rowIndex, colIndex, newText) => {
     const newMatrix = [...matrix];
-    const originalText = newMatrix[rowIndex][colIndex].text; // Guarda o texto original
 
     // Se o novo texto tiver mais de 30 caracteres, abrevie com reticências
     const abbreviatedText = newText.length > 30 ? newText.slice(0, 27) + '...' : newText;
@@ -343,8 +302,6 @@ const Tool = ({ navigate }) => {
     newMatrix[rowIndex][colIndex].text = abbreviatedText;
     setMatrix(newMatrix); // Atualiza a matriz
 
-    // Atualize o ID do retângulo editado
-    const novoId = newMatrix[rowIndex][colIndex].id;
   };
 
   const handleTextSubmit = () => {
@@ -472,13 +429,6 @@ const Tool = ({ navigate }) => {
   };
 
 
-
-  const [activeRect, setActiveRect] = useState("");
-  const [balls, setBalls] = useState([{ x: 0, y: 0 }]);
-  const [activePhase, setActivePhase] = useState(1);
-
-
-
   const handleDeleteSquare = async (rowIndex, colIndex) => {
     try {
       const square = matrix[rowIndex][colIndex];
@@ -522,9 +472,6 @@ const Tool = ({ navigate }) => {
   };
 
 
-
-
-
   const [isPickerAvailable, setPickerAvailable] = useState(false);
   const [currentEmoji, setCurrentEmoji] = useState(null);
 
@@ -532,13 +479,6 @@ const Tool = ({ navigate }) => {
     setPickerAvailable(!isPickerAvailable);
   }
 
-  // const handleSquareClick = (currentText, squareId, rectY) => {
-  //   //setEditedText(currentText); // Define o texto atual para edição no popup
-  //   //setEditedRectId(squareId); // Define o ID do quadrado atual para edição no popup
-  //   setEditedRowIndex(rectY); // Define a posição y do retângulo atual para edição no popup
-  //   setButtonPopup(true); // Abre o popup
-  //   setTextEdit(true); // Define a edição de texto como verdadeira
-  // };
 
 
   return (
@@ -615,8 +555,6 @@ const Tool = ({ navigate }) => {
             <Matrix
               key={forceUpdate}
               matrix={matrix}
-              activeRect={activeRect}
-              setActiveRect={setActiveRect}
               handleTextSubmit={handleTextSubmit}
               handleTextChange={handleTextChange}
               handleAddSquare={handleAddSquare}
@@ -677,8 +615,5 @@ const Tool = ({ navigate }) => {
   );
 };
 
-const container = document.getElementById("root");
-const root = createRoot(container);
-root.render(<Tool />);
 
 export default Tool;
