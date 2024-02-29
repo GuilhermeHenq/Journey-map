@@ -210,6 +210,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                     e.target.opacity(0);
                 }}
             >
+                {/* Quadrado maior */}
                 <Rect
                     x={row.length > 0 ? row[row.length - 1].x + 259 : 290}
                     y={rowIndex * 170 + 104}
