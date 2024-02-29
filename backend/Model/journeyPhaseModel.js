@@ -14,8 +14,9 @@ class JourneyPhaseModel {
 
   insertJourneyPhase(data) {
     if (data.posX !== undefined) {
-      const { posX } = data;
-      return db.execute("INSERT INTO journeyPhase (posX) VALUES (?)", [posX])
+      const { posX, journeyMap_id, linePos, length, description, emojiTag } = data;
+      return db.execute("INSERT INTO journeyPhase (posX, journeyMap_id, linePos, length, description, emojiTag) VALUES (?, ?, ?, ?, ?, ?)",
+      [posX, journeyMap_id, linePos, length, description, emojiTag])
         .then(() => true)
         .catch((error) => {
           console.error("Error inserting journeyPhase:", error);
@@ -28,9 +29,9 @@ class JourneyPhaseModel {
   
 
   updateJourneyPhase(data) {
-    const { journeyPhase_id, posX } = data;
+    const { journeyPhase_id, posX, description } = data;
   
-    return db.execute("UPDATE journeyPhase SET posX = ? WHERE journeyPhase_id = ?", [posX, journeyPhase_id])
+    return db.execute("UPDATE journeyPhase SET posX = ?, description = ? WHERE journeyPhase_id = ?", [posX, description, journeyPhase_id ])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating journeyPhase:", error);
@@ -47,6 +48,16 @@ class JourneyPhaseModel {
       });
   }
 
+  getLastInsertedId() {
+    return db.query("SELECT LAST_INSERT_ID() as last_inserted_id")
+      .then(([rows]) => {
+        return rows[0].last_inserted_id;
+      })
+      .catch((error) => {
+        console.error("Error getting last inserted ID:", error);
+        throw error;
+      });
+  }
   
 }
 

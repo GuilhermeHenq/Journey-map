@@ -1,6 +1,6 @@
 // emotionController.js
 
-const EmotionModel = require('../Model/EmotionModel');
+const EmotionModel = require('../Model/emotionModel');
 
 const emotionController = {
   getAllItems: async (req, res) => {
@@ -17,13 +17,16 @@ const emotionController = {
   postItem: async (req, res) => {
     try {
       const postData = req.body;
-      if (postData && postData.posX !== undefined) {
+      if (postData && postData.posX !== undefined
+        && postData.journeyMap_id !== undefined 
+        && postData.emojiTag !== undefined
+        && postData.lineY !== undefined) {
         const emotionModel = new EmotionModel();
-        const dataToInsert = { posX: postData.posX, lineY: postData.lineY };
-        const success = await emotionModel.insertEmotion(dataToInsert);
+        const success = await emotionModel.insertEmotion(postData);
 
         if (success) {
-          res.status(201).json({ message: 'Dados inseridos com sucesso' });
+          const insertedId = await emotionModel.getLastInsertedId();
+          res.status(201).json({ id: insertedId, message: 'Dados inseridos com sucesso' });
         } else {
           res.status(500).json({ error: 'Erro ao inserir dados' });
         }
@@ -59,22 +62,18 @@ const emotionController = {
 
   deleteItem: async (req, res) => {
     try {
-      const deleteData = req.body;
-      if (deleteData && deleteData.emotion_id !== undefined) {
-        const emotionModel = new EmotionModel();
-        const success = await emotionModel.deleteEmotion(deleteData.emotion_id);
+      const emotionId = req.params.emotionId; // Pega o id diretamente da URL
+      const emotionModel = new EmotionModel();
+      const success = await emotionModel.deleteEmotion(emotionId);
 
-        if (success) {
-          res.status(200).json({ message: 'Emoção excluído com sucesso' });
-        } else {
-          res.status(500).json({ error: 'Erro ao excluir a emoção' });
-        }
+      if (success) {
+        res.status(200).json({ message: 'Emoção excluída com sucesso' });
       } else {
-        res.status(400).json({ error: 'Dados de solicitação DELETE ausentes ou inválidos' });
+        res.status(500).json({ error: 'Erro ao excluir a Emoção' });
       }
     } catch (error) {
-      console.error("Error deleting emotion:", error);
-      res.status(500).json({ error: 'Erro ao excluir emoção' });
+      console.error("Error deleting Emotion:", error);
+      res.status(500).json({ error: 'Erro ao excluir Emoção' });
     }
   }
   

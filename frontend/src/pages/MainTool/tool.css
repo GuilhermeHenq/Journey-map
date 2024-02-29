@@ -1,21 +1,21 @@
 body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background-color: #d9d9d9;
-    min-zoom: 70%;
-  }
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #d9d9d9;
+  max-height: 100vh;
+  overflow-y: hidden;
+  min-zoom: 70%;
+}
   
-  .content {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f0f0f0;
-  }
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  flex: 1;
+}
   
   .footer {
     position: fixed;
@@ -24,8 +24,7 @@ body {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    background-color: black;
-    height: 80px;
+    background-color: #B8B8B8;
     z-index: 2;
   }
   
@@ -45,6 +44,19 @@ body {
     color: white;
   }
   
+  .save:hover {
+    background-color: #16911b;
+    color: white;
+  }
+  
+  .botoes {
+    display: flex;
+    align-items: center;
+    justifycontent: center;
+    text-align: center;
+  }
+
+
   .scenario {
     background-color: #454545;
     color: white;
@@ -84,6 +96,20 @@ body {
     font-weight: 400;
     text-align: center;
   }
+
+  .Picker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(500px); /* Ajuste o valor conforme necessário */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 4;
+  }
   
   .stage-container {
     position: absolute;
@@ -91,6 +117,18 @@ body {
     left: 0;
     margin-top: 28px;
     margin-left: 160px;
+    z-index: 1;
+  }
+
+  .selectemote {
+    display: flex-column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 250px;
+    margin-left: 900px;
     z-index: 1;
   }
   
@@ -101,14 +139,44 @@ body {
   
   .button.info {
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     background-color: #C4C4C4;
     color: white;
     border: none;       
-    font-size: 4vb; 
+    font-size: 40px; 
     cursor: pointer;     
     display: flex;       
+    justify-content: center;  
+    align-items: center;      
+  }
+
+  .button.info:hover {
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    background-color: #9e9999;
+    color: white;
+    border: none;        
+    font-size: 42px; 
+    cursor: pointer;     
+    display: flex;       
+    justify-content: center;  
+    align-items: center;      
+  }
+
+  .button.logout {
+    background-color: #FF5858;
+    color: white;
+    cursor: pointer;        
+    justify-content: center;  
+    align-items: center;      
+  }
+
+  .button.logout:hover {
+    background-color: #a80505;
+    color: white;
+    cursor: pointer;        
     justify-content: center;  
     align-items: center;      
   }
@@ -116,9 +184,56 @@ body {
   .buttonconf {
     border: none;       
     border-radius: 18px;
-    background-color: #ACACAC;
-    color: black;
-    padding: 11px 150px;
+    background-color: #353535;
+    color: white;
+    padding: 11px 120px;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 32px;
+    font-family: Inter;
+    font-weight: 500;
+  }
+
+  .buttonconf2 {
+    border: none;       
+    border-radius: 18px;
+    background-color: #353535;
+    color: white;
+    padding: 11px 120px;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 32px;
+    font-family: Inter;
+    font-weight: 500;
+  }
+  
+  .separarbotoes {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .buttonconf:hover {
+    border: none;       
+    border-radius: 18px;
+    background-color: #00962A;
+    color: white;
+    padding: 11px 120px;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 32px;
+    font-family: Inter;
+    font-weight: 500;
+  }
+
+  .buttonconf2:hover {
+    border: none;       
+    border-radius: 18px;
+    background-color: #FF454F;
+    color: white;
+    padding: 11px 120px;
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
@@ -132,9 +247,11 @@ body {
     height: 160px;
     font-size: 30px;
     align-items: top;
-    margin-bottom: 30px;
+    margin-top: 30px;
+    margin-bottom: 50px;
     border-radius: 20px;
     font-family: Inter;
     padding-top: 20px;
+    padding-left: 10px;
     padding-bottom: 20px;
   }

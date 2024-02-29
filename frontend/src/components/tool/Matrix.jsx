@@ -5,50 +5,74 @@ import useImage from 'use-image'
 
 const Fase = () => {
     const [image] = useImage('https://cdn-icons-png.flaticon.com/512/30/30630.png');
-    return <Image image={image} width={20} height={20}/>;
+    return <Image image={image} width={20} height={20} />;
 };
 
 const Acao = () => {
     const [image] = useImage('https://cdn-icons-png.flaticon.com/512/1589/1589051.png');
-    return <Image image={image} width={20} height={20}/>;
+    return <Image image={image} width={20} height={20} />;
 };
 
 const Pensamento = () => {
     const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2258/2258911.png');
-    return <Image image={image} width={20} height={20}/>;
+    return <Image image={image} width={20} height={20} />;
 };
 
 const Contato = () => {
     const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2199/2199553.png');
-    return <Image image={image} width={20} height={20}/>;
+    return <Image image={image} width={20} height={20} />;
 };
 
-const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setActiveRect, handleDeleteSquare, handleAddSquare, onDragMove, onDragEnd, handleSquareClick }) => (
+const Matrix = ({ matrix, handleTextSubmit, handleRectClick, currentEmoji, handleTextChange, handleCircleClick, handleDeleteSquare, handleAddSquare, handleDragEnd, handleSquareClick }) => (
     <>
         {matrix.map((row, rowIndex) => (
             row.map((square, colIndex) => (
                 <Group
-                    key={`square_${square.id}`}
+                    key={`square_${rowIndex}_${colIndex}_${square.id}`}
                     draggable={true}
                     x={0}
                     y={0}
                     onDragMove={(e) => {
                         const newX = e.target.x();
+                        //console.log("Começou movem com = " + newX);
                         e.target.x(newX);
+                        //console.log("Começou movem com e target = " + e.target.x());
                         e.target.y(0);
                         e.target.opacity(0.5);
                         e.target.moveToTop();
+                        // onDragMove(square.id , newX);
                     }}
                     onDragEnd={(e) => {
-                        const newX = Math.round(e.target.x() / 260) * 260;
-                        e.target.x(newX);
+                        const tipo = square.type;
+                        const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;
+                        console.log("O ID ANTES é " + id);
+                        console.log("E Target X antes = " + e.target.x());
+                        const initialX = square.x; // Posição inicial do quadrado
+
+                        const intervalWidth = 270; // Largura do intervalo
+
+                        // Calcula a nova posição x com base na diferença entre a posição do mouse e a posição inicial
+                        const diffX = e.target.x() - initialX;
+                        let newX = initialX + diffX;
+
+                        // Garante que newX não seja negativo
+                        //newX = Math.max(0, newX);
+
+                        // Ajusta para o múltiplo de 270 mais próximo
+                        const closestMultiple = Math.round(newX / intervalWidth) * intervalWidth;
+
+                        e.target.x(closestMultiple);
+                        console.log("newX = " + newX);
+                        console.log("E Target X Depois = " + e.target.x());
                         e.target.opacity(1);
+                        handleDragEnd(e, id, tipo);
                     }}
+
                 >
                     {/* Botão de adição de quadrados */}
                     <Rect
-                        x={square.x + 230} // Ajuste conforme necessário
-                        y={square.y + 50} // Ajuste conforme necessário
+                        x={rowIndex === 2 ? square.x + 230 : square.x + 230} 
+                        y={rowIndex === 2 ? square.y + 0 : square.y + 50} 
                         width={30}
                         height={30}
                         fill="gray"
@@ -70,9 +94,10 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                             // e.target.opacity(0);
                         }}
                     />
+
                     <Text
-                        x={square.x + 236.5} // Ajuste conforme necessário
-                        y={square.y + 53} // Ajuste conforme necessário
+                        x={rowIndex === 2 ? square.x + 235 : square.x + 235} 
+                        y={rowIndex === 2 ? square.y + 2 : square.y + 52} 
                         text="+"
                         fontSize={30}
                         fill="#d9d9d9"
@@ -96,15 +121,17 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                         <>
                             <EditableRect
                                 key={`square_${square.id}`}
+                                id={square.id}
                                 x={square.x}
                                 y={square.y}
                                 width={230}
                                 height={135}
                                 color={square.color}
-                                onClick={() => handleSquareClick(square.text, square.id)}
+                                onClick={() => {
+                                    const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;
+                                    handleRectClick(square.text, id, square.y)
+                                }}
                                 onTextChange={(newText) => handleTextChange(rowIndex, colIndex, newText)}
-                                isActive={activeRect === square.id}
-                                onActivate={() => setActiveRect(square.id)}
                             />
                             <Text
                                 x={square.x + 13}
@@ -118,21 +145,6 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                                 listening={false}
                                 fontFamily="Inter"
                             />
-                            {activeRect === square.id && (
-                                <Rect
-                                    x={square.x + square.width}
-                                    y={square.y}
-                                    width={30}
-                                    height={30}
-                                    fill="green"
-                                    opacity={1}
-                                    draggable={false}
-                                    onClick={() => handleTextSubmit(rowIndex, colIndex)}
-                                    onTap={() => handleTextSubmit(rowIndex, colIndex)}
-                                    listening={true}
-                                    style={{ cursor: 'pointer' }}
-                                />
-                            )}
                             <Rect
                                 x={square.x + 210}
                                 y={square.y}
@@ -180,15 +192,15 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                         </>
                     ) : (
                         <>
-                            <Circle
-                                x={square.x + 60}
-                                y={square.y}
-                                radius={10}
-                                fill={square.color}
-                                opacity={1}
-                                draggable={false}
-                                listening={true}
-                                style={{ cursor: 'pointer' }}
+                            <Text
+                                x={square.x + 60 - 18}  // Ajuste conforme necessário
+                                y={square.y - 10}       // Ajuste conforme necessário
+                                fontSize={40}           // Ajuste conforme necessário
+                                fill="#000"             // Ajuste conforme necessário
+                                align="center"
+                                verticalAlign="middle"
+                                text={currentEmoji || "+"}
+                                onClick={handleCircleClick}
                             />
                             <Rect
                                 x={square.x + 100}
@@ -221,21 +233,21 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
         ))}
         {matrix.map((row, rowIndex) => (
             <Group key={`addButtonRow_${rowIndex}`}
-            onMouseEnter={(e) => {
-                const container = e.target.getStage().container();
-                container.style.cursor = "pointer";
-                e.target.opacity(1);
-            }}
-            onMouseLeave={(e) => {
-                const container = e.target.getStage().container();
-                container.style.cursor = "default";
-                e.target.opacity(0);
-            }}
+                onMouseEnter={(e) => {
+                    const container = e.target.getStage().container();
+                    container.style.cursor = "pointer";
+                    e.target.opacity(1);
+                }}
+                onMouseLeave={(e) => {
+                    const container = e.target.getStage().container();
+                    container.style.cursor = "default";
+                    e.target.opacity(0);
+                }}
             >
                 {/* Quadrado maior */}
                 <Rect
                     x={row.length > 0 ? row[row.length - 1].x + 259 : 30}
-                    y={rowIndex * 170 + 104}
+                    y={rowIndex === 2 ? rowIndex * 170 + 104 + 13 : rowIndex * 170 + 104}
                     width={60}
                     height={45}
                     fill="gray"
@@ -249,7 +261,7 @@ const Matrix = ({ matrix, activeRect, handleTextSubmit, handleTextChange, setAct
                 />
                 <Text
                     x={row.length > 0 ? row[row.length - 1].x + 273 : 45}
-                    y={rowIndex * 170 + 106}
+                    y={rowIndex === 2 ? rowIndex * 170 + 104 + 13 : rowIndex * 170 + 104}
                     text="+"
                     fontSize={50}
                     fill='#d9d9d9'

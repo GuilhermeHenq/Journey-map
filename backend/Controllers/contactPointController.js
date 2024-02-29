@@ -17,13 +17,15 @@ const contactPointController = {
   postItem: async (req, res) => {
     try {
       const postData = req.body;
-      if (postData && postData.posX !== undefined) {
+      if (postData && postData.posX !== undefined && postData.journeyMap_id
+        !== undefined && postData.linePos !== undefined && postData.length !== undefined &&
+        postData.description !== undefined && postData.emojiTag !== undefined) {
         const contactPointModel = new ContactPointModel();
-        const dataToInsert = { posX: postData.posX };
-        const success = await contactPointModel.insertContactPoint(dataToInsert);
+        const success = await contactPointModel.insertContactPoint(postData);
 
         if (success) {
-          res.status(201).json({ message: 'Dados inseridos com sucesso' });
+          const insertedId = await contactPointModel.getLastInsertedId();
+          res.status(201).json({ id: insertedId, message: 'Dados inseridos com sucesso' });
         } else {
           res.status(500).json({ error: 'Erro ao inserir dados' });
         }
@@ -59,24 +61,21 @@ const contactPointController = {
 
   deleteItem: async (req, res) => {
     try {
-      const deleteData = req.body;
-      if (deleteData && deleteData.contactPoint_id !== undefined) {
-        const contactPointModel = new ContactPointModel();
-        const success = await contactPointModel.deleteContactPoint(deleteData.contactPoint_id);
+      const contactPointId = req.params.contactPointId; // Pega o id diretamente da URL
+      const contactPointModel = new ContactPointModel();
+      const success = await contactPointModel.deleteContactPoint(contactPointId);
 
-        if (success) {
-          res.status(200).json({ message: 'Ponto de contato excluído com sucesso' });
-        } else {
-          res.status(500).json({ error: 'Erro ao excluir o ponto de contato' });
-        }
+      if (success) {
+        res.status(200).json({ message: 'Ponto de contato excluído com sucesso' });
       } else {
-        res.status(400).json({ error: 'Dados de solicitação DELETE ausentes ou inválidos' });
+        res.status(500).json({ error: 'Erro ao excluir o Ponto de contato' });
       }
     } catch (error) {
       console.error("Error deleting ContactPoint:", error);
-      res.status(500).json({ error: 'Erro ao excluir ponto de contato' });
+      res.status(500).json({ error: 'Erro ao excluir Ponto de contato' });
     }
   }
+
 };
 
 module.exports = contactPointController;

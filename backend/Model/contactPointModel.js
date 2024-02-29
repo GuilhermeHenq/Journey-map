@@ -16,8 +16,9 @@ class ContactPointModel {
 
   insertContactPoint(data) {
     if (data.posX !== undefined) {
-      const { posX } = data;
-      return db.execute("INSERT INTO contactpoint (posX) VALUES (?)", [posX])
+      const { posX, journeyMap_id, linePos, length, description, emojiTag } = data;
+      return db.execute("INSERT INTO contactpoint (posX, journeyMap_id, linePos, length, description, emojiTag) VALUES (?, ?, ?, ?, ?, ?)",
+        [posX, journeyMap_id, linePos, length, description, emojiTag])
         .then(() => true)
         .catch((error) => {
           console.error("Error inserting contactpoint:", error);
@@ -29,9 +30,9 @@ class ContactPointModel {
   }
 
   updateContactPoint(data) {
-    const { contactPoint_id, posX } = data;
+    const { contactPoint_id, posX, description } = data;
 
-    return db.execute("UPDATE contactpoint SET posX = ? WHERE contactPoint_id = ?", [posX, contactPoint_id])
+    return db.execute("UPDATE contactpoint SET posX = ?, description = ? WHERE contactPoint_id = ?", [posX, description, contactPoint_id])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating contactpoint:", error);
@@ -44,6 +45,17 @@ class ContactPointModel {
       .then(() => true)
       .catch((error) => {
         console.error("Error deleting contactpoint:", error);
+        throw error;
+      });
+  }
+
+  getLastInsertedId() {
+    return db.query("SELECT LAST_INSERT_ID() as last_inserted_id")
+      .then(([rows]) => {
+        return rows[0].last_inserted_id;
+      })
+      .catch((error) => {
+        console.error("Error getting last inserted ID:", error);
         throw error;
       });
   }

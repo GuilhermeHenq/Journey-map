@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Rect } from 'react-konva';
 import Modal from './Modal';
 
-const EditableRect = ({ x, y, width, height, color, text, onTextChange, isActive, onActivate, onClick }) => {
+const EditableRect = ({ x, y, width, height, color, text, onClick }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [textTest, setTextTest] = useState(text);
 
@@ -28,7 +28,7 @@ const EditableRect = ({ x, y, width, height, color, text, onTextChange, isActive
         text={textTest}
         width={width}
         height={height}
-        fill={isActive ? 'yellow' : color}
+        fill={color}
         opacity={1}
         draggable={false}
         onClick={onClick}

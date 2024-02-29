@@ -15,13 +15,15 @@ const userActionController = {
   postItem: async (req, res) => {
     try {
       const postData = req.body;
-      if (postData && postData.posX !== undefined) {
+      if (postData && postData.posX !== undefined && postData.journeyMap_id 
+      !== undefined && postData.linePos !== undefined && postData.length !== undefined && 
+      postData.description !== undefined && postData.emojiTag !== undefined) {
         const userActionModel = new UserActionModel();
-        const dataToInsert = { posX: postData.posX};
-        const success = await userActionModel.insertUserAction(dataToInsert);
+        const success = await userActionModel.insertUserAction(postData);
 
         if (success) {
-          res.status(201).json({ message: 'Dados inseridos com sucesso' });
+          const insertedId = await userActionModel.getLastInsertedId();
+          res.status(201).json({ id: insertedId, message: 'Dados inseridos com sucesso' });
         } else {
           res.status(500).json({ error: 'Erro ao inserir dados' });
         }
@@ -57,24 +59,20 @@ const userActionController = {
 
   deleteItem: async (req, res) => {
     try {
-      const deleteData = req.body;
-      if (deleteData && deleteData.userAction_id !== undefined) {
-        const userActionModel = new UserActionModel();
-        const success = await userActionModel.deleteUserAction(deleteData.userAction_id);
-
-        if (success) {
-          res.status(200).json({ message: 'Ação do usuário excluído com sucesso' });
-        } else {
-          res.status(500).json({ error: 'Erro ao excluir a Ação do usuário' });
-        }
+      const userActionId = req.params.userActionId; // Pega o id diretamente da URL
+      const userActionModel = new UserActionModel();
+      const success = await userActionModel.deleteUserAction(userActionId);
+  
+      if (success) {
+        res.status(200).json({ message: 'Ação do usuário excluída com sucesso' });
       } else {
-        res.status(400).json({ error: 'Dados de solicitação DELETE ausentes ou inválidos' });
+        res.status(500).json({ error: 'Erro ao excluir a Ação do usuário' });
       }
     } catch (error) {
       console.error("Error deleting UserAction:", error);
       res.status(500).json({ error: 'Erro ao excluir Ação do usuário' });
     }
-  }
+}
   
 };
 

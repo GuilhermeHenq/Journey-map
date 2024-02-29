@@ -14,8 +14,9 @@ class UserActionModel {
 
   insertUserAction(data) {
     if (data.posX !== undefined) {
-      const { posX } = data;
-      return db.execute("INSERT INTO userAction (posX) VALUES (?)", [posX])
+      const { posX, journeyMap_id, linePos, length, description, emojiTag } = data;
+      return db.execute("INSERT INTO userAction (posX, journeyMap_id, linePos, length, description, emojiTag) VALUES (?, ?, ?, ?, ?, ?)",
+      [posX, journeyMap_id, linePos, length, description, emojiTag])
         .then(() => true)
         .catch((error) => {
           console.error("Error inserting userAction:", error);
@@ -28,9 +29,9 @@ class UserActionModel {
   
 
   updateUserAction(data) {
-    const { userAction_id, posX } = data;
+    const { userAction_id, posX, description } = data;
   
-    return db.execute("UPDATE userAction SET posX = ? WHERE userAction_id = ?", [posX, userAction_id])
+    return db.execute("UPDATE userAction SET posX = ?, description = ? WHERE userAction_id = ?", [posX, description, userAction_id])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating userAction:", error);
@@ -47,6 +48,16 @@ class UserActionModel {
       });
   }
 
+  getLastInsertedId() {
+    return db.query("SELECT LAST_INSERT_ID() as last_inserted_id")
+      .then(([rows]) => {
+        return rows[0].last_inserted_id;
+      })
+      .catch((error) => {
+        console.error("Error getting last inserted ID:", error);
+        throw error;
+      });
+  }
   
 }
 

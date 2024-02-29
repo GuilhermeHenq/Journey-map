@@ -15,13 +15,15 @@ const thoughtController = {
   postItem: async (req, res) => {
     try {
       const postData = req.body;
-      if (postData && postData.posX !== undefined) {
+      if (postData && postData.posX !== undefined && postData.journeyMap_id 
+      !== undefined && postData.linePos !== undefined && postData.length !== undefined && 
+      postData.description !== undefined && postData.emojiTag !== undefined) {
         const thoughtModel = new ThoughtModel();
-        const dataToInsert = { posX: postData.posX};
-        const success = await thoughtModel.insertThought(dataToInsert);
+        const success = await thoughtModel.insertThought(postData);
 
         if (success) {
-          res.status(201).json({ message: 'Dados inseridos com sucesso' });
+          const insertedId = await thoughtModel.getLastInsertedId();
+          res.status(201).json({ id: insertedId, message: 'Dados inseridos com sucesso' });
         } else {
           res.status(500).json({ error: 'Erro ao inserir dados' });
         }
@@ -57,24 +59,20 @@ const thoughtController = {
 
   deleteItem: async (req, res) => {
     try {
-      const deleteData = req.body;
-      if (deleteData && deleteData.thought_id !== undefined) {
-        const thoughtModel = new ThoughtModel();
-        const success = await thoughtModel.deleteThought(deleteData.thought_id);
-
-        if (success) {
-          res.status(200).json({ message: 'Pensamento excluído com sucesso' });
-        } else {
-          res.status(500).json({ error: 'Erro ao excluir o Pensamento' });
-        }
+      const thoughtId = req.params.thoughtId; // Pega o id diretamente da URL
+      const thoughtModel = new ThoughtModel();
+      const success = await thoughtModel.deleteThought(thoughtId);
+  
+      if (success) {
+        res.status(200).json({ message: 'Pensamento excluído com sucesso' });
       } else {
-        res.status(400).json({ error: 'Dados de solicitação DELETE ausentes ou inválidos' });
+        res.status(500).json({ error: 'Erro ao excluir o pensamento' });
       }
     } catch (error) {
-      console.error("Error deleting thought:", error);
+      console.error("Error deleting Thought:", error);
       res.status(500).json({ error: 'Erro ao excluir pensamento' });
     }
-  }
+}
   
 };
 

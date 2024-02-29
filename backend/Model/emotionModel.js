@@ -16,8 +16,9 @@ class EmotionModel {
 
   insertEmotion(data) {
     if (data.posX !== undefined && data.lineY !== undefined) {
-      const { posX, lineY } = data;
-      return db.execute("INSERT INTO emotion (posX, lineY) VALUES (?, ?)", [posX, lineY])
+      const { journeyMap_id, posX, lineY, emojiTag } = data;
+      return db.execute("INSERT INTO emotion (journeyMap_id, posX, lineY, emojiTag) VALUES (?, ?, ?, ?)", 
+      [journeyMap_id, posX, lineY, emojiTag])
         .then(() => true)
         .catch((error) => {
           console.error("Error inserting emotion:", error);
@@ -45,6 +46,18 @@ class EmotionModel {
         throw error;
       });
   }
+
+  getLastInsertedId() {
+    return db.query("SELECT LAST_INSERT_ID() as last_inserted_id")
+      .then(([rows]) => {
+        return rows[0].last_inserted_id;
+      })
+      .catch((error) => {
+        console.error("Error getting last inserted ID:", error);
+        throw error;
+      });
+  }
+  
 }
 
 module.exports = EmotionModel;

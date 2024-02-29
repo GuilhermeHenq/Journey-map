@@ -5,7 +5,7 @@ Front-end made with React Native + Vite, utilizing the React Konva library, a po
 <b><h2>How to start front-end interface:</h2></b>
 
 - cd .\frontend\
-- npm i (only on first install)
+- npm i
 - npm run dev
 
 React should start running on port 5173.
@@ -13,9 +13,8 @@ React should start running on port 5173.
 <b><h2>How to start Node.JS server:</h2></b>
 
 - cd .\backend\
-- npm i (only on first install)
-- cd .\public\
-- node server.js
+- npm i
+- npm run dev
 
 Server should start running on port 3000.
 

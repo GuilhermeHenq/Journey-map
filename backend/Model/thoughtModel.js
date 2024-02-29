@@ -14,8 +14,9 @@ class ThoughtModel {
 
   insertThought(data) {
     if (data.posX !== undefined) {
-      const { posX } = data;
-      return db.execute("INSERT INTO thought (posX) VALUES (?)", [posX])
+      const { posX, journeyMap_id, linePos, length, description, emojiTag } = data;
+      return db.execute("INSERT INTO thought (posX, journeyMap_id, linePos, length, description, emojiTag) VALUES (?, ?, ?, ?, ?, ?)",
+      [posX, journeyMap_id, linePos, length, description, emojiTag])
         .then(() => true)
         .catch((error) => {
           console.error("Error inserting thought:", error);
@@ -28,9 +29,9 @@ class ThoughtModel {
   
 
   updateThought(data) {
-    const { thought_id, posX } = data;
+    const { thought_id, posX, description } = data;
   
-    return db.execute("UPDATE thought SET posX = ? WHERE thought_id = ?", [posX, thought_id])
+    return db.execute("UPDATE thought SET posX = ?, description = ? WHERE thought_id = ?", [posX, description, thought_id])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating thought:", error);
@@ -43,6 +44,17 @@ class ThoughtModel {
       .then(() => true)
       .catch((error) => {
         console.error("Error deleting thought:", error);
+        throw error;
+      });
+  }
+
+  getLastInsertedId() {
+    return db.query("SELECT LAST_INSERT_ID() as last_inserted_id")
+      .then(([rows]) => {
+        return rows[0].last_inserted_id;
+      })
+      .catch((error) => {
+        console.error("Error getting last inserted ID:", error);
         throw error;
       });
   }
