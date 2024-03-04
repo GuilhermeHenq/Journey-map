@@ -30,8 +30,8 @@ class EmotionModel {
   }
 
   updateEmotion(data) {
-    const { emotion_id, posX, lineY } = data;
-    return db.execute("UPDATE emotion SET posX = ?, lineY = ? WHERE emotion_id = ?", [posX, lineY, emotion_id])
+    const { emotion_id, posX, lineY, emojiTag } = data;
+    return db.execute("UPDATE emotion SET posX = ?, lineY = ?, emojiTag = ? WHERE emotion_id = ?", [posX, lineY, emojiTag, emotion_id])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating emotion:", error);
