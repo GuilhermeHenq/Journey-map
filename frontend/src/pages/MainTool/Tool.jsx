@@ -10,14 +10,15 @@ import { Github, LogOut } from 'lucide-react';
 import data from '@emoji-mart/data';
 import { auth } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
+import { init, getEmojiDataFromNative, SearchIndex } from 'emoji-mart';
 
 import './tool.css';
 
+init({ data })
 
 const showAlert = () => {
   toast.success('Progresso salvo com sucesso!')
 };
-
 
 
 
@@ -34,6 +35,7 @@ const Tool = ({ navigate }) => {
 
   const [matrix, setMatrix] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
+  const [emojis, setEmojis] = useState({});
 
   const updateMatrixWithX = (matrix, id, newX, tipo) => {
     let updatedX;
@@ -43,67 +45,67 @@ const Tool = ({ navigate }) => {
 
     // Switch case based on newX ranges
     switch (true) {
-        case newX >= -269 && newX <= 269:
-            constantToAdd = 1;
-            break;
-        case newX >= 250 && newX <= 499:
-            updatedX = 270;
-            break;
-        case newX >= -499 && newX <= -250:
-            updatedX = -270;
-            break;
-        case newX >= 500 && newX <= 749:
-            updatedX = 540;
-            break;
-        case newX >= -749 && newX <= -500:
-            updatedX = -540;
-            break;
-        case newX >= 750 && newX <= 999:
-            updatedX = 810;
-            break;
-        case newX >= -999 && newX <= -750:
-            updatedX = -810;
-            break;
-        case newX >= 1000 && newX <= 1249:
-            updatedX = 1080;
-            break;
-        case newX >= -1249 && newX <= -1000:
-            updatedX = -1080;
-            break;
-        case newX >= 1250 && newX <= 1499:
-            updatedX = 1350;
-            break;
-        case newX >= -1499 && newX <= -1250:
-            updatedX = -1350;
-            break;
-        case newX >= 1500 && newX <= 1749:
-            updatedX = 1620;
-            break;
-        case newX >= -1749 && newX <= -1500:
-            updatedX = -1620;
-            break;
-        default:
-            constantToAdd = 1;
+      case newX >= -269 && newX <= 269:
+        constantToAdd = 1;
+        break;
+      case newX >= 250 && newX <= 499:
+        updatedX = 270;
+        break;
+      case newX >= -499 && newX <= -250:
+        updatedX = -270;
+        break;
+      case newX >= 500 && newX <= 749:
+        updatedX = 540;
+        break;
+      case newX >= -749 && newX <= -500:
+        updatedX = -540;
+        break;
+      case newX >= 750 && newX <= 999:
+        updatedX = 810;
+        break;
+      case newX >= -999 && newX <= -750:
+        updatedX = -810;
+        break;
+      case newX >= 1000 && newX <= 1249:
+        updatedX = 1080;
+        break;
+      case newX >= -1249 && newX <= -1000:
+        updatedX = -1080;
+        break;
+      case newX >= 1250 && newX <= 1499:
+        updatedX = 1350;
+        break;
+      case newX >= -1499 && newX <= -1250:
+        updatedX = -1350;
+        break;
+      case newX >= 1500 && newX <= 1749:
+        updatedX = 1620;
+        break;
+      case newX >= -1749 && newX <= -1500:
+        updatedX = -1620;
+        break;
+      default:
+        constantToAdd = 1;
     }
 
     if (constantToAdd !== 0) {
-        return matrix;
+      return matrix;
     }
 
 
     console.log("o valor de x passando pelos cases é: " + updatedX);
 
     return matrix.map((row) =>
-        row.map((rect) =>
-            rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()
-                ? {
-                    ...rect,
-                    x: Math.max(20, Math.min(1620, rect.x + updatedX)),
-                }
-                : rect
-        )
+      row.map((rect) =>
+        rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()
+          ? {
+            ...rect,
+            x: Math.max(20, Math.min(1620, rect.x + updatedX)),
+          }
+          : rect
+      )
     );
-};
+  };
 
 
 
@@ -156,7 +158,7 @@ const Tool = ({ navigate }) => {
           width: 230,
           height: 135,
           color: "#FEC3A6",
-          text: item.description,
+          emojiTag: item.emojiTag
         }));
 
         const thoughtMatrix = thoughtData.data.map(item => ({
@@ -184,6 +186,26 @@ const Tool = ({ navigate }) => {
         const newMatrix = [journeyMatrix, userActionMatrix, emotionMatrix, thoughtMatrix, contactPointMatrix];
         console.log(newMatrix);
         setMatrix(newMatrix);
+
+
+        const convertedEmojis = {};
+
+        for (const item of emotionMatrix) {
+          console.log("emojiTag antes da pesquisa: " + item.emojiTag);
+          const emojis = await SearchIndex.search(item.emojiTag);
+          //console.log("Emojis após a pesquisa: " + JSON.stringify(emojis));
+
+          if (emojis.length > 0) {
+            // Pegar o primeiro native do array de skins
+            const native = emojis[0].skins[0].native;
+            console.log("NATIVE A SER INSERIDO: " + native);
+            convertedEmojis[item.emotion_id] = native;
+          }
+        }
+
+        setEmojis(convertedEmojis);
+        console.log("Emojis após converter emojiTag to Native: " + JSON.stringify(convertedEmojis));
+
       } catch (error) {
         console.error("Erro ao buscar os dados:", error);
       }
@@ -191,6 +213,7 @@ const Tool = ({ navigate }) => {
 
     fetchData();
   }, []);
+
 
 
   const handleDragEnd = (e, id, tipo) => {
@@ -233,7 +256,7 @@ const Tool = ({ navigate }) => {
         } else if (rect.emotion_id !== undefined) {
           acc.push({
             endpoint: "emotion",
-            data: { emotion_id: rect.emotion_id, posX: rect.x, lineY: rect.lineY },
+            data: { emotion_id: rect.emotion_id, posX: rect.x, lineY: rect.lineY, emojiTag: rect.emojiTag },
           });
         } else if (rect.thought_id !== undefined) {
           acc.push({
@@ -328,7 +351,8 @@ const Tool = ({ navigate }) => {
   };
 
 
-  const handleAddSquare = async (rowIndex, colIndex) => {
+  const handleAddSquare = async (rowIndex, colIndex, prevMatrix, setMatrix) => {
+    console.log("handleAddSquare rowIndex, colIndex:", rowIndex, colIndex);
     try {
       // Mapeia o rowIndex para o tipo correspondente
       const rowIndexToType = {
@@ -342,6 +366,16 @@ const Tool = ({ navigate }) => {
       // Obtém o tipo com base no rowIndex
       const type = rowIndexToType[rowIndex];
 
+      const colIndexToType = {
+        0: 290,
+        1: 560,
+        2: 830,
+        3: 1100,
+        4: 1370
+      };
+
+      const novoX = colIndexToType[colIndex];
+
       if (!type) {
         console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
         return;
@@ -350,7 +384,7 @@ const Tool = ({ navigate }) => {
       let postData = {
         "journeyMap_id": 3,
         "linePos": 285,
-        "posX": 20,
+        "posX": novoX,
         "length": 0,
         "description": "",
         "emojiTag": "Novo emoji"
@@ -358,7 +392,7 @@ const Tool = ({ navigate }) => {
 
       if (type === 'emotion') {
         postData = {
-          "posX": 100,
+          "posX": novoX,
           "lineY": 200,
           "emojiTag": "Emoji 1",
           "journeyMap_id": 3
@@ -371,62 +405,68 @@ const Tool = ({ navigate }) => {
 
       console.log("id: " + newSquare.id);
 
-      setMatrix((prevMatrix) => {
-        const newMatrix = [...prevMatrix];
+      console.log("Aqui passou uma vez fora do setMatrix");
 
-        if (!newMatrix[rowIndex]) {
-          newMatrix[rowIndex] = [];
-        }
+      const newMatrix = [...prevMatrix];
 
-        const color = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][0].color : "#a3defe";
+      if (!newMatrix[rowIndex]) {
+        newMatrix[rowIndex] = [];
+      }
 
-        if (colIndex !== undefined && colIndex < newMatrix[rowIndex].length) {
-          const sameColSquares = newMatrix[rowIndex].filter(square => square && square.x === newMatrix[rowIndex][colIndex].x);
+      const color = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][0].color : "#a3defe";
+      console.log("Aqui passou mais uma vez dentro setMatrix");
 
-          if (sameColSquares.length > 1) {
-            newMatrix.forEach((row, rIndex) => {
-              row.forEach((square, cIndex) => {
-                if (rIndex === rowIndex && cIndex > colIndex) {
-                  square.x += 260;
-                }
-              });
+      if (colIndex !== undefined && colIndex < newMatrix[rowIndex].length) {
+        const sameColSquares = newMatrix[rowIndex].filter(square => square && square.x === newMatrix[rowIndex][colIndex].x);
+
+        if (sameColSquares.length > 1) {
+          newMatrix.forEach((row, rIndex) => {
+            row.forEach((square, cIndex) => {
+              if (rIndex === rowIndex && cIndex > colIndex) {
+                square.x += 260;
+              }
             });
-          }
-
-          const newSquareId = `${type}_${newSquare.id}`;
-
-          newMatrix[rowIndex].splice(colIndex + 1, 0, {
-            id: newSquareId,
-            x: newMatrix[rowIndex][colIndex].x + 260,
-            y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-            width: 120,
-            height: 85,
-            color: color,
-          });
-        } else {
-          const newSquareId = `${type}_${newSquare.id}`;
-
-          const newX = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
-          newMatrix[rowIndex].push({
-            id: newSquareId,
-            x: newX + 260,
-            y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-            width: 120,
-            height: 85,
-            color: color,
           });
         }
 
-        newMatrix.forEach((row, rIndex) => {
-          console.log(`IDs dos quadrados na linha ${rIndex + 1}:`, row.map(square => square.id));
-        });
+        const newSquareId = `${type}_${newSquare.id}`;
+        console.log("newSquareId: " + newSquareId);
 
-        return [...newMatrix];
+        newMatrix[rowIndex].splice(colIndex + 1, 0, {
+          id: newSquareId,
+          x: newMatrix[rowIndex][colIndex].x + 260,
+          y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
+          width: 120,
+          height: 85,
+          color: color,
+        });
+        console.log("aqui criou um");
+      } else {
+        const newSquareId = `${type}_${newSquare.id}`;
+
+        const newX = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
+        newMatrix[rowIndex].push({
+          id: newSquareId,
+          x: newX + 260,
+          y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
+          width: 120,
+          height: 85,
+          color: color,
+        });
+        console.log("aqui criou outro");
+      }
+
+      newMatrix.forEach((row, rIndex) => {
+        console.log(`IDs dos quadrados na linha ${rIndex + 1}:`, row.map(square => square.id));
       });
+
+      setMatrix(newMatrix);
+      return [...newMatrix];
     } catch (error) {
       console.error("Erro ao adicionar quadrado:", error);
     }
   };
+
 
 
   const handleDeleteSquare = async (rowIndex, colIndex) => {
@@ -473,11 +513,21 @@ const Tool = ({ navigate }) => {
 
 
   const [isPickerAvailable, setPickerAvailable] = useState(false);
-  const [currentEmoji, setCurrentEmoji] = useState(null);
+  const [currentCellId, setCurrentCellId] = useState("");
+  const [isPickerVisible, setPickerVisible] = useState(false);
 
-  const handleCircleClick = () => {
-    setPickerAvailable(!isPickerAvailable);
-  }
+
+  const handleCircleClick = (cellId) => {
+    console.log("Clicked on circle with ID: ", cellId);
+    console.log("Matrix state: ", matrix); // Verifique se matrix está atualizada
+    console.log("cellId: ", cellId);
+    setPickerAvailable(true);
+    setCurrentCellId(cellId);
+    console.log("CurrentCellId: ", currentCellId);
+    setPickerVisible(true);
+  };
+
+
 
 
 
@@ -549,6 +599,51 @@ const Tool = ({ navigate }) => {
           </>
         )}
       </Popup>
+      {isPickerVisible && (
+        <Popup trigger={isPickerVisible} setTrigger={setPickerVisible}>
+          <div className="PickerContainer">
+            <Picker
+              className="Picker"
+              data={data}
+              emojiSize={30}
+              emojiButtonSize={50}
+              perLine={30}
+              maxFrequentRows={10}
+              previewPosition="none"
+              navPosition="bottom"
+              emojiButtonRadius="100%"
+              theme="light"
+              locale="pt"
+              emojiButtonColors="rgba(155,223,88,.7)"
+              onEmojiSelect={(e) => {
+                getEmojiDataFromNative(e.native).then((emojiData) => {
+                  setMatrix((prevMatrix) => {
+                    const updatedMatrix = prevMatrix.map((row) =>
+                      row.map((rect) =>
+                        rect.emotion_id === currentCellId
+                          ? {
+                            ...rect,
+                            emojiTag: emojiData.id,
+                          }
+                          : rect
+                      )
+                    );
+
+                    setEmojis((prevEmojis) => ({
+                      ...prevEmojis,
+                      [currentCellId]: e.native,
+                    }));
+
+                    return updatedMatrix;
+                  });
+                  setPickerVisible(false);
+                });
+              }}
+            />
+          </div>
+        </Popup>
+      )}
+
       <div className="stage-container">
         <Stage width={window.innerWidth - 160} height={window.innerHeight + 180}>
           <Layer>
@@ -561,22 +656,16 @@ const Tool = ({ navigate }) => {
               handleDeleteSquare={handleDeleteSquare}
               handleDragEnd={handleDragEnd}
               handleCircleClick={handleCircleClick}
-              currentEmoji={currentEmoji}
+              emojis={emojis}
               handleRectClick={handleRectClick}
+              setMatrix={setMatrix}
             />
           </Layer>
         </Stage>
       </div>
-      <div className="selectemote">
-        {isPickerAvailable ?
-          <>
-            <Picker className="Picker" data={data} previewPosition="none" onEmojiSelect={(e) => { setCurrentEmoji(e.native); setPickerAvailable(!isPickerAvailable); }}
-            />
-            {console.log("currentEmoji = " + JSON.stringify(currentEmoji))}
-          </>
-          :
-          null}
-      </div>
+
+
+
       <div className="fases-container">
         <div className="fases-content">
           <div className="fases-text">Fases da Jornada</div>
