@@ -22,10 +22,10 @@ Server should start running on port 3000.
 
 - cd .\backend\
 - create .env
-DB_HOST=
-DB_USER=
-DB_PASSWORD=
-DB_DATABASE=
+- DB_HOST=
+- DB_USER=
+- DB_PASSWORD=
+- DB_DATABASE=
 
 
 <b><h2>How to create <i>mapjourney</i> table in MySQL:</h2></b>
