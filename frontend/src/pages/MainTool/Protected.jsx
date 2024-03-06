@@ -1,10 +1,10 @@
 import React from 'react';
 import Tool from './Tool'
 import { useNavigate, Navigate } from "react-router-dom";
-
+import secureLocalStorage from "react-secure-storage";
 
 const Protected = () => {
-  const token = localStorage.getItem('token');
+  const token = secureLocalStorage.getItem('token');
   
   const navigate = useNavigate();
 
