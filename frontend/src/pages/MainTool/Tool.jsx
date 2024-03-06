@@ -614,7 +614,6 @@ const Tool = ({ navigate }) => {
               emojiButtonRadius="100%"
               theme="light"
               locale="pt"
-              emojiButtonColors="rgba(155,223,88,.7)"
               onEmojiSelect={(e) => {
                 getEmojiDataFromNative(e.native).then((emojiData) => {
                   setMatrix((prevMatrix) => {
