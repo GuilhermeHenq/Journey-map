@@ -11,6 +11,7 @@ import data from '@emoji-mart/data';
 import { auth } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
 import { init, getEmojiDataFromNative, SearchIndex } from 'emoji-mart';
+import secureLocalStorage from "react-secure-storage";
 
 import './tool.css';
 
@@ -27,8 +28,8 @@ const Tool = ({ navigate }) => {
 
   const handleLogout = async () => {
     await signOut(auth);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    secureLocalStorage.removeItem('token');
+    secureLocalStorage.removeItem('user');
     navigate('/login');
   }
 

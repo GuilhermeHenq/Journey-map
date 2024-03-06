@@ -18,6 +18,16 @@ React should start running on port 5173.
 
 Server should start running on port 3000.
 
+<b><h2>Configure your database MySql</h2></b>
+
+- cd .\backend\
+- create .env
+- DB_HOST= your host (localhost probably)
+- DB_USER= your user
+- DB_PASSWORD= your pass
+- DB_DATABASE= your databasename (mapjourney probably)
+
+
 <b><h2>How to create <i>mapjourney</i> table in MySQL:</h2></b>
 
 - CREATE DATABASE mapjourney;
