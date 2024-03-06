@@ -30,8 +30,4 @@ Server should start running on port 3000.
 
 <b><h2>How to create <i>mapjourney</i> table in MySQL:</h2></b>
 
-- CREATE DATABASE mapjourney;
-- USE DATABASE mapjourney;
-- Run commands in "tabelas_relacionadas_a_map.txt" and "tabelas_relacionadas_a_journeyMap.txt"
-
-Schema should be up and running perfectly.
+- Run the mapjourney.sql file to configure and create your database
