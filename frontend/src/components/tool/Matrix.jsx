@@ -33,14 +33,20 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                     x={0}
                     y={0}
                     onDragMove={(e) => {
+                        const newY = e.target.y();
+
+                        // Se rowIndex for 2, limita o movimento entre -50 e 50 em y
+                        if (rowIndex === 2) {
+                            //e.target.y(Math.max(-50, Math.min(50, newY)));
+                            e.target.y(0);
+                        } else {
+                            e.target.y(0);
+                        }
+
                         const newX = e.target.x();
-                        //console.log("Começou movem com = " + newX);
                         e.target.x(newX);
-                        //console.log("Começou movem com e target = " + e.target.x());
-                        e.target.y(0);
                         e.target.opacity(0.5);
                         e.target.moveToTop();
-                        // onDragMove(square.id , newX);
                     }}
                     onDragEnd={(e) => {
                         const tipo = square.type;
@@ -123,8 +129,8 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                                 id={square.id}
                                 x={square.x}
                                 y={square.y}
-                                width={230}
-                                height={135}
+                                width={square.width}
+                                height={square.height}
                                 color={square.color}
                                 onClick={() => {
                                     const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;
@@ -234,46 +240,54 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                 </Group>
             ))
         ))}
-        {matrix.map((row, rowIndex) => (
-            <Group key={`addButtonRow_${rowIndex}`}
-                onMouseEnter={(e) => {
-                    const container = e.target.getStage().container();
-                    container.style.cursor = "pointer";
-                    e.target.opacity(1);
-                }}
-                onMouseLeave={(e) => {
-                    const container = e.target.getStage().container();
-                    container.style.cursor = "default";
-                    e.target.opacity(0);
-                }}
-            >
-                {/* Quadrado maior */}
-                <Rect
-                    x={row.length > 0 ? row[row.length - 1].x + 259 : 30}
-                    y={rowIndex === 2 ? rowIndex * 170 + 104 + 13 : rowIndex * 170 + 104}
-                    width={60}
-                    height={45}
-                    fill="gray"
-                    opacity={0}
-                    draggable={false}
-                    onClick={() => handleAddSquare(rowIndex)}
-                    listening={true}
-                    style={{ cursor: 'pointer' }}
-                    cornerRadius={10}
-                />
-                <Text
-                    x={row.length > 0 ? row[row.length - 1].x + 273 : 45}
-                    y={rowIndex === 2 ? rowIndex * 170 + 104 + 13 : rowIndex * 170 + 104}
-                    text="+"
-                    fontSize={50}
-                    fill='#d9d9d9'
-                    align="center"
-                    verticalAlign="middle"
-                    listening={false}
-                    opacity={1}
-                />
-            </Group>
-        ))}
+        {matrix.map((row, rowIndex) => {
+            // Encontrar o quadrado com o maior valor de x na linha
+            const maxXSquare = row.reduce((maxSquare, currentSquare) => {
+                return currentSquare.x > (maxSquare ? maxSquare.x : -Infinity) ? currentSquare : maxSquare;
+            }, null);
+
+            return (
+                <Group key={`addButtonRow_${rowIndex}`}
+                    onMouseEnter={(e) => {
+                        const container = e.target.getStage().container();
+                        container.style.cursor = "pointer";
+                        e.target.opacity(1);
+                    }}
+                    onMouseLeave={(e) => {
+                        const container = e.target.getStage().container();
+                        container.style.cursor = "default";
+                        e.target.opacity(0);
+                    }}
+                >
+                    {/* Quadrado maior */}
+                    <Rect
+                        x={maxXSquare ? maxXSquare.x + 259 : 30}
+                        y={rowIndex === 2 ? rowIndex * 170 + 104 + 13 : rowIndex * 170 + 104}
+                        width={60}
+                        height={45}
+                        fill="gray"
+                        opacity={0}
+                        draggable={false}
+                        onClick={() => handleAddSquare(rowIndex, (row.length - 1))}
+                        listening={true}
+                        style={{ cursor: 'pointer' }}
+                        cornerRadius={10}
+                    />
+                    <Text
+                        x={maxXSquare ? maxXSquare.x + 273 : 45}
+                        y={rowIndex === 2 ? rowIndex * 170 + 104 + 13 : rowIndex * 170 + 104}
+                        text="+"
+                        fontSize={50}
+                        fill='#d9d9d9'
+                        align="center"
+                        verticalAlign="middle"
+                        listening={false}
+                        opacity={1}
+                    />
+                </Group>
+            );
+        })}
+
     </>
 );
 

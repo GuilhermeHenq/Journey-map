@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Stage, Layer, Rect, Circle } from "react-konva";
 import axios from "axios";
 import Popup from "../../components/Popup";
+import Navbar from "../../components/Navbar";
 import Matrix from "../../components/tool/Matrix";
 import { toast } from 'sonner';
 import Picker from '@emoji-mart/react';
@@ -12,6 +13,7 @@ import { auth } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
 import { init, getEmojiDataFromNative, SearchIndex } from 'emoji-mart';
 import secureLocalStorage from "react-secure-storage";
+import img from "../../assets/mascote.png";
 
 import './tool.css';
 
@@ -23,8 +25,59 @@ const showAlert = () => {
 
 
 
-
 const Tool = ({ navigate }) => {
+
+
+  const handlePostClick = async () => {
+    try {
+      await axios.post('http://localhost:3000/journeyPhase', {
+        journeyMap_id: 3,
+        linePos: 285,
+        posX: 20,
+        length: 0,
+        description: 'essa é uma fase de jornada',
+        emojiTag: 'emoji feliz',
+      });
+
+      await axios.post('http://localhost:3000/userAction', {
+        journeyMap_id: 3,
+        linePos: 285,
+        posX: 20,
+        length: 0,
+        description: 'essa é uma ação do usuario',
+        emojiTag: 'emoji feliz',
+      });
+
+      await axios.post('http://localhost:3000/thought', {
+        journeyMap_id: 3,
+        linePos: 285,
+        posX: 20,
+        length: 0,
+        description: 'esse é um pensamento',
+        emojiTag: 'emoji pensando',
+      });
+
+      await axios.post('http://localhost:3000/contactPoint', {
+        journeyMap_id: 3,
+        linePos: 285,
+        posX: 20,
+        length: 0,
+        description: 'esse é um ponto de contato ',
+        emojiTag: 'emoji triste',
+      });
+
+      await axios.post('http://localhost:3000/emotion', {
+        posX: 20,
+        lineY: 200,
+        emojiTag: 'grinning',
+        journeyMap_id: 3,
+      });
+
+      window.location.reload();
+    } catch (error) {
+      console.error('Erro ao salvar:', error.message);
+    }
+  };
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -37,6 +90,14 @@ const Tool = ({ navigate }) => {
   const [matrix, setMatrix] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
   const [emojis, setEmojis] = useState({});
+  const [dataLoaded, setDataLoaded] = useState(true);
+  const [selectedHouses, setSelectedHouses] = useState(1);
+
+  const handleSelectChange = (event) => {
+    const value = parseInt(event.target.value, 10);
+    setSelectedHouses(value);
+  };
+
 
   const updateMatrixWithX = (matrix, id, newX, tipo) => {
     let updatedX;
@@ -187,7 +248,12 @@ const Tool = ({ navigate }) => {
         const newMatrix = [journeyMatrix, userActionMatrix, emotionMatrix, thoughtMatrix, contactPointMatrix];
         console.log(newMatrix);
         setMatrix(newMatrix);
-
+        // Verifique se pelo menos uma matriz tem dados
+        if (newMatrix.some(matrix => matrix.length > 0)) {
+          setDataLoaded(true);
+        } else {
+          setDataLoaded(false);
+        }
 
         const convertedEmojis = {};
 
@@ -223,17 +289,31 @@ const Tool = ({ navigate }) => {
 
     setMatrix((prevMatrix) => {
       const updatedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo);
+
+      // Verifique se há sobreposição na mesma linha
+      const rowIndex = updatedMatrix.findIndex(row => row.some(rect => rect[tipo + "_id"] === id));
+      const draggedRect = updatedMatrix[rowIndex].find(rect => rect[tipo + "_id"] === id);
+
+      updatedMatrix[rowIndex].forEach(rect => {
+        if (rect[tipo + "_id"] !== id && rect.x === draggedRect.x) {
+          // Sobreposição detectada, ajuste a posição
+          if (newX < draggedRect.x) {
+            // Arrastou para a esquerda, mova para a direita
+            rect.x += 270;  // Adicione uma margem de 20 (ajuste conforme necessário)
+          } else {
+            // Arrastou para a direita, mova para a esquerda
+            rect.x -= 270;  // Adicione uma margem de 20 (ajuste conforme necessário)
+          }
+        }
+      });
+
       return updatedMatrix;
     });
-
-    console.log("id:", id);
-    console.log("newX:", newX);
-    console.log("tipo:", tipo);
-
 
     setEditedRectId(id);
     setForceUpdate(prev => prev + 1);
   };
+
 
 
   const handleSaveClick = () => {
@@ -307,7 +387,24 @@ const Tool = ({ navigate }) => {
     setEditedRowIndex(rectY);
     setButtonPopup(true); // Abre o popup
     setTextEdit(true); // Define a edição de texto como verdadeira
-  };
+
+
+    setMatrix((prevMatrix) => {
+      const updatedMatrix = prevMatrix.map((row) =>
+        row.map((rect) => {
+          const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
+  
+          return (
+            rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex
+              ? { ...rect, x: Math.max(20, Math.min(1620, rect.x + selectedHouses * 270)) }
+              : rect
+          );
+        })
+      );
+  
+      return updatedMatrix;
+    });
+  };  
 
 
 
@@ -372,7 +469,8 @@ const Tool = ({ navigate }) => {
         1: 560,
         2: 830,
         3: 1100,
-        4: 1370
+        4: 1370,
+        5: 1640
       };
 
       const novoX = colIndexToType[colIndex];
@@ -406,63 +504,7 @@ const Tool = ({ navigate }) => {
 
       console.log("id: " + newSquare.id);
 
-      console.log("Aqui passou uma vez fora do setMatrix");
-
-      const newMatrix = [...prevMatrix];
-
-      if (!newMatrix[rowIndex]) {
-        newMatrix[rowIndex] = [];
-      }
-
-      const color = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][0].color : "#a3defe";
-      console.log("Aqui passou mais uma vez dentro setMatrix");
-
-      if (colIndex !== undefined && colIndex < newMatrix[rowIndex].length) {
-        const sameColSquares = newMatrix[rowIndex].filter(square => square && square.x === newMatrix[rowIndex][colIndex].x);
-
-        if (sameColSquares.length > 1) {
-          newMatrix.forEach((row, rIndex) => {
-            row.forEach((square, cIndex) => {
-              if (rIndex === rowIndex && cIndex > colIndex) {
-                square.x += 260;
-              }
-            });
-          });
-        }
-
-        const newSquareId = `${type}_${newSquare.id}`;
-        console.log("newSquareId: " + newSquareId);
-
-        newMatrix[rowIndex].splice(colIndex + 1, 0, {
-          id: newSquareId,
-          x: newMatrix[rowIndex][colIndex].x + 260,
-          y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-          width: 120,
-          height: 85,
-          color: color,
-        });
-        console.log("aqui criou um");
-      } else {
-        const newSquareId = `${type}_${newSquare.id}`;
-
-        const newX = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
-        newMatrix[rowIndex].push({
-          id: newSquareId,
-          x: newX + 260,
-          y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-          width: 120,
-          height: 85,
-          color: color,
-        });
-        console.log("aqui criou outro");
-      }
-
-      newMatrix.forEach((row, rIndex) => {
-        console.log(`IDs dos quadrados na linha ${rIndex + 1}:`, row.map(square => square.id));
-      });
-
-      setMatrix(newMatrix);
-      return [...newMatrix];
+      window.location.reload();
     } catch (error) {
       console.error("Erro ao adicionar quadrado:", error);
     }
@@ -534,174 +576,175 @@ const Tool = ({ navigate }) => {
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
-      <div className="scenario" style={{ textAlign: "left", padding: "31px", fontSize: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "50px", textAlign: "left" }} alt="cu"></img>
-        <span>Cenário 1 - X</span>
-        <div className="botoes">
-          <button className="button save" id="saveButton" onClick={() => { handleSaveClick(); }}>
-            Salvar
-          </button>
-          <button className="button info" id="infoButton" style={{ marginLeft: "3vh", marginRight: "3vh" }} onClick={() => { setButtonPopup(true); }}>
-            i
-          </button>
-          <button className="button logout" onClick={handleLogout}>
-            <LogOut />
-          </button>
-        </div>
-      </div>
-      <div className="separator1" style={{ marginTop: "61.9px" }}></div>
-      <Popup trigger={buttonPopup} setTrigger={setButtonPopup} setTextEdit={setTextEdit} style={{ borderRadius: "25px" }}>
-        {textEdit ? (
-          <>
-            <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-              <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px" }}>Editar card</h1>
-            </div>
-            <div className="areatexto">
-              <textarea
-                type="text"
-                value={editedText}
-                placeholder="Texto vazio"
-                className="textolegal"
-                onChange={(e) => setEditedText(e.target.value)}
-                style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
-              />
+      <>
+        <Navbar
+          onSaveClick={handleSaveClick}
+          onInfoClick={() => setButtonPopup(true)}
+          onLogoutClick={handleLogout}
+          handlePostClick={handlePostClick}
+          dataLoaded={dataLoaded}
+          currentJourneyMap={1}
+        />
 
-              <div className="separarbotoes">
 
-                <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }}>
-                  Adicionar texto
-                </button>
-
-                <button className="buttonconf2" onClick={() => setEditedText('')}>
-                  Limpar texto
-                </button>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-              <h1 style={{ fontSize: "50px" }}>Cenário</h1>
-              <button className="button info" style={{ marginLeft: "1.5vh" }}>
-                i
-              </button>
-            </div>
-            <div>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-              <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "20px", width: "70%", textAlign: "center", display: "flex", padding: "5px" }} >
-                <Github style={{ marginTop: "px", marginRight: "5px" }} />
-                <p>Repositório Git</p>
-              </a>
+        <div className="separator1" style={{ marginTop: "61.9px" }}></div>
+        <Popup trigger={buttonPopup} setTrigger={setButtonPopup} setTextEdit={setTextEdit} style={{ borderRadius: "25px" }}>
+          {textEdit ? (
+            <>
               <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-                <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
-                <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
+                <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px" }}>Editar card</h1>
               </div>
-            </div>
-          </>
-        )}
-      </Popup>
-      {isPickerVisible && (
-        <Popup trigger={isPickerVisible} setTrigger={setPickerVisible}>
-          <div className="PickerContainer">
-            <Picker
-              className="Picker"
-              data={data}
-              emojiSize={30}
-              emojiButtonSize={50}
-              perLine={30}
-              maxFrequentRows={10}
-              previewPosition="none"
-              navPosition="bottom"
-              emojiButtonRadius="100%"
-              theme="light"
-              locale="pt"
-              onEmojiSelect={(e) => {
-                getEmojiDataFromNative(e.native).then((emojiData) => {
-                  setMatrix((prevMatrix) => {
-                    const updatedMatrix = prevMatrix.map((row) =>
-                      row.map((rect) =>
-                        rect.emotion_id === currentCellId
-                          ? {
-                            ...rect,
-                            emojiTag: emojiData.id,
-                          }
-                          : rect
-                      )
-                    );
+              <div className="areatexto">
+                <textarea
+                  type="text"
+                  value={editedText}
+                  placeholder="Texto vazio"
+                  className="textolegal"
+                  onChange={(e) => setEditedText(e.target.value)}
+                  style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+                />
 
-                    setEmojis((prevEmojis) => ({
-                      ...prevEmojis,
-                      [currentCellId]: e.native,
-                    }));
+                <div className="separarbotoes">
 
-                    return updatedMatrix;
-                  });
-                  setPickerVisible(false);
-                });
-              }}
-            />
-          </div>
+                  <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }}>
+                    Adicionar texto
+                  </button>
+
+                  <button className="buttonconf2" onClick={() => setEditedText('')}>
+                    Limpar texto
+                  </button>
+
+                  <label htmlFor="houseCount">Número de Casas:</label>
+
+                  <select id="houseSelect" value={selectedHouses} onChange={handleSelectChange}>
+                    <option value={1}>1 Casa</option>
+                    <option value={2}>2 Casas</option>
+                    <option value={3}>3 Casas</option>
+                  </select>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+                <h1 style={{ fontSize: "50px" }}>Cenário</h1>
+                <button className="button info" style={{ marginLeft: "1.5vh" }}>
+                  i
+                </button>
+              </div>
+              <div>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+                <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "20px", width: "70%", textAlign: "center", display: "flex", padding: "5px" }} >
+                  <Github style={{ marginTop: "px", marginRight: "5px" }} />
+                  <p>Repositório Git</p>
+                </a>
+                <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+                  <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
+                  <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
+                </div>
+              </div>
+            </>
+          )}
         </Popup>
-      )}
+        {isPickerVisible && (
+          <Popup trigger={isPickerVisible} setTrigger={setPickerVisible}>
+            <div className="PickerContainer">
+              <Picker
+                className="Picker"
+                data={data}
+                emojiSize={30}
+                emojiButtonSize={50}
+                perLine={30}
+                maxFrequentRows={10}
+                previewPosition="none"
+                navPosition="bottom"
+                emojiButtonRadius="100%"
+                theme="light"
+                locale="pt"
+                onEmojiSelect={(e) => {
+                  getEmojiDataFromNative(e.native).then((emojiData) => {
+                    setMatrix((prevMatrix) => {
+                      const updatedMatrix = prevMatrix.map((row) =>
+                        row.map((rect) =>
+                          rect.emotion_id === currentCellId
+                            ? {
+                              ...rect,
+                              emojiTag: emojiData.id,
+                            }
+                            : rect
+                        )
+                      );
 
-      <div className="stage-container">
-        <Stage width={window.innerWidth - 160} height={window.innerHeight + 180}>
-          <Layer>
-            <Matrix
-              key={forceUpdate}
-              matrix={matrix}
-              handleTextSubmit={handleTextSubmit}
-              handleTextChange={handleTextChange}
-              handleAddSquare={handleAddSquare}
-              handleDeleteSquare={handleDeleteSquare}
-              handleDragEnd={handleDragEnd}
-              handleCircleClick={handleCircleClick}
-              emojis={emojis}
-              handleRectClick={handleRectClick}
-              setMatrix={setMatrix}
-            />
-          </Layer>
-        </Stage>
-      </div>
+                      setEmojis((prevEmojis) => ({
+                        ...prevEmojis,
+                        [currentCellId]: e.native,
+                      }));
 
+                      return updatedMatrix;
+                    });
+                    setPickerVisible(false);
+                  });
+                }}
+              />
+            </div>
+          </Popup>
+        )}
+        {/* Verifica se os dados da matriz estão carregados antes de renderizar a matriz */}
+        {dataLoaded && (
+          <div className="stage-container">
+            <Stage width={window.innerWidth - 160} height={window.innerHeight + 180}>
+              <Layer>
+                <Matrix
+                  key={forceUpdate}
+                  matrix={matrix}
+                  handleTextSubmit={handleTextSubmit}
+                  handleTextChange={handleTextChange}
+                  handleAddSquare={handleAddSquare}
+                  handleDeleteSquare={handleDeleteSquare}
+                  handleDragEnd={handleDragEnd}
+                  handleCircleClick={handleCircleClick}
+                  emojis={emojis}
+                  handleRectClick={handleRectClick}
+                  setMatrix={setMatrix}
+                />
+              </Layer>
+            </Stage>
+          </div>
+        )}
 
-
-      <div className="fases-container">
-        <div className="fases-content">
-          <div className="fases-text">Fases da Jornada</div>
+        <div className="fases-container">
+          <div className="fases-content">
+            <div className="fases-text">Fases da Jornada</div>
+          </div>
         </div>
-      </div>
-      <div className="separator1"></div>
-      <div className="fases-container">
-        <div className="fases-content">
-          <div className="fases-text">Ações do Usuário</div>
+        <div className="separator1"></div>
+        <div className="fases-container">
+          <div className="fases-content">
+            <div className="fases-text">Ações do Usuário</div>
+          </div>
         </div>
-      </div>
-      <div className="separator1"></div>
-      <div className="fases-container">
-        <div className="fases-content">
-          <div className="fases-text">Emoções</div>
+        <div className="separator1"></div>
+        <div className="fases-container">
+          <div className="fases-content">
+            <div className="fases-text">Emoções</div>
+          </div>
         </div>
-      </div>
-      <div className="separator1"></div>
-      <div className="fases-container">
-        <div className="fases-content">
-          <div className="fases-text">Pensamentos</div>
+        <div className="separator1"></div>
+        <div className="fases-container">
+          <div className="fases-content">
+            <div className="fases-text">Pensamentos</div>
+          </div>
         </div>
-      </div>
-      <div className="separator1"></div>
-      <div className="fases-container">
-        <div className="fases-content">
-          <div className="fases-text">Pontos de Contato</div>
+        <div className="separator1"></div>
+        <div className="fases-container">
+          <div className="fases-content">
+            <div className="fases-text">Pontos de Contato</div>
+          </div>
         </div>
-      </div>
-      {/* <div style={{ textAlign: "center", padding: "10px", background: "#d3d3d3", fontFamily: "sans-serif", fontSize: "30px" }}>
-        FasesX: {rects[0].x} | AçõesX: {rects[1].x} | EmoçõesX: {circle.x} | EmoçõesY: {circle.y} | PensamentosX: {rects[2].x} | PontosX: {rects[3].x}
-      </div> */}
-      {/*<div style={{ background: "repeating-linear-gradient(0deg,#d3d3d3,#d3d3d3 100px,white 100px,white 200px)" }} >*/}
-      <div className="separator1"></div>
+      </>
     </div>
   );
+
 };
 
 

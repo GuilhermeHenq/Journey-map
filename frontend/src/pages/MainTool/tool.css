@@ -69,6 +69,40 @@ body {
     display: flex;
     z-index: 2;
   }
+
+  .novo-mapa {
+    display: flex;
+    align-items: center;    
+  }
+
+  .button-novo-mapa {
+    display: flex;
+    align-items: center;
+    justifycontent: center;
+    background-color: #06bd2d;
+    color: white;
+    padding-right: 10vh;
+    padding-left: 10vh;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 20px;
+    border-radius: 15px;
+  }
+
+  .button-novo-mapa:hover {
+    display: flex;
+    align-items: center;
+    justifycontent: center;
+    background-color: #06bd2d;
+    color: white;
+    border: white;
+    padding-right: 11vh;
+    padding-left: 11vh;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-size: 22px;
+    border-radius: 15px;
+  }
   
   .separator1 {
     background-color: #6E6E6E;
