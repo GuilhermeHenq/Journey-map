@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { auth } from '../../services/firebase'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
 import { toast } from 'sonner';
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Chrome } from 'lucide-react';
+import { GoogleAuthProvider } from 'firebase/auth';
 import secureLocalStorage from "react-secure-storage";
 
 import img from "../../assets/mascote.png";
+import Google from "../../assets/google.svg";
 
 import "./Login.css";
 
@@ -15,6 +17,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [googleUser, setGoogleUser] = useState(null);
 
   const showSuccess = () => {
     toast.success('Login realizado com sucesso!')
@@ -36,16 +39,37 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try { 
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        showSuccess();
-        const user = userCredential.user;
-        secureLocalStorage.setItem("token", user.accessToken);
-        secureLocalStorage.setItem("user", JSON.stringify(user));
-        setLoggedIn(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      showSuccess();
+      const user = userCredential.user;
+      secureLocalStorage.setItem("token", user.accessToken);
+      secureLocalStorage.setItem("user", JSON.stringify(user));
+      setLoggedIn(true);
     } catch (error) {
-        console.error(error);
-        showError(error);
+      console.error(error);
+      showError(error);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+
+      showSuccess();
+
+      const user = userCredential.user;
+      setGoogleUser({
+        name: user.displayName,
+        photo: user.photoURL
+      });
+      secureLocalStorage.setItem("token", user.accessToken);
+      secureLocalStorage.setItem("user", JSON.stringify(user));
+      setLoggedIn(true);
+    } catch (error) {
+      console.error(error);
+      showError(error);
     }
   };
 
@@ -83,7 +107,7 @@ function Login() {
                 className="show-password-button"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <Eye/> : <EyeOff/>}
+                {showPassword ? <Eye /> : <EyeOff />}
               </button>
             </div>
 
@@ -97,9 +121,27 @@ function Login() {
               </button>
             </div>
 
+            <div className="container-login-form-btn">
+              <button
+                className="login-google-btn"
+                type="button"
+                onClick={handleGoogleLogin}
+              >
+                <img className="img-google" src={Google} alt="Google logo" />
+                Login com Google
+              </button>
+              {googleUser && (
+                <div className="google-user-info">
+                  <img src={googleUser.photo} alt="User" />
+                  <p>{googleUser.name}</p>
+                </div>
+              )}
+            </div>
+
+
             <div className="text-center">
               <span className="txt1">Não possui conta? </span>
-              <Link className="txt2" to="/signup"> 
+              <Link className="txt2" to="/signup">
                 Criar conta
               </Link>
             </div>
