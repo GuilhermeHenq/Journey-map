@@ -237,6 +237,24 @@ body {
     font-family: Inter;
     font-weight: 500;
   }
+
+  .buttonconf3 {
+    border: none;       
+    border-radius: 18px;
+    background-color: #353535;
+    color: white;
+    padding: 11px 120px;
+    text-decoration: none;
+    display: flex;
+    cursor: pointer;
+    font-size: 32px;
+    font-family: Inter;
+    font-weight: 500;
+  }
+
+  .numerocasas {
+    margin-right: 7px;
+  }
   
   .separarbotoes {
     display: flex;

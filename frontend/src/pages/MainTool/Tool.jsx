@@ -396,7 +396,7 @@ const Tool = ({ navigate }) => {
   
           return (
             rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex
-              ? { ...rect, x: Math.max(20, Math.min(1620, rect.x + selectedHouses * 270)) }
+              ? { ...rect, x: Math.max(20, Math.min(1620, rect.x)) }
               : rect
           );
         })
@@ -614,13 +614,17 @@ const Tool = ({ navigate }) => {
                     Limpar texto
                   </button>
 
-                  <label htmlFor="houseCount">Número de Casas:</label>
+                  <div className="buttonconf3">
+
+                  <label className="numerocasas" htmlFor="houseCount">Número de Casas:</label>
 
                   <select id="houseSelect" value={selectedHouses} onChange={handleSelectChange}>
                     <option value={1}>1 Casa</option>
                     <option value={2}>2 Casas</option>
                     <option value={3}>3 Casas</option>
                   </select>
+
+                  </div>
                 </div>
               </div>
             </>
