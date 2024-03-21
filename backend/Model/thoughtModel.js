@@ -29,9 +29,9 @@ class ThoughtModel {
   
 
   updateThought(data) {
-    const { thought_id, posX, description } = data;
+    const { thought_id, posX, description, width } = data;
   
-    return db.execute("UPDATE thought SET posX = ?, description = ? WHERE thought_id = ?", [posX, description, thought_id])
+    return db.execute("UPDATE thought SET posX = ?, description = ?, length = ? WHERE thought_id = ?", [posX, description, width, thought_id])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating thought:", error);

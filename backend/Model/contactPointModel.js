@@ -30,9 +30,9 @@ class ContactPointModel {
   }
 
   updateContactPoint(data) {
-    const { contactPoint_id, posX, description } = data;
+    const { contactPoint_id, posX, description, width } = data;
 
-    return db.execute("UPDATE contactpoint SET posX = ?, description = ? WHERE contactPoint_id = ?", [posX, description, contactPoint_id])
+    return db.execute("UPDATE contactpoint SET posX = ?, description = ?, length = ? WHERE contactPoint_id = ?", [posX, description, width, contactPoint_id])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating contactpoint:", error);

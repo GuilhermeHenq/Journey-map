@@ -29,9 +29,9 @@ class UserActionModel {
   
 
   updateUserAction(data) {
-    const { userAction_id, posX, description } = data;
+    const { userAction_id, posX, description, width } = data;
   
-    return db.execute("UPDATE userAction SET posX = ?, description = ? WHERE userAction_id = ?", [posX, description, userAction_id])
+    return db.execute("UPDATE userAction SET posX = ?, description = ?, length = ? WHERE userAction_id = ?", [posX, description, width, userAction_id])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating userAction:", error);

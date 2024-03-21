@@ -53,38 +53,47 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                         const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;
                         console.log("O ID ANTES é " + id);
                         console.log("E Target X antes = " + e.target.x());
+                        //console.log("E Target Y antes = " + e.target.y());
                         const initialX = square.x; // Posição inicial do quadrado
+                        //const initialY = square.y;
 
                         const intervalWidth = 270; // Largura do intervalo
+                        //const intervalWidthY = 50;
 
                         // Calcula a nova posição x com base na diferença entre a posição do mouse e a posição inicial
                         const diffX = e.target.x() - initialX;
                         let newX = initialX + diffX;
+
+                        //const diffY = e.target.y() - initialY;
+                        //let newY = initialY + diffY;
 
                         // Garante que newX não seja negativo
                         //newX = Math.max(0, newX);
 
                         // Ajusta para o múltiplo de 270 mais próximo
                         const closestMultiple = Math.round(newX / intervalWidth) * intervalWidth;
+                        //const closestMultipleY = Math.round(newY / intervalWidthY) * intervalWidthY;
 
                         e.target.x(closestMultiple);
+                        //e.target.y(closestMultipleY);
                         console.log("newX = " + newX);
                         console.log("E Target X Depois = " + e.target.x());
+                        //console.log("E Target Y Depois = " + e.target.y());
                         e.target.opacity(1);
-                        handleDragEnd(e, id, tipo);
+                        handleDragEnd(e, id, tipo, square.width, square.x);
                     }}
 
                 >
                     {/* Botão de adição de quadrados */}
                     <Rect
-                        x={rowIndex === 2 ? square.x + 230 : square.x + 230}
+                        x={rowIndex === 2 ? square.x + 230 : square.width === 230 ? (square.x + 230 * (square.width / 230)) : (square.x + 230 * (square.width / 230))}
                         y={rowIndex === 2 ? square.y + 0 : square.y + 50}
                         width={30}
                         height={30}
                         fill="gray"
                         opacity={1}
                         draggable={false}
-                        onClick={() => handleAddSquare(rowIndex, colIndex, matrix, setMatrix)}
+                        onClick={() => handleAddSquare(rowIndex, colIndex, square.width)}
                         listening={true}
                         style={{ cursor: 'pointer' }}
                         cornerRadius={10}
@@ -101,7 +110,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                     />
 
                     <Text
-                        x={rowIndex === 2 ? square.x + 235 : square.x + 235}
+                        x={rowIndex === 2 ? square.x + 236 : square.width === 230 ? (square.x + 236 * (square.width / 230)) : (square.x + 232 * (square.width / 230))}
                         y={rowIndex === 2 ? square.y + 2 : square.y + 52}
                         text="+"
                         fontSize={30}
@@ -141,17 +150,21 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                             <Text
                                 x={square.x + 13}
                                 y={square.y}
-                                text={square.text && square.text.length > 60 ? `${square.text.slice(0, 57)}...` : square.text}
+                                text={square.width === 230 ? 
+                                    (square.text && square.text.length > 60 ? `${square.text.slice(0, 57)}...` : square.text)
+                                    :
+                                    (square.text && square.text.length > 150 ? `${square.text.slice(0, 147)}...` : square.text)
+                                }
                                 fontSize={20}
                                 fill="#000000"
-                                width={200}
+                                width={square.width}
                                 height={135}
                                 verticalAlign="middle"
                                 listening={false}
                                 fontFamily="Inter"
                             />
                             <Rect
-                                x={square.x + 210}
+                                x={square.width === 230 ? (square.x + 210 * (square.width / 230)) : (square.x + 224 * (square.width / 230)) }
                                 y={square.y}
                                 width={20}
                                 height={20}
@@ -165,7 +178,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                                 cornerRadius={3}
                             />
                             <Text
-                                x={square.x + 216}
+                                x={square.width === 230 ? (square.x + 216 * (square.width / 230)) : (square.x + 226 * (square.width / 230)) }
                                 y={square.y + 5}
                                 text="X"
                                 fontSize={12}
@@ -197,14 +210,15 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                         </>
                     ) : (
                         <>
+                            {console.log("Line y aqui o:" + square.lineY)}
                             <Text
                                 x={square.x + 60 - 18}  // Ajuste conforme necessário
-                                y={square.y - 10}       // Ajuste conforme necessário
+                                y={square.y - 10}       // Ajuste conforme necessário + square.lineY 
                                 fontSize={40}           // Ajuste conforme necessário
                                 fill="#000"             // Ajuste conforme necessário
                                 align="center"
                                 verticalAlign="middle"
-                                text={emojis[square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id] || "+"}
+                                text={emojis[square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id] || "🔴"}
                                 onClick={() => {
                                     const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;
                                     handleCircleClick(id);
@@ -261,8 +275,8 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                 >
                     {/* Quadrado maior */}
                     <Rect
-                        x={maxXSquare ? maxXSquare.x + 259 : 30}
-                        y={rowIndex === 2 ? rowIndex * 170 + 104 + 13 : rowIndex * 170 + 104}
+                        x={maxXSquare ? (maxXSquare.width === 230 ? maxXSquare.x + 259 * maxXSquare.width / 230  : maxXSquare.x + 282 * maxXSquare.width / 270) : 30}
+                        y={rowIndex === 2 ? rowIndex * 170 + 117 : rowIndex * 170 + 104}
                         width={60}
                         height={45}
                         fill="gray"
@@ -274,8 +288,8 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                         cornerRadius={10}
                     />
                     <Text
-                        x={maxXSquare ? maxXSquare.x + 273 : 45}
-                        y={rowIndex === 2 ? rowIndex * 170 + 104 + 13 : rowIndex * 170 + 104}
+                        x={maxXSquare ? (maxXSquare.width === 230 ? maxXSquare.x + 273 * maxXSquare.width / 230  : maxXSquare.x + 287 * maxXSquare.width / 270) : 45}
+                        y={rowIndex === 2 ? rowIndex * 170 + 117 : rowIndex * 170 + 104}
                         text="+"
                         fontSize={50}
                         fill='#d9d9d9'

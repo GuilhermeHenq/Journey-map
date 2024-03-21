@@ -34,7 +34,7 @@ const Tool = ({ navigate }) => {
         journeyMap_id: 3,
         linePos: 285,
         posX: 20,
-        length: 0,
+        length: 230,
         description: 'essa é uma fase de jornada',
         emojiTag: 'emoji feliz',
       });
@@ -43,7 +43,7 @@ const Tool = ({ navigate }) => {
         journeyMap_id: 3,
         linePos: 285,
         posX: 20,
-        length: 0,
+        length: 230,
         description: 'essa é uma ação do usuario',
         emojiTag: 'emoji feliz',
       });
@@ -52,7 +52,7 @@ const Tool = ({ navigate }) => {
         journeyMap_id: 3,
         linePos: 285,
         posX: 20,
-        length: 0,
+        length: 230,
         description: 'esse é um pensamento',
         emojiTag: 'emoji pensando',
       });
@@ -61,15 +61,15 @@ const Tool = ({ navigate }) => {
         journeyMap_id: 3,
         linePos: 285,
         posX: 20,
-        length: 0,
+        length: 230,
         description: 'esse é um ponto de contato ',
         emojiTag: 'emoji triste',
       });
 
       await axios.post('http://localhost:3000/emotion', {
         posX: 20,
-        lineY: 200,
-        emojiTag: 'grinning',
+        lineY: 40,
+        emojiTag: '😀',
         journeyMap_id: 3,
       });
 
@@ -99,12 +99,10 @@ const Tool = ({ navigate }) => {
   };
 
 
-  const updateMatrixWithX = (matrix, id, newX, tipo) => {
+  const updateMatrixWithX = (matrix, id, newX, tipo, length, x) => {
     let updatedX;
     let constantToAdd = 0;
-
-    console.log("o valor de x antes de passar pelos cases é: " + newX);
-
+  
     // Switch case based on newX ranges
     switch (true) {
       case newX >= -269 && newX <= 269:
@@ -149,25 +147,51 @@ const Tool = ({ navigate }) => {
       default:
         constantToAdd = 1;
     }
-
+  
+    // Se constantToAdd for diferente de zero, significa que não há uma alteração válida para newX
     if (constantToAdd !== 0) {
       return matrix;
     }
-
-
-    console.log("o valor de x passando pelos cases é: " + updatedX);
-
-    return matrix.map((row) =>
+  
+    console.log("id antes do overlapping: " + id.toString());
+    // Verificando se há sobreposição apenas na mesma linha
+    const rowIndex = matrix.findIndex(row => row.some(rect => rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()));
+    const row = matrix[rowIndex];
+    const newXEnd = x + updatedX + length - 20; // Final do novo intervalo do retângulo movido
+    console.log("newX end que é o x recebido + o X que ele ia somar: " + newXEnd);
+    const isOverlapping = row.some(rect =>
+      rect[tipo + "_id"] !== undefined &&
+      rect[tipo + "_id"].toString() === id.toString() &&
+      row.some(otherRect =>
+        otherRect[tipo + "_id"] !== undefined &&
+        otherRect[tipo + "_id"].toString() !== id.toString() &&
+        (newXEnd > otherRect.x && newXEnd < otherRect.x + otherRect.width) || // Verifica se há sobreposição à direita ou
+        (x + updatedX > otherRect.x && x + updatedX < otherRect.x + otherRect.width) // Verifica se há sobreposição à esquerda
+      )
+    );
+  
+    // Se houver sobreposição na mesma linha, retorne a matriz original
+    if (isOverlapping) {
+      return matrix;
+    }
+  
+    // Caso contrário, aplique a lógica de atualização de x para os retângulos
+    return matrix.map((row, rowIndex) =>
       row.map((rect) =>
         rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()
           ? {
-            ...rect,
-            x: Math.max(20, Math.min(1620, rect.x + updatedX)),
-          }
+              ...rect,
+              x: Math.max(20, Math.min(1640, rect.x + updatedX)),
+            }
           : rect
       )
     );
   };
+  
+  
+  
+  
+  
 
 
 
@@ -194,7 +218,7 @@ const Tool = ({ navigate }) => {
           journeyPhase_id: item.journeyPhase_id.toString(),
           x: item.posX,
           y: 61,
-          width: 230,
+          width: item.length,
           height: 135,
           color: "#FFAC81",
           text: item.description,
@@ -205,7 +229,7 @@ const Tool = ({ navigate }) => {
           userAction_id: item.userAction_id.toString(),
           x: item.posX,
           y: 231,
-          width: 230,
+          width: item.length,
           height: 135,
           color: "#FF928B",
           text: item.description,
@@ -228,7 +252,7 @@ const Tool = ({ navigate }) => {
           thought_id: item.thought_id.toString(),
           x: item.posX,
           y: 571,
-          width: 230,
+          width: item.length,
           height: 135,
           color: "#EFE9AE",
           text: item.description,
@@ -239,7 +263,7 @@ const Tool = ({ navigate }) => {
           contactPoint_id: item.contactPoint_id.toString(),
           x: item.posX,
           y: 741,
-          width: 230,
+          width: item.length,
           height: 135,
           color: "#CDEAC0",
           text: item.description,
@@ -258,20 +282,20 @@ const Tool = ({ navigate }) => {
         const convertedEmojis = {};
 
         for (const item of emotionMatrix) {
-          console.log("emojiTag antes da pesquisa: " + item.emojiTag);
-          const emojis = await SearchIndex.search(item.emojiTag);
-          //console.log("Emojis após a pesquisa: " + JSON.stringify(emojis));
+          //console.log("emojiTag antes da pesquisa: " + item.emojiTag);
+          const emojis = item.emojiTag;
+          //console.log("Emojis após a pesquisa: " + emojis);
 
           if (emojis.length > 0) {
             // Pegar o primeiro native do array de skins
-            const native = emojis[0].skins[0].native;
-            console.log("NATIVE A SER INSERIDO: " + native);
+            const native = emojis;
+            //console.log("NATIVE A SER INSERIDO: " + native);
             convertedEmojis[item.emotion_id] = native;
           }
         }
 
         setEmojis(convertedEmojis);
-        console.log("Emojis após converter emojiTag to Native: " + JSON.stringify(convertedEmojis));
+        //console.log("Emojis após converter emojiTag to Native: " + JSON.stringify(convertedEmojis));
 
       } catch (error) {
         console.error("Erro ao buscar os dados:", error);
@@ -283,12 +307,11 @@ const Tool = ({ navigate }) => {
 
 
 
-  const handleDragEnd = (e, id, tipo) => {
-    const identificador = id;
+  const handleDragEnd = (e, id, tipo, length, x) => {
     const newX = e.target.x();
-
+    const newY = e.target.y();
     setMatrix((prevMatrix) => {
-      const updatedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo);
+      const updatedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x);
 
       // Verifique se há sobreposição na mesma linha
       const rowIndex = updatedMatrix.findIndex(row => row.some(rect => rect[tipo + "_id"] === id));
@@ -312,7 +335,8 @@ const Tool = ({ navigate }) => {
 
     setEditedRectId(id);
     setForceUpdate(prev => prev + 1);
-  };
+};
+
 
 
 
@@ -327,12 +351,12 @@ const Tool = ({ navigate }) => {
         if (rect.contactPoint_id !== undefined) {
           acc.push({
             endpoint: "contactPoint",
-            data: { contactPoint_id: rect.contactPoint_id, posX: rect.x, description: rect.text },
+            data: { contactPoint_id: rect.contactPoint_id, posX: rect.x, description: rect.text, width: rect.width },
           });
         } else if (rect.userAction_id !== undefined) {
           acc.push({
             endpoint: "userAction",
-            data: { userAction_id: rect.userAction_id, posX: rect.x, description: rect.text },
+            data: { userAction_id: rect.userAction_id, posX: rect.x, description: rect.text, width: rect.width  },
           });
         } else if (rect.emotion_id !== undefined) {
           acc.push({
@@ -342,12 +366,12 @@ const Tool = ({ navigate }) => {
         } else if (rect.thought_id !== undefined) {
           acc.push({
             endpoint: "thought",
-            data: { thought_id: rect.thought_id, posX: rect.x, description: rect.text },
+            data: { thought_id: rect.thought_id, posX: rect.x, description: rect.text, width: rect.width  },
           });
         } else if (rect.journeyPhase_id !== undefined) {
           acc.push({
             endpoint: "journeyPhase",
-            data: { journeyPhase_id: rect.journeyPhase_id, posX: rect.x, description: rect.text },
+            data: { journeyPhase_id: rect.journeyPhase_id, posX: rect.x, description: rect.text, width: rect.width  },
           });
         }
       });
@@ -404,8 +428,48 @@ const Tool = ({ navigate }) => {
   
       return updatedMatrix;
     });
+
+
   };  
 
+
+  const handleSaveHouse = () => {
+    setMatrix((prevMatrix) => {
+      let updatedMatrix = prevMatrix.map((row) => {
+        let rowUpdated = false;
+        const updatedRow = row.map((rect) => {
+          const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
+  
+          if (rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex) {
+            rowUpdated = true;
+            return { ...rect, width: selectedHouses * 270 - 40 };
+          }
+          return rect;
+        });
+  
+        // Se a linha foi atualizada, ajuste os rects subsequentes na mesma linha
+        if (rowUpdated) {
+          let adjustedX = -1;
+          updatedRow.forEach((rect, index) => {
+            if (adjustedX !== -1 && rect) {
+              rect.x = adjustedX + 40;
+              adjustedX += rect.width;
+            }
+            if (rect && rect[`${rect.type}_id`] === editedRectId && rect.y === editedRowIndex) {
+              adjustedX = rect.x + rect.width;
+            }
+          });
+        }
+  
+        return updatedRow;
+      });
+  
+      return updatedMatrix;
+    });
+  
+    setSelectedHouses(1);
+  };
+  
 
 
   const handleTextChange = (rowIndex, colIndex, newText) => {
@@ -449,8 +513,8 @@ const Tool = ({ navigate }) => {
   };
 
 
-  const handleAddSquare = async (rowIndex, colIndex, prevMatrix, setMatrix) => {
-    console.log("handleAddSquare rowIndex, colIndex:", rowIndex, colIndex);
+  const handleAddSquare = async (rowIndex, colIndex, squarewidth) => {
+    console.log("handleAddSquare rowIndex, colIndex, squarewidth:", rowIndex, colIndex, squarewidth);
     try {
       // Mapeia o rowIndex para o tipo correspondente
       const rowIndexToType = {
@@ -475,6 +539,17 @@ const Tool = ({ navigate }) => {
 
       const novoX = colIndexToType[colIndex];
 
+      let temp = 0;
+
+      if (squarewidth === 770) {
+        temp = 540;
+      } else if (squarewidth === 500) {
+        temp = 270;
+      } else {
+        temp = 0;
+      }
+
+
       if (!type) {
         console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
         return;
@@ -483,8 +558,8 @@ const Tool = ({ navigate }) => {
       let postData = {
         "journeyMap_id": 3,
         "linePos": 285,
-        "posX": novoX,
-        "length": 0,
+        "posX": novoX + temp,
+        "length": 230,
         "description": "",
         "emojiTag": "Novo emoji"
       };
@@ -492,8 +567,8 @@ const Tool = ({ navigate }) => {
       if (type === 'emotion') {
         postData = {
           "posX": novoX,
-          "lineY": 200,
-          "emojiTag": "Emoji 1",
+          "lineY": 40,
+          "emojiTag": "🔴",
           "journeyMap_id": 3
         };
       }
@@ -616,13 +691,14 @@ const Tool = ({ navigate }) => {
 
                   <div className="buttonconf3">
 
-                  <label className="numerocasas" htmlFor="houseCount">Número de Casas:</label>
+                  <label className="numerocasas" htmlFor="houseCount">Tamanho: </label>
 
                   <select id="houseSelect" value={selectedHouses} onChange={handleSelectChange}>
-                    <option value={1}>1 Casa</option>
-                    <option value={2}>2 Casas</option>
-                    <option value={3}>3 Casas</option>
+                    <option value={1}>1 </option>
+                    <option value={2}>2 </option>
+                    <option value={3}>3 </option>
                   </select>
+                  <button className="botaosavetamanho" onClick={handleSaveHouse}> Salvar </button>
 
                   </div>
                 </div>
@@ -663,7 +739,7 @@ const Tool = ({ navigate }) => {
                 previewPosition="none"
                 navPosition="bottom"
                 emojiButtonRadius="100%"
-                theme="light"
+                theme="dark"
                 locale="pt"
                 onEmojiSelect={(e) => {
                   getEmojiDataFromNative(e.native).then((emojiData) => {
@@ -673,7 +749,7 @@ const Tool = ({ navigate }) => {
                           rect.emotion_id === currentCellId
                             ? {
                               ...rect,
-                              emojiTag: emojiData.id,
+                              emojiTag: emojiData.native,
                             }
                             : rect
                         )

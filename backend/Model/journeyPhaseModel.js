@@ -29,9 +29,9 @@ class JourneyPhaseModel {
   
 
   updateJourneyPhase(data) {
-    const { journeyPhase_id, posX, description } = data;
+    const { journeyPhase_id, posX, description, width } = data;
   
-    return db.execute("UPDATE journeyPhase SET posX = ?, description = ? WHERE journeyPhase_id = ?", [posX, description, journeyPhase_id ])
+    return db.execute("UPDATE journeyPhase SET posX = ?, description = ?, length = ? WHERE journeyPhase_id = ?", [posX, description, width, journeyPhase_id ])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating journeyPhase:", error);

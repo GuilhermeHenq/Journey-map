@@ -211,11 +211,12 @@ body {
   }
   
   .buttonconf {
+    width: 30%;
     border: none;       
     border-radius: 18px;
     background-color: #353535;
     color: white;
-    padding: 11px 120px;
+    padding: 11px 40px;
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
@@ -225,11 +226,12 @@ body {
   }
 
   .buttonconf2 {
+    width: 30%;
     border: none;       
     border-radius: 18px;
     background-color: #353535;
     color: white;
-    padding: 11px 120px;
+    padding: 11px 40px;
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
@@ -239,17 +241,36 @@ body {
   }
 
   .buttonconf3 {
-    border: none;       
+    width: 30%;
+    border: none;
+    display: flex;
+    justify-content: inline-column;       
     border-radius: 18px;
     background-color: #353535;
     color: white;
-    padding: 11px 120px;
+    padding: 11px 40px;
     text-decoration: none;
-    display: flex;
-    cursor: pointer;
     font-size: 32px;
     font-family: Inter;
     font-weight: 500;
+  }
+
+  #houseSelect {
+    margin-left: 10px;
+    width: 60px;
+    height: 40px;
+    background-color: #353535;
+    color: white;
+    font-size: 23px;
+  }
+
+  .botaosavetamanho{
+    border-radius: 5px;
+    margin-left: 10px;
+    background-color: #4caf50;
+    color: white;
+    padding: 5px 10px;
+    cursor: pointer;
   }
 
   .numerocasas {
@@ -266,7 +287,7 @@ body {
     border-radius: 18px;
     background-color: #00962A;
     color: white;
-    padding: 11px 120px;
+    padding: 11px 40px;
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
@@ -280,7 +301,7 @@ body {
     border-radius: 18px;
     background-color: #FF454F;
     color: white;
-    padding: 11px 120px;
+    padding: 11px 40px;
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
