@@ -30,7 +30,7 @@ const Tool = ({ navigate }) => {
 
   const handlePostClick = async () => {
     try {
-      await axios.post('http://localhost:3000/journeyPhase', {
+      await axios.post(import.meta.env.VITE_BACKEND + '/journeyPhase', {
         journeyMap_id: 3,
         linePos: 285,
         posX: 20,
@@ -39,7 +39,7 @@ const Tool = ({ navigate }) => {
         emojiTag: 'emoji feliz',
       });
 
-      await axios.post('http://localhost:3000/userAction', {
+      await axios.post(import.meta.env.VITE_BACKEND + '/userAction', {
         journeyMap_id: 3,
         linePos: 285,
         posX: 20,
@@ -48,7 +48,7 @@ const Tool = ({ navigate }) => {
         emojiTag: 'emoji feliz',
       });
 
-      await axios.post('http://localhost:3000/thought', {
+      await axios.post(import.meta.env.VITE_BACKEND + '/thought', {
         journeyMap_id: 3,
         linePos: 285,
         posX: 20,
@@ -57,7 +57,7 @@ const Tool = ({ navigate }) => {
         emojiTag: 'emoji pensando',
       });
 
-      await axios.post('http://localhost:3000/contactPoint', {
+      await axios.post(import.meta.env.VITE_BACKEND + '/contactPoint', {
         journeyMap_id: 3,
         linePos: 285,
         posX: 20,
@@ -66,7 +66,7 @@ const Tool = ({ navigate }) => {
         emojiTag: 'emoji triste',
       });
 
-      await axios.post('http://localhost:3000/emotion', {
+      await axios.post(import.meta.env.VITE_BACKEND + '/emotion', {
         posX: 20,
         lineY: 40,
         emojiTag: '😀',
@@ -205,11 +205,11 @@ const Tool = ({ navigate }) => {
           thoughtData,
           contactPointData,
         ] = await Promise.all([
-          axios.get("http://localhost:3000/journeyPhase"),
-          axios.get("http://localhost:3000/userAction"),
-          axios.get("http://localhost:3000/emotion"),
-          axios.get("http://localhost:3000/thought"),
-          axios.get("http://localhost:3000/contactPoint"),
+          axios.get(import.meta.env.VITE_BACKEND + "/journeyPhase"),
+          axios.get(import.meta.env.VITE_BACKEND + "/userAction"),
+          axios.get(import.meta.env.VITE_BACKEND + "/emotion"),
+          axios.get(import.meta.env.VITE_BACKEND + "/thought"),
+          axios.get(import.meta.env.VITE_BACKEND + "/contactPoint"),
         ]);
 
         // Mapeie os dados da API para o formato desejado na matriz
@@ -337,9 +337,6 @@ const Tool = ({ navigate }) => {
     setForceUpdate(prev => prev + 1);
 };
 
-
-
-
   const handleSaveClick = () => {
     const putConfig = { method: "PUT" };
 
@@ -382,7 +379,7 @@ const Tool = ({ navigate }) => {
 
     // Envie as solicitações para a API usando os dados mapeados
     const requests = dataToPut.map(({ endpoint, data }) => {
-      const url = `http://localhost:3000/${endpoint}`;
+      const url = import.meta.env.VITE_BACKEND + `/${endpoint}`;
       return axios.put(url, data, putConfig);
     });
 
@@ -573,7 +570,7 @@ const Tool = ({ navigate }) => {
         };
       }
 
-      const response = await axios.post(`http://localhost:3000/${type}`, postData);
+      const response = await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
 
       const newSquare = response.data;
 
@@ -596,7 +593,7 @@ const Tool = ({ navigate }) => {
       console.log(`Iniciando exclusão do quadrado: ${squareId}`);
       console.log(`Iniciando exclusão do quadrado: ${squareType}`);
 
-      const response = await axios.delete(`http://localhost:3000/${squareType}/${squareId}`);
+      const response = await axios.delete(import.meta.env.VITE_BACKEND + `/${squareType}/${squareId}`);
 
       console.log(`Quadrado ${squareId} excluído com sucesso!`, response);
 
@@ -645,10 +642,6 @@ const Tool = ({ navigate }) => {
     setPickerVisible(true);
   };
 
-
-
-
-
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <>
@@ -660,7 +653,6 @@ const Tool = ({ navigate }) => {
           dataLoaded={dataLoaded}
           currentJourneyMap={1}
         />
-
 
         <div className="separator1" style={{ marginTop: "61.9px" }}></div>
         <Popup trigger={buttonPopup} setTrigger={setButtonPopup} setTextEdit={setTextEdit} style={{ borderRadius: "25px" }}>
