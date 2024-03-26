@@ -86,7 +86,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                 >
                     {/* Botão de adição de quadrados */}
                     <Rect
-                        x={rowIndex === 2 ? square.x + 230 : square.width === 230 ? (square.x + 230 * (square.width / 230)) : (square.x + 230 * (square.width / 230))}
+                        x={rowIndex === 2 ? square.x + 230 : (square.x + square.width)}
                         y={rowIndex === 2 ? square.y + 0 : square.y + 50}
                         width={30}
                         height={30}
@@ -110,7 +110,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                     />
 
                     <Text
-                        x={rowIndex === 2 ? square.x + 236 : square.width === 230 ? (square.x + 236 * (square.width / 230)) : (square.x + 232 * (square.width / 230))}
+                        x={rowIndex === 2 ? square.x + 236 : (square.x + square.width) + 6}
                         y={rowIndex === 2 ? square.y + 2 : square.y + 52}
                         text="+"
                         fontSize={30}
@@ -164,7 +164,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                                 fontFamily="Inter"
                             />
                             <Rect
-                                x={square.width === 230 ? (square.x + 210 * (square.width / 230)) : (square.x + 224 * (square.width / 230)) }
+                                x={(square.x + square.width) - 20 }
                                 y={square.y}
                                 width={20}
                                 height={20}
@@ -178,7 +178,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                                 cornerRadius={3}
                             />
                             <Text
-                                x={square.width === 230 ? (square.x + 216 * (square.width / 230)) : (square.x + 226 * (square.width / 230)) }
+                                x={(square.x + square.width) - 14 }
                                 y={square.y + 5}
                                 text="X"
                                 fontSize={12}

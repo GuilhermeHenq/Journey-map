@@ -536,15 +536,6 @@ const Tool = ({ navigate }) => {
 
       const novoX = colIndexToType[colIndex];
 
-      let temp = 0;
-
-      if (squarewidth === 770) {
-        temp = 540;
-      } else if (squarewidth === 500) {
-        temp = 270;
-      } else {
-        temp = 0;
-      }
 
 
       if (!type) {
@@ -555,7 +546,7 @@ const Tool = ({ navigate }) => {
       let postData = {
         "journeyMap_id": 3,
         "linePos": 285,
-        "posX": novoX + temp,
+        "posX": squarewidth - 230 + novoX,
         "length": 230,
         "description": "",
         "emojiTag": "Novo emoji"
@@ -689,6 +680,13 @@ const Tool = ({ navigate }) => {
                     <option value={1}>1 </option>
                     <option value={2}>2 </option>
                     <option value={3}>3 </option>
+                    <option value={4}>4 </option>
+                    <option value={5}>5 </option>
+                    <option value={6}>6 </option>
+                    <option value={7}>7 </option>
+                    <option value={8}>8 </option>
+                    <option value={9}>9 </option>
+                    <option value={10}>10 </option>
                   </select>
                   <button className="botaosavetamanho" onClick={handleSaveHouse}> Salvar </button>
 
@@ -726,7 +724,7 @@ const Tool = ({ navigate }) => {
                 data={data}
                 emojiSize={30}
                 emojiButtonSize={50}
-                perLine={30}
+                perLine={20}
                 maxFrequentRows={10}
                 previewPosition="none"
                 navPosition="bottom"
