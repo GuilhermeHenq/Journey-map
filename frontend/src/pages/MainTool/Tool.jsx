@@ -612,6 +612,7 @@ const Tool = ({ navigate }) => {
 
         return prevMatrix;
       });
+      window.location.reload();
     } catch (error) {
       console.error("Erro ao excluir quadrado:", error);
     }
