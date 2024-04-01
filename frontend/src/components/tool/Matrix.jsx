@@ -40,7 +40,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                             e.target.y(Math.max(-60, Math.min(50, newY)));
                             // e.target.y(0);
                         } else {
-                            // e.target.y(0);
+                            e.target.y(0);
                         }
 
                         const newX = e.target.x();
