@@ -144,5 +144,10 @@
 
 .changename {
   outline: none;
-
+  background: none;
+  font-family: Inter;
+  color: white;
+  font-size: 30px;
+  font-weight: 700;
+  border: none;
 }

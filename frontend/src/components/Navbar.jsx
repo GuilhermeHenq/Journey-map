@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Github, LogOut } from 'lucide-react';
+import './Navbar.css'
 
 const Navbar = ({ onSaveClick, onInfoClick, onLogoutClick, dataLoaded, currentJourneyMap, handlePostClick }) => {
   
