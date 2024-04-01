@@ -37,8 +37,8 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
 
                         // Se rowIndex for 2, limita o movimento entre -50 e 50 em y
                         if (rowIndex === 2) {
-                            //e.target.y(Math.max(-50, Math.min(50, newY)));
-                            e.target.y(0);
+                            e.target.y(Math.max(-60, Math.min(50, newY)));
+                            // e.target.y(0);
                         } else {
                             e.target.y(0);
                         }
