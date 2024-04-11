@@ -307,34 +307,23 @@ const Tool = ({ navigate }) => {
 
 
 
-  const handleDragEnd = (e, id, tipo, length, x) => {
-    const newX = e.target.x();
-    const newY = e.target.y();
-    setMatrix((prevMatrix) => {
-      const updatedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x);
+    const handleDragEnd = (e, id, tipo, length, x) => {
+      const newX = e.target.x();
+      const newY = e.target.y();
+      setMatrix((prevMatrix) => {
+          const rearrangedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x);
 
-      // Verifique se há sobreposição na mesma linha
-      const rowIndex = updatedMatrix.findIndex(row => row.some(rect => rect[tipo + "_id"] === id));
-      const draggedRect = updatedMatrix[rowIndex].find(rect => rect[tipo + "_id"] === id);
-
-      updatedMatrix[rowIndex].forEach(rect => {
-        if (rect[tipo + "_id"] !== id && rect.x === draggedRect.x) {
-          // Sobreposição detectada, ajuste a posição
-          if (newX < draggedRect.x) {
-            // Arrastou para a esquerda, mova para a direita
-            rect.x += 270;  // Adicione uma margem de 20 (ajuste conforme necessário)
-          } else {
-            // Arrastou para a direita, mova para a esquerda
-            rect.x -= 270;  // Adicione uma margem de 20 (ajuste conforme necessário)
-          }
-        }
+          const updatedMatrix = rearrangedMatrix.map((row) => {
+              return row.sort((a, b) => {
+                  return (a.x - 20) / 270 - (b.x - 20) / 270;
+              });
+          });
+          
+          console.log(updatedMatrix)
+          return updatedMatrix;
       });
-
-      return updatedMatrix;
-    });
-
-    setEditedRectId(id);
-    setForceUpdate(prev => prev + 1);
+      setEditedRectId(id);
+      setForceUpdate((prev) => prev + 1);
   };
 
   const handleSaveClick = () => {
