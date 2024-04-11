@@ -328,7 +328,7 @@ const Tool = ({ navigate }) => {
 
   const handleSaveClick = () => {
     const putConfig = { method: "PUT" };
-
+    console.log("Final matrix: ", matrix)
     // Mapeie os dados da matriz para os dados necessários para cada tipo de entidade
     const dataToPut = matrix.reduce((acc, row) => {
       row.forEach((rect) => {
