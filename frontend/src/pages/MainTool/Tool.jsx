@@ -102,7 +102,7 @@ const Tool = ({ navigate }) => {
   const updateMatrixWithX = (matrix, id, newX, tipo, length, x) => {
     let updatedX;
     let constantToAdd = 0;
-  
+
     // Switch case based on newX ranges
     switch (true) {
       case newX >= -269 && newX <= 269:
@@ -147,12 +147,12 @@ const Tool = ({ navigate }) => {
       default:
         constantToAdd = 1;
     }
-  
+
     // Se constantToAdd for diferente de zero, significa que não há uma alteração válida para newX
     if (constantToAdd !== 0) {
       return matrix;
     }
-  
+
     console.log("id antes do overlapping: " + id.toString());
     // Verificando se há sobreposição apenas na mesma linha
     const rowIndex = matrix.findIndex(row => row.some(rect => rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()));
@@ -169,29 +169,29 @@ const Tool = ({ navigate }) => {
         (x + updatedX > otherRect.x && x + updatedX < otherRect.x + otherRect.width) // Verifica se há sobreposição à esquerda
       )
     );
-  
+
     // Se houver sobreposição na mesma linha, retorne a matriz original
     if (isOverlapping) {
       return matrix;
     }
-  
+
     // Caso contrário, aplique a lógica de atualização de x para os retângulos
     return matrix.map((row, rowIndex) =>
       row.map((rect) =>
         rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()
           ? {
-              ...rect,
-              x: Math.max(20, Math.min(1640, rect.x + updatedX)),
-            }
+            ...rect,
+            x: Math.max(20, Math.min(1640, rect.x + updatedX)),
+          }
           : rect
       )
     );
   };
-  
-  
-  
-  
-  
+
+
+
+
+
 
 
 
@@ -335,7 +335,7 @@ const Tool = ({ navigate }) => {
 
     setEditedRectId(id);
     setForceUpdate(prev => prev + 1);
-};
+  };
 
   const handleSaveClick = () => {
     const putConfig = { method: "PUT" };
@@ -353,7 +353,7 @@ const Tool = ({ navigate }) => {
         } else if (rect.userAction_id !== undefined) {
           acc.push({
             endpoint: "userAction",
-            data: { userAction_id: rect.userAction_id, posX: rect.x, description: rect.text, width: rect.width  },
+            data: { userAction_id: rect.userAction_id, posX: rect.x, description: rect.text, width: rect.width },
           });
         } else if (rect.emotion_id !== undefined) {
           acc.push({
@@ -363,12 +363,12 @@ const Tool = ({ navigate }) => {
         } else if (rect.thought_id !== undefined) {
           acc.push({
             endpoint: "thought",
-            data: { thought_id: rect.thought_id, posX: rect.x, description: rect.text, width: rect.width  },
+            data: { thought_id: rect.thought_id, posX: rect.x, description: rect.text, width: rect.width },
           });
         } else if (rect.journeyPhase_id !== undefined) {
           acc.push({
             endpoint: "journeyPhase",
-            data: { journeyPhase_id: rect.journeyPhase_id, posX: rect.x, description: rect.text, width: rect.width  },
+            data: { journeyPhase_id: rect.journeyPhase_id, posX: rect.x, description: rect.text, width: rect.width },
           });
         }
       });
@@ -414,7 +414,7 @@ const Tool = ({ navigate }) => {
       const updatedMatrix = prevMatrix.map((row) =>
         row.map((rect) => {
           const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
-  
+
           return (
             rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex
               ? { ...rect, x: Math.max(20, Math.min(1620, rect.x)) }
@@ -422,12 +422,12 @@ const Tool = ({ navigate }) => {
           );
         })
       );
-  
+
       return updatedMatrix;
     });
 
 
-  };  
+  };
 
 
   const handleSaveHouse = () => {
@@ -436,14 +436,14 @@ const Tool = ({ navigate }) => {
         let rowUpdated = false;
         const updatedRow = row.map((rect) => {
           const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
-  
+
           if (rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex) {
             rowUpdated = true;
             return { ...rect, width: selectedHouses * 270 - 40 };
           }
           return rect;
         });
-  
+
         // Se a linha foi atualizada, ajuste os rects subsequentes na mesma linha
         if (rowUpdated) {
           let adjustedX = -1;
@@ -457,16 +457,16 @@ const Tool = ({ navigate }) => {
             }
           });
         }
-  
+
         return updatedRow;
       });
-  
+
       return updatedMatrix;
     });
-  
+
     setSelectedHouses(1);
   };
-  
+
 
 
   const handleTextChange = (rowIndex, colIndex, newText) => {
@@ -672,24 +672,19 @@ const Tool = ({ navigate }) => {
                   </button>
 
                   <div className="buttonconf3">
-
-                  <label className="numerocasas" htmlFor="houseCount">Tamanho: </label>
-
-                  <select id="houseSelect" value={selectedHouses} onChange={handleSelectChange}>
-                    <option value={1}>1 </option>
-                    <option value={2}>2 </option>
-                    <option value={3}>3 </option>
-                    <option value={4}>4 </option>
-                    <option value={5}>5 </option>
-                    <option value={6}>6 </option>
-                    <option value={7}>7 </option>
-                    <option value={8}>8 </option>
-                    <option value={9}>9 </option>
-                    <option value={10}>10 </option>
-                  </select>
-                  <button className="botaosavetamanho" onClick={handleSaveHouse}> Salvar </button>
-
+                    {/* <label className="numerocasas" htmlFor="houseCount">Tamanho: </label> */}
+                    <input
+                      type="number"
+                      id="houseCount"
+                      value={selectedHouses}
+                      onChange={handleSelectChange}
+                      min={1} // Define o valor mínimo como 1
+                      step={1} // Define o incremento/decremento como 1 (apenas números inteiros)
+                      className="houseInput"
+                    />
+                    <p>Card(s)</p>
                   </div>
+                  <button className="botaosavetamanho" onClick={handleSaveHouse}> Salvar </button>
                 </div>
               </div>
             </>
