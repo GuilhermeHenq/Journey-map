@@ -6,6 +6,7 @@ body {
   background-color: #d9d9d9;
   max-height: 100vh;
   overflow-y: hidden;
+  /* overflow-y: hidden; */
   min-zoom: 70%;
 }
   
@@ -107,6 +108,11 @@ body {
   .separator1 {
     background-color: #6E6E6E;
     height: 20px;
+  }
+
+  .separator2 {
+    background-color: #6E6E6E;
+    height: 200px;
   }
   
   .fases-container {
@@ -274,8 +280,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
-    width: 10%;
+    border-radius: 18px;
+    width: 8%;
     background-color: #4caf50;
     color: white;
     padding: 5px 10px;
@@ -334,3 +340,13 @@ body {
     padding-left: 10px;
     padding-bottom: 20px;
   }
+
+  .scrollable-container {
+    width: 100%; /* Ocupa todo o espaço disponível na largura */
+    
+  }
+  
+  .stage-container {
+    display: inline-block; /* Permite que a div se ajuste ao tamanho do seu conteúdo */
+  }
+  

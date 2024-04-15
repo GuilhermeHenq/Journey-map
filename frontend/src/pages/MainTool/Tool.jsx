@@ -86,12 +86,134 @@ const Tool = ({ navigate }) => {
     navigate('/login');
   }
 
+  const fetchData = async () => {
+    try {
+      const [
+        journeyData,
+        userActionData,
+        emotionData,
+        thoughtData,
+        contactPointData,
+      ] = await Promise.all([
+        axios.get(import.meta.env.VITE_BACKEND + "/journeyPhase"),
+        axios.get(import.meta.env.VITE_BACKEND + "/userAction"),
+        axios.get(import.meta.env.VITE_BACKEND + "/emotion"),
+        axios.get(import.meta.env.VITE_BACKEND + "/thought"),
+        axios.get(import.meta.env.VITE_BACKEND + "/contactPoint"),
+      ]);
+
+      // Mapeie os dados da API para o formato desejado na matriz
+      const journeyMatrix = journeyData.data.map(item => ({
+        type: 'journeyPhase',
+        journeyPhase_id: item.journeyPhase_id.toString(),
+        x: item.posX,
+        y: 61,
+        width: item.length,
+        height: 135,
+        color: "#FFAC81",
+        text: item.description,
+      }));
+
+      const userActionMatrix = userActionData.data.map(item => ({
+        type: 'userAction',
+        userAction_id: item.userAction_id.toString(),
+        x: item.posX,
+        y: 231,
+        width: item.length,
+        height: 135,
+        color: "#FF928B",
+        text: item.description,
+      }));
+
+      const emotionMatrix = emotionData.data.map(item => ({
+        type: 'emotion',
+        emotion_id: item.emotion_id.toString(),
+        x: item.posX,
+        y: 467,
+        lineY: item.lineY,
+        width: 230,
+        height: 135,
+        color: "#FEC3A6",
+        emojiTag: item.emojiTag
+      }));
+
+      const thoughtMatrix = thoughtData.data.map(item => ({
+        type: 'thought',
+        thought_id: item.thought_id.toString(),
+        x: item.posX,
+        y: 571,
+        width: item.length,
+        height: 135,
+        color: "#EFE9AE",
+        text: item.description,
+      }));
+
+      const contactPointMatrix = contactPointData.data.map(item => ({
+        type: 'contactPoint',
+        contactPoint_id: item.contactPoint_id.toString(),
+        x: item.posX,
+        y: 741,
+        width: item.length,
+        height: 135,
+        color: "#CDEAC0",
+        text: item.description,
+      }));
+
+      const newMatrix = [journeyMatrix, userActionMatrix, emotionMatrix, thoughtMatrix, contactPointMatrix];
+      console.log(newMatrix);
+      setMatrix(newMatrix);
+      // Verifique se pelo menos uma matriz tem dados
+      if (newMatrix.some(matrix => matrix.length > 0)) {
+        setDataLoaded(true);
+      } else {
+        setDataLoaded(false);
+      }
+
+      const convertedEmojis = {};
+
+      for (const item of emotionMatrix) {
+        //console.log("emojiTag antes da pesquisa: " + item.emojiTag);
+        const emojis = item.emojiTag;
+        //console.log("Emojis após a pesquisa: " + emojis);
+
+        if (emojis.length > 0) {
+          // Pegar o primeiro native do array de skins
+          const native = emojis;
+          //console.log("NATIVE A SER INSERIDO: " + native);
+          convertedEmojis[item.emotion_id] = native;
+        }
+      }
+
+      setEmojis(convertedEmojis);
+      //console.log("Emojis após converter emojiTag to Native: " + JSON.stringify(convertedEmojis));
+      return(newMatrix);
+
+    } catch (error) {
+      console.error("Erro ao buscar os dados:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
 
   const [matrix, setMatrix] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
   const [emojis, setEmojis] = useState({});
   const [dataLoaded, setDataLoaded] = useState(true);
   const [selectedHouses, setSelectedHouses] = useState(1);
+
+  const calculateTotalWidth = (matrix) => {
+    let totalWidth = 0;
+    matrix.forEach(row => {
+      row.forEach(rect => {
+        totalWidth = Math.max(totalWidth, rect.x + rect.width);
+      });
+    });
+    return totalWidth;
+  };
+
 
   const handleSelectChange = (event) => {
     const value = parseInt(event.target.value, 10);
@@ -103,49 +225,18 @@ const Tool = ({ navigate }) => {
     let updatedX;
     let constantToAdd = 0;
 
-    // Switch case based on newX ranges
-    switch (true) {
-      case newX >= -269 && newX <= 269:
-        constantToAdd = 1;
-        break;
-      case newX >= 250 && newX <= 499:
-        updatedX = 270;
-        break;
-      case newX >= -499 && newX <= -250:
-        updatedX = -270;
-        break;
-      case newX >= 500 && newX <= 749:
-        updatedX = 540;
-        break;
-      case newX >= -749 && newX <= -500:
-        updatedX = -540;
-        break;
-      case newX >= 750 && newX <= 999:
-        updatedX = 810;
-        break;
-      case newX >= -999 && newX <= -750:
-        updatedX = -810;
-        break;
-      case newX >= 1000 && newX <= 1249:
-        updatedX = 1080;
-        break;
-      case newX >= -1249 && newX <= -1000:
-        updatedX = -1080;
-        break;
-      case newX >= 1250 && newX <= 1499:
-        updatedX = 1350;
-        break;
-      case newX >= -1499 && newX <= -1250:
-        updatedX = -1350;
-        break;
-      case newX >= 1500 && newX <= 1749:
-        updatedX = 1620;
-        break;
-      case newX >= -1749 && newX <= -1500:
-        updatedX = -1620;
-        break;
-      default:
-        constantToAdd = 1;
+    // Verificar quantos intervalos de 270 cabem em newX
+    const intervalCount = Math.floor(newX / 270);
+    console.log("intervalo: ", intervalCount);
+    updatedX = intervalCount * 270;
+
+    // Se o newX não estiver em um intervalo de 270, ajuste para o intervalo mais próximo
+    if (newX % 270 !== 0) {
+      if (newX > 0) {
+        updatedX += 270; // Mover para o próximo intervalo à direita
+      } else {
+        updatedX -= 270; // Mover para o próximo intervalo à esquerda
+      }
     }
 
     // Se constantToAdd for diferente de zero, significa que não há uma alteração válida para newX
@@ -181,7 +272,7 @@ const Tool = ({ navigate }) => {
         rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()
           ? {
             ...rect,
-            x: Math.max(20, Math.min(1640, rect.x + updatedX)),
+            x: Math.max(20, Math.min(Infinity, rect.x + updatedX)), // Limite superior infinito
           }
           : rect
       )
@@ -192,135 +283,20 @@ const Tool = ({ navigate }) => {
 
 
 
-
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [
-          journeyData,
-          userActionData,
-          emotionData,
-          thoughtData,
-          contactPointData,
-        ] = await Promise.all([
-          axios.get(import.meta.env.VITE_BACKEND + "/journeyPhase"),
-          axios.get(import.meta.env.VITE_BACKEND + "/userAction"),
-          axios.get(import.meta.env.VITE_BACKEND + "/emotion"),
-          axios.get(import.meta.env.VITE_BACKEND + "/thought"),
-          axios.get(import.meta.env.VITE_BACKEND + "/contactPoint"),
-        ]);
-
-        // Mapeie os dados da API para o formato desejado na matriz
-        const journeyMatrix = journeyData.data.map(item => ({
-          type: 'journeyPhase',
-          journeyPhase_id: item.journeyPhase_id.toString(),
-          x: item.posX,
-          y: 61,
-          width: item.length,
-          height: 135,
-          color: "#FFAC81",
-          text: item.description,
-        }));
-
-        const userActionMatrix = userActionData.data.map(item => ({
-          type: 'userAction',
-          userAction_id: item.userAction_id.toString(),
-          x: item.posX,
-          y: 231,
-          width: item.length,
-          height: 135,
-          color: "#FF928B",
-          text: item.description,
-        }));
-
-        const emotionMatrix = emotionData.data.map(item => ({
-          type: 'emotion',
-          emotion_id: item.emotion_id.toString(),
-          x: item.posX,
-          y: 467,
-          lineY: item.lineY,
-          width: 230,
-          height: 135,
-          color: "#FEC3A6",
-          emojiTag: item.emojiTag
-        }));
-
-        const thoughtMatrix = thoughtData.data.map(item => ({
-          type: 'thought',
-          thought_id: item.thought_id.toString(),
-          x: item.posX,
-          y: 571,
-          width: item.length,
-          height: 135,
-          color: "#EFE9AE",
-          text: item.description,
-        }));
-
-        const contactPointMatrix = contactPointData.data.map(item => ({
-          type: 'contactPoint',
-          contactPoint_id: item.contactPoint_id.toString(),
-          x: item.posX,
-          y: 741,
-          width: item.length,
-          height: 135,
-          color: "#CDEAC0",
-          text: item.description,
-        }));
-
-        const newMatrix = [journeyMatrix, userActionMatrix, emotionMatrix, thoughtMatrix, contactPointMatrix];
-        console.log(newMatrix);
-        setMatrix(newMatrix);
-        // Verifique se pelo menos uma matriz tem dados
-        if (newMatrix.some(matrix => matrix.length > 0)) {
-          setDataLoaded(true);
-        } else {
-          setDataLoaded(false);
-        }
-
-        const convertedEmojis = {};
-
-        for (const item of emotionMatrix) {
-          //console.log("emojiTag antes da pesquisa: " + item.emojiTag);
-          const emojis = item.emojiTag;
-          //console.log("Emojis após a pesquisa: " + emojis);
-
-          if (emojis.length > 0) {
-            // Pegar o primeiro native do array de skins
-            const native = emojis;
-            //console.log("NATIVE A SER INSERIDO: " + native);
-            convertedEmojis[item.emotion_id] = native;
-          }
-        }
-
-        setEmojis(convertedEmojis);
-        //console.log("Emojis após converter emojiTag to Native: " + JSON.stringify(convertedEmojis));
-
-      } catch (error) {
-        console.error("Erro ao buscar os dados:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-
-
   const handleDragEnd = (e, id, tipo, length, x) => {
     const newX = e.target.x();
     const newY = e.target.y();
     setMatrix((prevMatrix) => {
-        const rearrangedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x);
+      const rearrangedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x);
 
-        const updatedMatrix = rearrangedMatrix.map((row) => {
-            return row.sort((a, b) => {
-                return (a.x - 20) / 270 - (b.x - 20) / 270;
-            });
+      const updatedMatrix = rearrangedMatrix.map((row) => {
+        return row.sort((a, b) => {
+          return (a.x - 20) / 270 - (b.x - 20) / 270;
         });
-        
-        console.log(updatedMatrix)
-        return updatedMatrix;
+      });
+
+      console.log(updatedMatrix)
+      return updatedMatrix;
     });
     setEditedRectId(id);
     setForceUpdate((prev) => prev + 1);
@@ -498,6 +474,7 @@ const Tool = ({ navigate }) => {
     setEditedRectId("");
   };
 
+  const [newSquareId, setNewSquareId] = useState(null);
 
   const handleAddSquare = async (rowIndex, colIndex, squarewidth) => {
     console.log("handleAddSquare rowIndex, colIndex, squarewidth:", rowIndex, colIndex, squarewidth);
@@ -513,18 +490,12 @@ const Tool = ({ navigate }) => {
   
       // Obtém o tipo com base no rowIndex
       const type = rowIndexToType[rowIndex];
-  
-      const colIndexToType = {
-        0: 290,
-        1: 560,
-        2: 830,
-        3: 1100,
-        4: 1370,
-        5: 1640
-      };
-  
-      const novoX = colIndexToType[colIndex];
-  
+
+
+      const novoX = colIndex * 270 + 290;
+      console.log("O novo X AQUIIIIII", novoX);
+
+
       if (!type) {
         console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
         return;
@@ -550,57 +521,43 @@ const Tool = ({ navigate }) => {
   
       // Create a new card on the backend
       const response = await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
-  
-      // Get the id of the newly created card from the response
-      const newCardId = response.data.id;
-  
-      // Check for overlapping rectangles
-      const isOverlapping = matrix[rowIndex].some(rect =>
-        rect.type === type &&
-        rect.x + rect.width >= novoX && // Check if the right edge of the existing rectangle overlaps with the new rectangle
-        novoX + squarewidth >= rect.x // Check if the left edge of the new rectangle overlaps with the existing rectangle
-      );
-  
-      // If there is an overlap, push the existing rectangles forward
-      if (isOverlapping) {
-        setMatrix(prevMatrix => {
-          const updatedMatrix = prevMatrix.map(row =>
-            row.map(rect =>
-              rect.type === type && rect.x >= novoX
-                ? { ...rect, x: rect.x + 270 }
-                : rect
-            )
-          );
-          return updatedMatrix;
-        });
-      }
-  
-      // Add the new square to the matrix state with the received id
-      const newSquare = {
-        type: type,
-        [`${type}_id`]: newCardId,
-        x: squarewidth - 230 + novoX,
-        y: rowIndex === 2 ? 40 : rowIndex === 0 ? 61 : rowIndex === 1 ? 231 : rowIndex === 3 ? 571 : 741,
-        width: 230,
-        height: 135,
-        color: rowIndex === 2 ? "#FEC3A6" : rowIndex === 0 ? "#FFAC81" : rowIndex === 1 ? "#FF928B" : rowIndex === 3 ? "#EFE9AE" : "#CDEAC0",
-        text: "",
-        emojiTag: rowIndex === 2 ? "🔴" : "Novo emoji",
-      };
-  
-      setMatrix(prevMatrix => {
-        const updatedMatrix = [...prevMatrix];
-        updatedMatrix[rowIndex].push(newSquare);
-        return updatedMatrix;
-      });
-      // handleSaveClick()
-      // window.location.reload()
+
+      const newSquare = response.data;
+
+      console.log("id: " + newSquare.id);
+
+      setNewSquareId(newSquare.id);
+
+      const newData = await fetchData();
+      console.log("newData tem esse formato: ", newData);
+      setMatrix(newData);
+
     } catch (error) {
       console.error("Erro ao adicionar quadrado:", error);
     }
-  };
-  
 
+  };
+
+
+  useEffect(() => {
+    if (newSquareId && matrix) {
+      const [journeyPhase, userAction, emotions] = matrix;
+      console.log("[emotions]: ", emotions);
+      const emotionIds = emotions.map(emotion => emotion.emotion_id);
+      console.log("emotion ids: ", emotionIds);
+      console.log("newSquareID: ", newSquareId);
+
+      if (emotionIds.includes(newSquareId)) {
+        console.log("ID DO EMOJI", newSquareId);
+        handleCircleClick(newSquareId);
+        console.log("handleCircleClick chamado");
+      } else {
+        console.log("ID DO EMOJI não encontrado na lista de emoções");
+      }
+    } else {
+      console.log("newSquareId ou matrix estão ausentes");
+    }
+  }, [newSquareId, matrix]);
 
 
   const handleDeleteSquare = async (rowIndex, colIndex) => {
@@ -612,42 +569,25 @@ const Tool = ({ navigate }) => {
       console.log(`Iniciando exclusão do quadrado: ${squareId}`);
       console.log(`Iniciando exclusão do quadrado: ${squareType}`);
 
-      const response = await axios.delete(import.meta.env.VITE_BACKEND + `/${squareType}/${squareId}`);
+      await axios.delete(import.meta.env.VITE_BACKEND + `/${squareType}/${squareId}`);
 
-      console.log(`Quadrado ${squareId} excluído com sucesso!`, response);
+      console.log(`Quadrado ${squareId} excluído com sucesso!`);
 
-
-      setMatrix((prevMatrix) => {
-        const newMatrix = [...prevMatrix];
-
-        if (newMatrix[rowIndex]) {
-          // Remove o quadrado da matriz
-          newMatrix[rowIndex].splice(colIndex, 1);
-
-          // Diminui o rowIndex dos quadrados subsequentes
-          newMatrix[rowIndex].forEach((square, index) => {
-            if (index >= colIndex) {
-              square.id = `${rowIndex + 1}_${index + 1}`;
-              console.log(`Quadrado ${square.id} teve seu rowIndex ajustado.`);
-            }
-          });
-
-          // Printa todos os IDs dos quadrados na linha
-          console.log(`IDs dos quadrados na linha ${rowIndex + 1}:`, newMatrix[rowIndex].map(square => square.id));
-
-          return [...newMatrix];
-        }
-
-        return prevMatrix;
-      });
-      window.location.reload();
+      // Atualizar a matriz com os novos dados após a exclusão
+      const newData = await fetchData();
+      // if (newData) {
+      //   setMatrix(newData);
+      // } else {
+      //   console.error("Erro ao obter os dados atualizados após a exclusão do quadrado.");
+      // }
     } catch (error) {
       console.error("Erro ao excluir quadrado:", error);
     }
   };
 
 
-  const [isPickerAvailable, setPickerAvailable] = useState(false);
+
+
   const [currentCellId, setCurrentCellId] = useState("");
   const [isPickerVisible, setPickerVisible] = useState(false);
 
@@ -656,186 +596,201 @@ const Tool = ({ navigate }) => {
     console.log("Clicked on circle with ID: ", cellId);
     console.log("Matrix state: ", matrix); // Verifique se matrix está atualizada
     console.log("cellId: ", cellId);
-    setPickerAvailable(true);
     setCurrentCellId(cellId);
-    console.log("CurrentCellId: ", currentCellId);
-    setPickerVisible(true);
+  };
+
+  useEffect(() => {
+    if (currentCellId !== "") {
+      console.log("CurrentCellId: ", currentCellId);
+      setPickerVisible(true);
+    }
+  }, [currentCellId]);
+
+
+  const handlePickerClose = (selectedEmoji) => {
+    if (selectedEmoji) {
+      getEmojiDataFromNative(selectedEmoji).then((emojiData) => {
+        setMatrix((prevMatrix) => {
+          const updatedMatrix = prevMatrix.map((row) =>
+            row.map((rect) =>
+              rect.emotion_id === currentCellId
+                ? {
+                    ...rect,
+                    emojiTag: emojiData.native,
+                  }
+                : rect
+            )
+          );
+  
+          setEmojis((prevEmojis) => ({
+            ...prevEmojis,
+            [currentCellId]: emojiData.native,
+          }));
+  
+          return updatedMatrix;
+        });
+      });
+    }
+    setPickerVisible(false);
   };
 
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
-      <>
-        <Navbar
-          onSaveClick={handleSaveClick}
-          onInfoClick={() => setButtonPopup(true)}
-          onLogoutClick={handleLogout}
-          handlePostClick={handlePostClick}
-          dataLoaded={dataLoaded}
-          currentJourneyMap={1}
-        />
+    <div className="scrollable-container">
+      <div style={{ width: "100vw", height: "100vh" }}>
+        <>
+          <Navbar
+            onSaveClick={handleSaveClick}
+            onInfoClick={() => setButtonPopup(true)}
+            onLogoutClick={handleLogout}
+            handlePostClick={handlePostClick}
+            dataLoaded={dataLoaded}
+            currentJourneyMap={1}
+          />
 
-        <div className="separator1" style={{ marginTop: "61.9px" }}></div>
-        <Popup trigger={buttonPopup} setTrigger={setButtonPopup} setTextEdit={setTextEdit} style={{ borderRadius: "25px" }}>
-          {textEdit ? (
-            <>
-              <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-                <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px" }}>Editar card</h1>
-              </div>
-              <div className="areatexto">
-                <textarea
-                  type="text"
-                  value={editedText}
-                  placeholder="Texto vazio"
-                  className="textolegal"
-                  onChange={(e) => setEditedText(e.target.value)}
-                  style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
-                />
-
-                <div className="separarbotoes">
-
-                  <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }}>
-                    Adicionar texto
-                  </button>
-
-                  <button className="buttonconf2" onClick={() => setEditedText('')}>
-                    Limpar texto
-                  </button>
-
-                  <div className="buttonconf3">
-                    {/* <label className="numerocasas" htmlFor="houseCount">Tamanho: </label> */}
-                    <input
-                      type="number"
-                      id="houseCount"
-                      value={selectedHouses}
-                      onChange={handleSelectChange}
-                      min={1} // Define o valor mínimo como 1
-                      step={1} // Define o incremento/decremento como 1 (apenas números inteiros)
-                      className="houseInput"
-                    />
-                    <p>Card(s)</p>
-                  </div>
-                  <button className="botaosavetamanho" onClick={handleSaveHouse}> Salvar </button>
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-                <h1 style={{ fontSize: "50px" }}>Cenário</h1>
-                <button className="button info" style={{ marginLeft: "1.5vh" }}>
-                  i
-                </button>
-              </div>
-              <div>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-                <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "20px", width: "70%", textAlign: "center", display: "flex", padding: "5px" }} >
-                  <Github style={{ marginTop: "px", marginRight: "5px" }} />
-                  <p>Repositório Git</p>
-                </a>
+          <div className="separator1" style={{ marginTop: "61.9px", width: calculateTotalWidth(matrix) + 1200 }}></div>
+          <Popup trigger={buttonPopup} setTrigger={setButtonPopup} setTextEdit={setTextEdit} style={{ borderRadius: "25px" }}>
+            {textEdit ? (
+              <>
                 <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-                  <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
-                  <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
+                  <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px" }}>Editar card</h1>
                 </div>
-              </div>
-            </>
-          )}
-        </Popup>
-        {isPickerVisible && (
-          <Popup trigger={isPickerVisible} setTrigger={setPickerVisible}>
-            <div className="PickerContainer">
-              <Picker
-                className="Picker"
-                data={data}
-                emojiSize={30}
-                emojiButtonSize={50}
-                perLine={30}
-                maxFrequentRows={10}
-                previewPosition="none"
-                navPosition="bottom"
-                emojiButtonRadius="100%"
-                theme="dark"
-                locale="pt"
-                onEmojiSelect={(e) => {
-                  getEmojiDataFromNative(e.native).then((emojiData) => {
-                    setMatrix((prevMatrix) => {
-                      const updatedMatrix = prevMatrix.map((row) =>
-                        row.map((rect) =>
-                          rect.emotion_id === currentCellId
-                            ? {
-                              ...rect,
-                              emojiTag: emojiData.native,
-                            }
-                            : rect
-                        )
-                      );
+                <div className="areatexto">
+                  <textarea
+                    type="text"
+                    value={editedText}
+                    placeholder="Texto vazio"
+                    className="textolegal"
+                    onChange={(e) => setEditedText(e.target.value)}
+                    style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+                  />
 
-                      setEmojis((prevEmojis) => ({
-                        ...prevEmojis,
-                        [currentCellId]: e.native,
-                      }));
+                  <div className="separarbotoes">
 
-                      return updatedMatrix;
-                    });
-                    setPickerVisible(false);
-                  });
-                }}
-              />
-            </div>
+                    <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }}>
+                      Adicionar texto
+                    </button>
+
+                    <button className="buttonconf2" onClick={() => setEditedText('')}>
+                      Limpar texto
+                    </button>
+
+                    <div className="buttonconf3">
+                      {/* <label className="numerocasas" htmlFor="houseCount">Tamanho: </label> */}
+                      <input
+                        type="number"
+                        id="houseCount"
+                        value={selectedHouses}
+                        onChange={handleSelectChange}
+                        min={1} // Define o valor mínimo como 1
+                        step={1} // Define o incremento/decremento como 1 (apenas números inteiros)
+                        className="houseInput"
+                      />
+                      <p>Card(s)</p>
+                    </div>
+                    <button className="botaosavetamanho" onClick={handleSaveHouse}> Salvar </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+                  <h1 style={{ fontSize: "50px" }}>Cenário</h1>
+                  <button className="button info" style={{ marginLeft: "1.5vh" }}>
+                    i
+                  </button>
+                </div>
+                <div>
+                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+                  <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "20px", width: "70%", textAlign: "center", display: "flex", padding: "5px" }} >
+                    <Github style={{ marginTop: "px", marginRight: "5px" }} />
+                    <p>Repositório Git</p>
+                  </a>
+                  <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+                    <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
+                    <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
+                  </div>
+                </div>
+              </>
+            )}
           </Popup>
-        )}
-        {/* Verifica se os dados da matriz estão carregados antes de renderizar a matriz */}
-        {dataLoaded && (
-          <div className="stage-container">
-            <Stage width={window.innerWidth - 160} height={window.innerHeight + 180}>
-              <Layer>
-                <Matrix
-                  key={forceUpdate}
-                  matrix={matrix}
-                  handleTextSubmit={handleTextSubmit}
-                  handleTextChange={handleTextChange}
-                  handleAddSquare={handleAddSquare}
-                  handleDeleteSquare={handleDeleteSquare}
-                  handleDragEnd={handleDragEnd}
-                  handleCircleClick={handleCircleClick}
-                  emojis={emojis}
-                  handleRectClick={handleRectClick}
-                  setMatrix={setMatrix}
+          {isPickerVisible && (
+            <Popup trigger={isPickerVisible} setTrigger={setPickerVisible}>
+              <div className="PickerContainer">
+                <Picker
+                  className="Picker"
+                  data={data}
+                  emojiSize={30}
+                  emojiButtonSize={50}
+                  perLine={30}
+                  maxFrequentRows={10}
+                  previewPosition="none"
+                  navPosition="bottom"
+                  emojiButtonRadius="100%"
+                  theme="dark"
+                  locale="pt"
+                  onEmojiSelect={(e) => handlePickerClose(e.native)}
                 />
-              </Layer>
-            </Stage>
-          </div>
-        )}
+              </div>
+            </Popup>
+          )}
+          {/* Verifica se os dados da matriz estão carregados antes de renderizar a matriz */}
+          {dataLoaded && (
+            <div className="stage-container">
+              <Stage width={calculateTotalWidth(matrix) + 1160} height={window.innerHeight + 180}>
+                <Layer>
+                  <Matrix
+                    key={forceUpdate}
+                    matrix={matrix}
+                    handleTextSubmit={handleTextSubmit}
+                    handleTextChange={handleTextChange}
+                    handleAddSquare={handleAddSquare}
+                    handleDeleteSquare={handleDeleteSquare}
+                    handleDragEnd={handleDragEnd}
+                    handleCircleClick={handleCircleClick}
+                    emojis={emojis}
+                    handleRectClick={handleRectClick}
+                    setMatrix={setMatrix}
+                  />
+                </Layer>
+              </Stage>
+            </div>
+          )}
 
-        <div className="fases-container">
-          <div className="fases-content">
-            <div className="fases-text">Fases da Jornada</div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+              <div className="fases-text">Fases da Jornada</div>
+            </div>
           </div>
-        </div>
-        <div className="separator1"></div>
-        <div className="fases-container">
-          <div className="fases-content">
-            <div className="fases-text">Ações do Usuário</div>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 1200 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+              <div className="fases-text">Ações do Usuário</div>
+            </div>
           </div>
-        </div>
-        <div className="separator1"></div>
-        <div className="fases-container">
-          <div className="fases-content">
-            <div className="fases-text">Emoções</div>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 1200 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+              <div className="fases-text">Emoções</div>
+            </div>
           </div>
-        </div>
-        <div className="separator1"></div>
-        <div className="fases-container">
-          <div className="fases-content">
-            <div className="fases-text">Pensamentos</div>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 1200 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+              <div className="fases-text">Pensamentos</div>
+            </div>
           </div>
-        </div>
-        <div className="separator1"></div>
-        <div className="fases-container">
-          <div className="fases-content">
-            <div className="fases-text">Pontos de Contato</div>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 1200 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+              <div className="fases-text">Pontos de Contato</div>
+            </div>
           </div>
-        </div>
-      </>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 1200 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+            <div className="fases-text"></div>
+          </div>
+        </>
+      </div>
     </div>
   );
 

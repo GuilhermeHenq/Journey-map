@@ -210,7 +210,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                         </>
                     ) : (
                         <>
-                            {console.log("Line y aqui o:" + square.lineY)}
+                            {console.log("Line y aqui o: " + square.lineY)}
                             <Text
                                 x={square.x + 60 - 18}  // Ajuste conforme necessário
                                 y={square.y - 10}       // Ajuste conforme necessário + square.lineY 
@@ -260,46 +260,46 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                 return currentSquare.x > (maxSquare ? maxSquare.x : -Infinity) ? currentSquare : maxSquare;
             }, null);
 
-            return (
-                <Group key={`addButtonRow_${rowIndex}`}
-                    onMouseEnter={(e) => {
-                        const container = e.target.getStage().container();
-                        container.style.cursor = "pointer";
-                        e.target.opacity(1);
-                    }}
-                    onMouseLeave={(e) => {
-                        const container = e.target.getStage().container();
-                        container.style.cursor = "default";
-                        e.target.opacity(0);
-                    }}
-                >
-                    {/* Quadrado maior */}
-                    <Rect
-                        x={maxXSquare ? (maxXSquare.width === 230 ? maxXSquare.x + 259 * maxXSquare.width / 230  : maxXSquare.x + 282 * maxXSquare.width / 270) : 30}
-                        y={rowIndex === 2 ? rowIndex * 170 + 117 : rowIndex * 170 + 104}
-                        width={60}
-                        height={45}
-                        fill="gray"
-                        opacity={0}
-                        draggable={false}
-                        onClick={() => handleAddSquare(rowIndex, (row.length - 1))}
-                        listening={true}
-                        style={{ cursor: 'pointer' }}
-                        cornerRadius={10}
-                    />
-                    <Text
-                        x={maxXSquare ? (maxXSquare.width === 230 ? maxXSquare.x + 273 * maxXSquare.width / 230  : maxXSquare.x + 287 * maxXSquare.width / 270) : 45}
-                        y={rowIndex === 2 ? rowIndex * 170 + 117 : rowIndex * 170 + 104}
-                        text="+"
-                        fontSize={50}
-                        fill='#d9d9d9'
-                        align="center"
-                        verticalAlign="middle"
-                        listening={false}
-                        opacity={1}
-                    />
-                </Group>
-            );
+            // return (
+            //     <Group key={`addButtonRow_${rowIndex}`}
+            //         onMouseEnter={(e) => {
+            //             const container = e.target.getStage().container();
+            //             container.style.cursor = "pointer";
+            //             e.target.opacity(1);
+            //         }}
+            //         onMouseLeave={(e) => {
+            //             const container = e.target.getStage().container();
+            //             container.style.cursor = "default";
+            //             e.target.opacity(0);
+            //         }}
+            //     >
+            //         {/* Quadrado maior */}
+            //         <Rect
+            //             x={maxXSquare ? (maxXSquare.width === 230 ? maxXSquare.x + 259 * maxXSquare.width / 230  : maxXSquare.x + 282 * maxXSquare.width / 270) : 30}
+            //             y={rowIndex === 2 ? rowIndex * 170 + 117 : rowIndex * 170 + 104}
+            //             width={60}
+            //             height={45}
+            //             fill="gray"
+            //             opacity={0}
+            //             draggable={false}
+            //             onClick={() => handleAddSquare(rowIndex, (row.length - 1))}
+            //             listening={true}
+            //             style={{ cursor: 'pointer' }}
+            //             cornerRadius={10}
+            //         />
+            //         <Text
+            //             x={maxXSquare ? (maxXSquare.width === 230 ? maxXSquare.x + 273 * maxXSquare.width / 230  : maxXSquare.x + 287 * maxXSquare.width / 270) : 45}
+            //             y={rowIndex === 2 ? rowIndex * 170 + 117 : rowIndex * 170 + 104}
+            //             text="+"
+            //             fontSize={50}
+            //             fill='#d9d9d9'
+            //             align="center"
+            //             verticalAlign="middle"
+            //             listening={false}
+            //             opacity={1}
+            //         />
+            //     </Group>
+            // );
         })}
 
     </>
