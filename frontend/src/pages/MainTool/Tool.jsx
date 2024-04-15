@@ -307,23 +307,23 @@ const Tool = ({ navigate }) => {
 
 
 
-    const handleDragEnd = (e, id, tipo, length, x) => {
-      const newX = e.target.x();
-      const newY = e.target.y();
-      setMatrix((prevMatrix) => {
-          const rearrangedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x);
+  const handleDragEnd = (e, id, tipo, length, x) => {
+    const newX = e.target.x();
+    const newY = e.target.y();
+    setMatrix((prevMatrix) => {
+        const rearrangedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x);
 
-          const updatedMatrix = rearrangedMatrix.map((row) => {
-              return row.sort((a, b) => {
-                  return (a.x - 20) / 270 - (b.x - 20) / 270;
-              });
-          });
-          
-          console.log(updatedMatrix)
-          return updatedMatrix;
-      });
-      setEditedRectId(id);
-      setForceUpdate((prev) => prev + 1);
+        const updatedMatrix = rearrangedMatrix.map((row) => {
+            return row.sort((a, b) => {
+                return (a.x - 20) / 270 - (b.x - 20) / 270;
+            });
+        });
+        
+        console.log(updatedMatrix)
+        return updatedMatrix;
+    });
+    setEditedRectId(id);
+    setForceUpdate((prev) => prev + 1);
   };
 
   const handleSaveClick = () => {
@@ -510,10 +510,10 @@ const Tool = ({ navigate }) => {
         3: 'thought',
         4: 'contactPoint'
       };
-
+  
       // Obtém o tipo com base no rowIndex
       const type = rowIndexToType[rowIndex];
-
+  
       const colIndexToType = {
         0: 290,
         1: 560,
@@ -522,14 +522,14 @@ const Tool = ({ navigate }) => {
         4: 1370,
         5: 1640
       };
-
+  
       const novoX = colIndexToType[colIndex];
-
+  
       if (!type) {
         console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
         return;
       }
-
+  
       let postData = {
         "journeyMap_id": 3,
         "linePos": 285,
@@ -538,7 +538,7 @@ const Tool = ({ navigate }) => {
         "description": "",
         "emojiTag": "Novo emoji"
       };
-
+  
       if (type === 'emotion') {
         postData = {
           "posX": novoX,
@@ -547,18 +547,59 @@ const Tool = ({ navigate }) => {
           "journeyMap_id": 3
         };
       }
-
+  
+      // Create a new card on the backend
       const response = await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
-
-      const newSquare = response.data;
-
-      console.log("id: " + newSquare.id);
-
-      window.location.reload();
+  
+      // Get the id of the newly created card from the response
+      const newCardId = response.data.id;
+  
+      // Check for overlapping rectangles
+      const isOverlapping = matrix[rowIndex].some(rect =>
+        rect.type === type &&
+        rect.x + rect.width >= novoX && // Check if the right edge of the existing rectangle overlaps with the new rectangle
+        novoX + squarewidth >= rect.x // Check if the left edge of the new rectangle overlaps with the existing rectangle
+      );
+  
+      // If there is an overlap, push the existing rectangles forward
+      if (isOverlapping) {
+        setMatrix(prevMatrix => {
+          const updatedMatrix = prevMatrix.map(row =>
+            row.map(rect =>
+              rect.type === type && rect.x >= novoX
+                ? { ...rect, x: rect.x + 270 }
+                : rect
+            )
+          );
+          return updatedMatrix;
+        });
+      }
+  
+      // Add the new square to the matrix state with the received id
+      const newSquare = {
+        type: type,
+        [`${type}_id`]: newCardId,
+        x: squarewidth - 230 + novoX,
+        y: rowIndex === 2 ? 40 : rowIndex === 0 ? 61 : rowIndex === 1 ? 231 : rowIndex === 3 ? 571 : 741,
+        width: 230,
+        height: 135,
+        color: rowIndex === 2 ? "#FEC3A6" : rowIndex === 0 ? "#FFAC81" : rowIndex === 1 ? "#FF928B" : rowIndex === 3 ? "#EFE9AE" : "#CDEAC0",
+        text: "",
+        emojiTag: rowIndex === 2 ? "🔴" : "Novo emoji",
+      };
+  
+      setMatrix(prevMatrix => {
+        const updatedMatrix = [...prevMatrix];
+        updatedMatrix[rowIndex].push(newSquare);
+        return updatedMatrix;
+      });
+      // handleSaveClick()
+      // window.location.reload()
     } catch (error) {
       console.error("Erro ao adicionar quadrado:", error);
     }
   };
+  
 
 
 
