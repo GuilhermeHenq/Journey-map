@@ -647,7 +647,7 @@ const Tool = ({ navigate }) => {
             currentJourneyMap={1}
           />
 
-          <div className="separator1" style={{ marginTop: "61.9px", width: calculateTotalWidth(matrix) + 1200 }}></div>
+          <div className="separator1" style={{ marginTop: "61.9px", width: calculateTotalWidth(matrix) + 2400 }}></div>
           <Popup trigger={buttonPopup} setTrigger={setButtonPopup} setTextEdit={setTextEdit} style={{ borderRadius: "25px" }}>
             {textEdit ? (
               <>
@@ -736,7 +736,7 @@ const Tool = ({ navigate }) => {
           {/* Verifica se os dados da matriz estão carregados antes de renderizar a matriz */}
           {dataLoaded && (
             <div className="stage-container">
-              <Stage width={calculateTotalWidth(matrix) + 1160} height={window.innerHeight + 180}>
+              <Stage width={calculateTotalWidth(matrix) + 1260} height={window.innerHeight + 180}>
                 <Layer>
                   <Matrix
                     key={forceUpdate}
@@ -756,37 +756,37 @@ const Tool = ({ navigate }) => {
             </div>
           )}
 
-          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
-            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Fases da Jornada</div>
             </div>
           </div>
-          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 1200 }}></div>
-          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
-            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Ações do Usuário</div>
             </div>
           </div>
-          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 1200 }}></div>
-          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
-            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Emoções</div>
             </div>
           </div>
-          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 1200 }}></div>
-          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
-            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Pensamentos</div>
             </div>
           </div>
-          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 1200 }}></div>
-          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
-            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Pontos de Contato</div>
             </div>
           </div>
-          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 1200 }}></div>
-          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 1200 }}>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
             <div className="fases-text"></div>
           </div>
         </>
