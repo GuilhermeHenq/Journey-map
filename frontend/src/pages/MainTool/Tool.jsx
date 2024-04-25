@@ -479,7 +479,6 @@ const Tool = ({ navigate }) => {
   const handleAddSquare = async (rowIndex, colIndex, squarewidth) => {
     console.log("handleAddSquare rowIndex, colIndex, squarewidth:", rowIndex, colIndex, squarewidth);
     try {
-      // Mapeia o rowIndex para o tipo correspondente
       const rowIndexToType = {
         0: 'journeyPhase',
         1: 'userAction',
@@ -488,18 +487,23 @@ const Tool = ({ navigate }) => {
         4: 'contactPoint'
       };
   
-      // Obtém o tipo com base no rowIndex
       const type = rowIndexToType[rowIndex];
-
-
-      const novoX = colIndex * 270 + 290;
-      console.log("O novo X AQUIIIIII", novoX);
-
-
+  
       if (!type) {
         console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
         return;
       }
+  
+      const colIndexToType = {
+        0: 290,
+        1: 560,
+        2: 830,
+        3: 1100,
+        4: 1370,
+        5: 1640
+      };
+  
+      const novoX = colIndexToType[colIndex];
   
       let postData = {
         "journeyMap_id": 3,
@@ -507,7 +511,7 @@ const Tool = ({ navigate }) => {
         "posX": squarewidth - 230 + novoX,
         "length": 230,
         "description": "",
-        "emojiTag": "Novo emoji"
+        "emojiTag": type === 'emotion' ? "🔴" : "Novo emoji"
       };
   
       if (type === 'emotion') {
@@ -519,24 +523,55 @@ const Tool = ({ navigate }) => {
         };
       }
   
-      // Create a new card on the backend
       const response = await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
-
+  
       const newSquare = response.data;
-
       console.log("id: " + newSquare.id);
-
       setNewSquareId(newSquare.id);
-
-      const newData = await fetchData();
-      console.log("newData tem esse formato: ", newData);
-      setMatrix(newData);
-
+  
+      const isOverlapping = matrix[rowIndex].some(rect =>
+        rect.type === type &&
+        rect.x + rect.width >= novoX &&
+        novoX + squarewidth >= rect.x
+      );
+  
+      if (isOverlapping) {
+        setMatrix(prevMatrix => {
+          const updatedMatrix = prevMatrix.map(row =>
+            row.map(rect =>
+              rect.type === type && rect.x >= novoX
+                ? { ...rect, x: rect.x + 270 }
+                : rect
+            )
+          );
+          return updatedMatrix;
+        });
+      }
+  
+      const newCardId = response.data.id;
+  
+      const newSquareData = {
+        type: type,
+        [`${type}_id`]: newCardId,
+        x: squarewidth - 230 + novoX,
+        y: rowIndex === 2 ? 40 : rowIndex === 0 ? 61 : rowIndex === 1 ? 231 : rowIndex === 3 ? 571 : 741,
+        width: 230,
+        height: 135,
+        color: rowIndex === 2 ? "#FEC3A6" : rowIndex === 0 ? "#FFAC81" : rowIndex === 1 ? "#FF928B" : rowIndex === 3 ? "#EFE9AE" : "#CDEAC0",
+        text: "",
+        emojiTag: type === 'emotion' ? "🔴" : "Novo emoji",
+      };
+  
+      setMatrix(prevMatrix => {
+        const updatedMatrix = [...prevMatrix];
+        updatedMatrix[rowIndex].push(newSquareData);
+        return updatedMatrix;
+      });
     } catch (error) {
       console.error("Erro ao adicionar quadrado:", error);
     }
-
   };
+  
 
 
   useEffect(() => {
