@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Github, LogOut } from 'lucide-react';
 import './Navbar.css'
+import secureLocalStorage from 'react-secure-storage';
 
-const Navbar = ({ onSaveClick, onInfoClick, onLogoutClick, dataLoaded, currentJourneyMap, handlePostClick }) => {
+const Navbar = ({ onSaveClick, onInfoClick, onScenarioClick, onLogoutClick, dataLoaded, currentJourneyMap, handlePostClick }) => {
   
   const [nameTrue, setNameTrue] = useState(false);
   const [journeyMapName, setJourneyMapName] = useState("Clique aqui")
@@ -31,7 +32,7 @@ const Navbar = ({ onSaveClick, onInfoClick, onLogoutClick, dataLoaded, currentJo
 
       ) : (
         <>
-        <span>Cenário {currentJourneyMap} - <span onClick={() => setNameTrue(true)}>{!nameTrue ? journeyMapName : <input className="changename" value={editedName} onBlur={handleInputBlur} onChange={handleInputChange}></input>}</span></span>
+        <span onClick={onScenarioClick}>Cenário {currentJourneyMap} - {secureLocalStorage.getItem("sceneName")}<span></span></span>
         </>
       )}
       <div className="botoes">

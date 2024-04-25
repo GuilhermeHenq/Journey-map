@@ -669,6 +669,19 @@ const Tool = ({ navigate }) => {
     setPickerVisible(false);
   };
 
+  const [scenario, setScenario] = useState(false)
+  const [sceneName, setSceneName] = useState("")
+  const [sceneDesc, setSceneDesc] = useState("")
+
+  useEffect(() => {
+    if (scenario) {
+      const storedSceneName = secureLocalStorage.getItem("sceneName");
+      const storedSceneDesc = secureLocalStorage.getItem("sceneDesc");
+      setSceneName(storedSceneName || '');
+      setSceneDesc(storedSceneDesc || '');
+    }
+  }, [scenario]);
+
   return (
     <div className="scrollable-container">
       <div style={{ width: "100vw", height: "100vh" }}>
@@ -676,6 +689,7 @@ const Tool = ({ navigate }) => {
           <Navbar
             onSaveClick={handleSaveClick}
             onInfoClick={() => setButtonPopup(true)}
+            onScenarioClick={() => {setButtonPopup(true); setScenario(true)}}
             onLogoutClick={handleLogout}
             handlePostClick={handlePostClick}
             dataLoaded={dataLoaded}
@@ -726,26 +740,60 @@ const Tool = ({ navigate }) => {
                   </div>
                 </div>
               </>
-            ) : (
+            ) : scenario === true ? (
               <>
                 <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
                   <h1 style={{ fontSize: "50px" }}>Cenário</h1>
-                  <button className="button info" style={{ marginLeft: "1.5vh" }}>
-                    i
-                  </button>
                 </div>
-                <div>
-                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-                  <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "20px", width: "70%", textAlign: "center", display: "flex", padding: "5px" }} >
-                    <Github style={{ marginTop: "px", marginRight: "5px" }} />
-                    <p>Repositório Git</p>
-                  </a>
-                  <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-                    <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
-                    <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
+                <br />
+                <h2>Nome do cenário</h2>
+                <input 
+                  type="text" 
+                  className="input-texto"
+                  value={sceneName}
+                  onChange={(e) => setSceneName(e.target.value)}
+                  placeholder="Escreva o nome..."
+                />
+                <h2 style={{ marginBottom: "-20px" }}>Descreva o cenário</h2>
+                <div className="areatexto">
+                  <textarea
+                    type="text" 
+                    className="textolegal"
+                    value={sceneDesc}
+                    onChange={(e) => setSceneDesc(e.target.value)}
+                    placeholder="Escreva o cenário..."
+                    style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+                  />
+                  <div className="separarbotoes">
+                    <button className="buttonconf" onClick={() => {setButtonPopup(false); setScenario(false); secureLocalStorage.setItem("sceneName", sceneName); secureLocalStorage.setItem("sceneDesc", sceneDesc)}}>
+                      Salvar cenário
+                    </button>
+                    <button className="buttonconf2" onClick={() => {setSceneName(''); setSceneDesc(''); secureLocalStorage.removeItem("sceneName", sceneName); secureLocalStorage.removeItem("sceneDesc", sceneDesc)}}>
+                      Limpar texto
+                    </button>
                   </div>
                 </div>
               </>
+            ) : (
+              <>
+              <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+                <h1 style={{ fontSize: "50px" }}>Cenário</h1>
+                <button className="button info" style={{ marginLeft: "1.5vh" }}>
+                  i
+                </button>
+              </div>
+              <div>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+                <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "20px", width: "70%", textAlign: "center", display: "flex", padding: "5px" }} >
+                  <Github style={{ marginTop: "px", marginRight: "5px" }} />
+                  <p>Repositório Git</p>
+                </a>
+                <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+                  <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
+                  <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
+                </div>
+              </div>
+            </>
             )}
           </Popup>
           {isPickerVisible && (
