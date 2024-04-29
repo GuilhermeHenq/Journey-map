@@ -53,41 +53,43 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                         const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;
                         console.log("O ID ANTES é " + id);
                         console.log("E Target X antes = " + e.target.x());
+                        console.log("E Target Y antes = " + e.target.y());
                         //console.log("E Target Y antes = " + e.target.y());
                         const initialX = square.x; // Posição inicial do quadrado
-                        //const initialY = square.y;
+                        const initialY = square.y;
 
                         const intervalWidth = 270; // Largura do intervalo
-                        //const intervalWidthY = 50;
+                        const intervalWidthY = 50;
 
                         // Calcula a nova posição x com base na diferença entre a posição do mouse e a posição inicial
                         const diffX = e.target.x() - initialX;
                         let newX = initialX + diffX;
 
-                        //const diffY = e.target.y() - initialY;
-                        //let newY = initialY + diffY;
+                        const diffY = e.target.y() - initialY;
+                        let newY = initialY + diffY;
 
                         // Garante que newX não seja negativo
                         //newX = Math.max(0, newX);
 
                         // Ajusta para o múltiplo de 270 mais próximo
                         const closestMultiple = Math.round(newX / intervalWidth) * intervalWidth;
-                        //const closestMultipleY = Math.round(newY / intervalWidthY) * intervalWidthY;
+                        const closestMultipleY = Math.round(newY / intervalWidthY) * intervalWidthY;
 
+                        console.log(closestMultipleY);
                         e.target.x(closestMultiple);
                         //e.target.y(closestMultipleY);
                         console.log("newX = " + newX);
                         console.log("E Target X Depois = " + e.target.x());
                         //console.log("E Target Y Depois = " + e.target.y());
                         e.target.opacity(1);
-                        handleDragEnd(e, id, tipo, square.width, square.x);
+                        handleDragEnd(e, id, tipo, square.width, square.x, closestMultipleY);
                     }}
 
                 >
                     {/* Botão de adição de quadrados */}
                     <Rect
-                        x={rowIndex === 2 ? square.x + 230 : (square.x + square.width)}
-                        y={rowIndex === 2 ? square.y + 0 : square.y + 50}
+                        x={rowIndex === 2 ? square.x + 230 : (square.x + square.width) + 5}
+                        y={rowIndex === 2 ? square.y + square.lineY : square.y + 50}
                         width={30}
                         height={30}
                         fill="gray"
@@ -110,8 +112,8 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                     />
 
                     <Text
-                        x={rowIndex === 2 ? square.x + 236 : (square.x + square.width) + 6}
-                        y={rowIndex === 2 ? square.y + 2 : square.y + 52}
+                        x={rowIndex === 2 ? square.x + 236 : (square.x + square.width) + 11}
+                        y={rowIndex === 2 ? square.y + square.lineY + 2 : square.y + 52}
                         text="+"
                         fontSize={30}
                         fill="#d9d9d9"
@@ -213,7 +215,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                             {console.log("Line y aqui o: " + square.lineY)}
                             <Text
                                 x={square.x + 60 - 18}  // Ajuste conforme necessário
-                                y={square.y - 10}       // Ajuste conforme necessário + square.lineY 
+                                y={square.y + square.lineY} // Ajuste conforme necessário + square.lineY 
                                 fontSize={40}           // Ajuste conforme necessário
                                 fill="#000"             // Ajuste conforme necessário
                                 align="center"
@@ -227,7 +229,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
 
                             <Rect
                                 x={square.x + 100}
-                                y={square.y + 20}
+                                y={square.y + square.lineY + 10}
                                 width={20}
                                 height={20}
                                 fill="gray"
@@ -241,7 +243,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                             />
                             <Text
                                 x={square.x + 106}
-                                y={square.y + 25}
+                                y={square.y + square.lineY + 15}
                                 text="X"
                                 fontSize={12}
                                 fill="#fff"

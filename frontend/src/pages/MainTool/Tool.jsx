@@ -68,7 +68,7 @@ const Tool = ({ navigate }) => {
 
       await axios.post(import.meta.env.VITE_BACKEND + '/emotion', {
         posX: 20,
-        lineY: 40,
+        lineY: 0,
         emojiTag: '😀',
         journeyMap_id: 3,
       });
@@ -221,9 +221,10 @@ const Tool = ({ navigate }) => {
   };
 
 
-  const updateMatrixWithX = (matrix, id, newX, tipo, length, x) => {
+  const updateMatrixWithX = (matrix, id, newX, tipo, length, x, closeY) => {
     let updatedX;
     let constantToAdd = 0;
+    console.log(closeY);
 
     // Verificar quantos intervalos de 270 cabem em newX
     const intervalCount = Math.floor(newX / 270);
@@ -266,28 +267,37 @@ const Tool = ({ navigate }) => {
       return matrix;
     }
 
-    // Caso contrário, aplique a lógica de atualização de x para os retângulos
+    console.log(matrix);
     return matrix.map((row, rowIndex) =>
-      row.map((rect) =>
-        rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()
-          ? {
-            ...rect,
-            x: Math.max(20, Math.min(Infinity, rect.x + updatedX)), // Limite superior infinito
-          }
-          : rect
-      )
-    );
+        row.map((rect) => {
+            if (rect.type === 'emotion' && rect.emotion_id.toString() === id.toString()) {
+                // Limita o valor de lineY no intervalo de -50 a +50
+                const newLineY = Math.max(-60, Math.min(35, rect.lineY + closeY));
+                return {
+                    ...rect,
+                    x: Math.max(20, Math.min(Infinity, rect.x + updatedX)),
+                    lineY: newLineY,
+                };
+            } else if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
+                return {
+                    ...rect,
+                    x: Math.max(20, Math.min(Infinity, rect.x + updatedX)),
+                };
+            } else {
+                return rect;
+            }
+        })
+    );      
   };
 
 
 
 
 
-  const handleDragEnd = (e, id, tipo, length, x) => {
+  const handleDragEnd = (e, id, tipo, length, x, closeY) => {
     const newX = e.target.x();
-    const newY = e.target.y();
     setMatrix((prevMatrix) => {
-      const rearrangedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x);
+      const rearrangedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x, closeY);
 
       const updatedMatrix = rearrangedMatrix.map((row) => {
         return row.sort((a, b) => {
@@ -517,7 +527,7 @@ const Tool = ({ navigate }) => {
       if (type === 'emotion') {
         postData = {
           "posX": novoX,
-          "lineY": 40,
+          "lineY": 0,
           "emojiTag": "🔴",
           "journeyMap_id": 3
         };
