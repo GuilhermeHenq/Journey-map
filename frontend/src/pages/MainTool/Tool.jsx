@@ -499,11 +499,6 @@ const Tool = ({ navigate }) => {
   
       const type = rowIndexToType[rowIndex];
   
-      if (!type) {
-        console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
-        return;
-      }
-  
       const colIndexToType = {
         0: 290,
         1: 560,
@@ -513,7 +508,17 @@ const Tool = ({ navigate }) => {
         5: 1640
       };
   
-      const novoX = colIndexToType[colIndex];
+      let novoX;
+      if (colIndex !== undefined) {
+        novoX = colIndexToType[colIndex];
+      } else {
+        novoX = colIndex * 270 + 290;
+      }
+  
+      if (!type) {
+        console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
+        return;
+      }
   
       let postData = {
         "journeyMap_id": 3,
@@ -521,7 +526,7 @@ const Tool = ({ navigate }) => {
         "posX": squarewidth - 230 + novoX,
         "length": 230,
         "description": "",
-        "emojiTag": type === 'emotion' ? "🔴" : "Novo emoji"
+        "emojiTag": "Novo emoji"
       };
   
       if (type === 'emotion') {
@@ -533,18 +538,20 @@ const Tool = ({ navigate }) => {
         };
       }
   
+      // Create a new card on the backend
       const response = await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
   
-      const newSquare = response.data;
-      console.log("id: " + newSquare.id);
-      setNewSquareId(newSquare.id);
+      // Get the id of the newly created card from the response
+      const newCardId = response.data.id;
   
+      // Check for overlapping rectangles
       const isOverlapping = matrix[rowIndex].some(rect =>
         rect.type === type &&
-        rect.x + rect.width >= novoX &&
-        novoX + squarewidth >= rect.x
+        rect.x + rect.width >= novoX && // Check if the right edge of the existing rectangle overlaps with the new rectangle
+        novoX + squarewidth >= rect.x // Check if the left edge of the new rectangle overlaps with the existing rectangle
       );
   
+      // If there is an overlap, push the existing rectangles forward
       if (isOverlapping) {
         setMatrix(prevMatrix => {
           const updatedMatrix = prevMatrix.map(row =>
@@ -558,9 +565,8 @@ const Tool = ({ navigate }) => {
         });
       }
   
-      const newCardId = response.data.id;
-  
-      const newSquareData = {
+      // Add the new square to the matrix state with the received id
+      const newSquare = {
         type: type,
         [`${type}_id`]: newCardId,
         x: squarewidth - 230 + novoX,
@@ -569,18 +575,27 @@ const Tool = ({ navigate }) => {
         height: 135,
         color: rowIndex === 2 ? "#FEC3A6" : rowIndex === 0 ? "#FFAC81" : rowIndex === 1 ? "#FF928B" : rowIndex === 3 ? "#EFE9AE" : "#CDEAC0",
         text: "",
-        emojiTag: type === 'emotion' ? "🔴" : "Novo emoji",
+        emojiTag: rowIndex === 2 ? "🔴" : "Novo emoji",
       };
   
       setMatrix(prevMatrix => {
         const updatedMatrix = [...prevMatrix];
-        updatedMatrix[rowIndex].push(newSquareData);
-        return updatedMatrix;
+        updatedMatrix[rowIndex].push(newSquare);
+  
+        // Rearrange the squares based on their x positions
+        const rearrangedMatrix = updatedMatrix.map((row) => {
+          return row.sort((a, b) => {
+            return (a.x - 20) / 270 - (b.x - 20) / 270;
+          });
+        });
+  
+        return rearrangedMatrix;
       });
     } catch (error) {
       console.error("Erro ao adicionar quadrado:", error);
     }
   };
+  
   
 
 
