@@ -531,8 +531,8 @@ const Tool = ({ navigate }) => {
   
       if (type === 'emotion') {
         postData = {
-          "posX": novoX,
-          "lineY": 0,
+          "posX": novoX + 270,
+          "lineY": -15,
           "emojiTag": "🔴",
           "journeyMap_id": 3
         };
@@ -570,7 +570,7 @@ const Tool = ({ navigate }) => {
         type: type,
         [`${type}_id`]: newCardId,
         x: squarewidth - 230 + novoX,
-        y: rowIndex === 2 ? 40 : rowIndex === 0 ? 61 : rowIndex === 1 ? 231 : rowIndex === 3 ? 571 : 741,
+        y: rowIndex === 2 ? 567 : rowIndex === 0 ? 61 : rowIndex === 1 ? 231 : rowIndex === 3 ? 571 : 741,
         width: 230,
         height: 135,
         color: rowIndex === 2 ? "#FEC3A6" : rowIndex === 0 ? "#FFAC81" : rowIndex === 1 ? "#FF928B" : rowIndex === 3 ? "#EFE9AE" : "#CDEAC0",
