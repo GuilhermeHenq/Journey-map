@@ -3,6 +3,17 @@
 const db = require('./db');
 
 class ContactPointModel {
+  getAllItemsByJourneyMapId(journeyMapId) {
+    return db.query("SELECT * FROM contactpoint WHERE journeyMap_id = ?", [journeyMapId])
+      .then(([rows]) => {
+        return rows;
+      })
+      .catch((error) => {
+        console.error("Error fetching contactpoints by journeyMapId:", error);
+        throw error;
+      });
+  }
+
   getAllItems() {
     return db.query("SELECT * FROM contactpoint")
       .then(([rows]) => {
