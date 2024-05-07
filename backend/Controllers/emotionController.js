@@ -5,8 +5,13 @@ const EmotionModel = require('../Model/emotionModel');
 const emotionController = {
   getAllItems: async (req, res) => {
     try {
+      const journeyMapId = req.query.journeyMap_id; // Extrair o journeyMap_id dos parâmetros de consulta
+      if (!journeyMapId) {
+        return res.status(400).json({ error: 'Parâmetro journeyMap_id ausente na solicitação' });
+      }
+
       const emotionModel = new EmotionModel();
-      const data = await emotionModel.getAllItems();
+      const data = await emotionModel.getAllItemsByJourneyMapId(journeyMapId);
       res.json(data);
     } catch (error) {
       console.error("Error fetching emotions:", error);
