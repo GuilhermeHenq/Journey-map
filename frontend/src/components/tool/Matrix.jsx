@@ -89,11 +89,11 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                     {/* Botão de adição de quadrados */}
                     <Rect
                         x={rowIndex === 2 ? square.x + 230 : (square.x + square.width) + 5}
-                        y={rowIndex === 2 ? square.y + square.lineY : square.y + 50}
+                        y={rowIndex === 2 ? square.y + square.lineY - 50 : square.y}
                         width={30}
-                        height={30}
+                        height={135}
                         fill="gray"
-                        opacity={1}
+                        opacity={0}
                         draggable={false}
                         onClick={() => handleAddSquare(rowIndex, colIndex, square.width)}
                         listening={true}
@@ -102,18 +102,18 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                         onMouseEnter={(e) => {
                             const container = e.target.getStage().container();
                             container.style.cursor = "pointer";
-                            // e.target.opacity(1);
+                            e.target.opacity(1);
                         }}
                         onMouseLeave={(e) => {
                             const container = e.target.getStage().container();
                             container.style.cursor = "default";
-                            // e.target.opacity(0);
+                            e.target.opacity(0);
                         }}
                     />
 
                     <Text
                         x={rowIndex === 2 ? square.x + 236 : (square.x + square.width) + 11}
-                        y={rowIndex === 2 ? square.y + square.lineY + 2 : square.y + 52}
+                        y={rowIndex === 2 ? square.y + square.lineY + 7 : square.y + 52}
                         text="+"
                         fontSize={30}
                         fill="#d9d9d9"
