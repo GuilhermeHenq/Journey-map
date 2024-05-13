@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { createRoot } from "react-dom/client";
 import { Stage, Layer, Rect, Circle } from "react-konva";
 import axios from "axios";
@@ -12,8 +12,10 @@ import data from '@emoji-mart/data';
 import { auth } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
 import { init, getEmojiDataFromNative, SearchIndex } from 'emoji-mart';
-import secureLocalStorage from "react-secure-storage";
+import { useNavigate } from 'react-router-dom';
 import img from "../../assets/mascote.png";
+import { useParams } from 'react-router-dom';
+
 
 import './tool.css';
 
@@ -23,15 +25,65 @@ const showAlert = () => {
   toast.success('Progresso salvo com sucesso!')
 };
 
+function downloadURI(uri, name) {
+  var link = document.createElement('a');
+  link.download = name;
+  link.href = uri;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 
-const Tool = ({ navigate }) => {
+const Tool = ({}) => {
+  const navigate = useNavigate();
+  const journeyMap_id  = useParams();
+  const id_mapa = journeyMap_id.id_mapa;
+
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  const stageRef = React.useRef(null);
+
+  const handleExport = () => {
+    const stage = stageRef.current.getStage();
+  
+    // Converta o stage em uma imagem temporária
+    const tempImage = new Image();
+    const stageDataURL = stage.toDataURL();
+  
+    // Crie uma nova imagem e defina o atributo crossOrigin como 'Anonymous'
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+  
+    // Defina o onload handler para a imagem
+    img.onload = () => {
+      // Desenhe a imagem no canvas
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+  
+      // Exporte o conteúdo do canvas como um data URL
+      const uri = canvas.toDataURL();
+      console.log(uri);
+      // Faça o que você precisa com o URI, como salvar como arquivo ou usar em outro lugar
+      // downloadURI(uri, 'mapa.png');
+    };
+  
+    // Defina a source da imagem para a mesma source do Konva stage
+    img.src = stageDataURL;
+  };
+  
+  
 
 
+  console.log(id_mapa);
   const handlePostClick = async () => {
     try {
       await axios.post(import.meta.env.VITE_BACKEND + '/journeyPhase', {
-        journeyMap_id: 3,
+        journeyMap_id: id_mapa,
         linePos: 285,
         posX: 20,
         length: 230,
@@ -40,7 +92,7 @@ const Tool = ({ navigate }) => {
       });
 
       await axios.post(import.meta.env.VITE_BACKEND + '/userAction', {
-        journeyMap_id: 3,
+        journeyMap_id: id_mapa,
         linePos: 285,
         posX: 20,
         length: 230,
@@ -49,7 +101,7 @@ const Tool = ({ navigate }) => {
       });
 
       await axios.post(import.meta.env.VITE_BACKEND + '/thought', {
-        journeyMap_id: 3,
+        journeyMap_id: id_mapa,
         linePos: 285,
         posX: 20,
         length: 230,
@@ -58,7 +110,7 @@ const Tool = ({ navigate }) => {
       });
 
       await axios.post(import.meta.env.VITE_BACKEND + '/contactPoint', {
-        journeyMap_id: 3,
+        journeyMap_id: id_mapa,
         linePos: 285,
         posX: 20,
         length: 230,
@@ -70,7 +122,7 @@ const Tool = ({ navigate }) => {
         posX: 20,
         lineY: 0,
         emojiTag: '😀',
-        journeyMap_id: 3,
+        journeyMap_id: id_mapa,
       });
 
       window.location.reload();
@@ -81,9 +133,13 @@ const Tool = ({ navigate }) => {
 
   const handleLogout = async () => {
     await signOut(auth);
-    secureLocalStorage.removeItem('token');
-    secureLocalStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     navigate('/login');
+  }
+
+  const onMap = async () => {
+    navigate('/');
   }
 
   const fetchData = async () => {
@@ -95,11 +151,11 @@ const Tool = ({ navigate }) => {
         thoughtData,
         contactPointData,
       ] = await Promise.all([
-        axios.get(import.meta.env.VITE_BACKEND + "/journeyPhase"),
-        axios.get(import.meta.env.VITE_BACKEND + "/userAction"),
-        axios.get(import.meta.env.VITE_BACKEND + "/emotion"),
-        axios.get(import.meta.env.VITE_BACKEND + "/thought"),
-        axios.get(import.meta.env.VITE_BACKEND + "/contactPoint"),
+        axios.get(import.meta.env.VITE_BACKEND + "/journeyPhase", { params: { journeyMap_id: id_mapa } }),
+        axios.get(import.meta.env.VITE_BACKEND + "/userAction", { params: { journeyMap_id: id_mapa } }),
+        axios.get(import.meta.env.VITE_BACKEND + "/emotion", { params: { journeyMap_id: id_mapa } }),
+        axios.get(import.meta.env.VITE_BACKEND + "/thought", { params: { journeyMap_id: id_mapa } }),
+        axios.get(import.meta.env.VITE_BACKEND + "/contactPoint", { params: { journeyMap_id: id_mapa } }),
       ]);
 
       // Mapeie os dados da API para o formato desejado na matriz
@@ -521,7 +577,7 @@ const Tool = ({ navigate }) => {
       }
   
       let postData = {
-        "journeyMap_id": 3,
+        "journeyMap_id": id_mapa,
         "linePos": 285,
         "posX": squarewidth - 230 + novoX,
         "length": 230,
@@ -534,7 +590,7 @@ const Tool = ({ navigate }) => {
           "posX": novoX + 270,
           "lineY": -15,
           "emojiTag": "🔴",
-          "journeyMap_id": 3
+          "journeyMap_id": id_mapa
         };
       }
   
@@ -700,8 +756,8 @@ const Tool = ({ navigate }) => {
 
   useEffect(() => {
     if (scenario) {
-      const storedSceneName = secureLocalStorage.getItem("sceneName");
-      const storedSceneDesc = secureLocalStorage.getItem("sceneDesc");
+      const storedSceneName = localStorage.getItem("sceneName");
+      const storedSceneDesc = localStorage.getItem("sceneDesc");
       setSceneName(storedSceneName || '');
       setSceneDesc(storedSceneDesc || '');
     }
@@ -716,6 +772,8 @@ const Tool = ({ navigate }) => {
             onInfoClick={() => setButtonPopup(true)}
             onScenarioClick={() => {setButtonPopup(true); setScenario(true)}}
             onLogoutClick={handleLogout}
+            onMap={onMap}
+            onDownload={handleExport}
             handlePostClick={handlePostClick}
             dataLoaded={dataLoaded}
             currentJourneyMap={1}
@@ -790,10 +848,10 @@ const Tool = ({ navigate }) => {
                     style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
                   />
                   <div className="separarbotoes">
-                    <button className="buttonconf" onClick={() => {setButtonPopup(false); setScenario(false); secureLocalStorage.setItem("sceneName", sceneName); secureLocalStorage.setItem("sceneDesc", sceneDesc)}}>
+                    <button className="buttonconf" onClick={() => {setButtonPopup(false); setScenario(false); localStorage.setItem("sceneName", sceneName); localStorage.setItem("sceneDesc", sceneDesc)}}>
                       Salvar cenário
                     </button>
-                    <button className="buttonconf2" onClick={() => {setSceneName(''); setSceneDesc(''); secureLocalStorage.removeItem("sceneName", sceneName); secureLocalStorage.removeItem("sceneDesc", sceneDesc)}}>
+                    <button className="buttonconf2" onClick={() => {setSceneName(''); setSceneDesc(''); localStorage.removeItem("sceneName", sceneName); localStorage.removeItem("sceneDesc", sceneDesc)}}>
                       Limpar texto
                     </button>
                   </div>
@@ -829,7 +887,7 @@ const Tool = ({ navigate }) => {
                   data={data}
                   emojiSize={30}
                   emojiButtonSize={50}
-                  perLine={30}
+                  perLine={20}
                   maxFrequentRows={10}
                   previewPosition="none"
                   navPosition="bottom"
@@ -844,7 +902,7 @@ const Tool = ({ navigate }) => {
           {/* Verifica se os dados da matriz estão carregados antes de renderizar a matriz */}
           {dataLoaded && (
             <div className="stage-container">
-              <Stage width={calculateTotalWidth(matrix) + 1260} height={window.innerHeight + 180}>
+              <Stage width={calculateTotalWidth(matrix) + 1260} height={window.innerHeight} ref={stageRef}>
                 <Layer>
                   <Matrix
                     key={forceUpdate}
@@ -897,6 +955,7 @@ const Tool = ({ navigate }) => {
           <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
             <div className="fases-text"></div>
           </div>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
         </>
       </div>
     </div>

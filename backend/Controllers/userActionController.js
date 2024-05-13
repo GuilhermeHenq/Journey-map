@@ -3,8 +3,13 @@ const UserActionModel = require('../Model/userActionModel');
 const userActionController = {
   getAllItems: async (req, res) => {
     try {
+      const journeyMapId = req.query.journeyMap_id; // Extrair o journeyMap_id dos parâmetros de consulta
+      if (!journeyMapId) {
+        return res.status(400).json({ error: 'Parâmetro journeyMap_id ausente na solicitação' });
+      }
+      
       const userActionModel = new UserActionModel();
-      const data = await userActionModel.getAllItems();
+      const data = await userActionModel.getAllItemsByJourneyMapId(journeyMapId);
       res.json(data);
     } catch (error) {
       console.error("Error fetching userActionModel:", error);

@@ -5,7 +5,6 @@ import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
 import { toast } from 'sonner';
 import { Eye, EyeOff, Chrome } from 'lucide-react';
 import { GoogleAuthProvider } from 'firebase/auth';
-import secureLocalStorage from "react-secure-storage";
 
 import img from "../../assets/mascote.png";
 import Google from "../../assets/google.svg";
@@ -43,8 +42,8 @@ function Login() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       showSuccess();
       const user = userCredential.user;
-      secureLocalStorage.setItem("token", user.accessToken);
-      secureLocalStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", user.accessToken);
+      localStorage.setItem("user", JSON.stringify(user));
       setLoggedIn(true);
     } catch (error) {
       console.error(error);
@@ -64,8 +63,8 @@ function Login() {
         name: user.displayName,
         photo: user.photoURL
       });
-      secureLocalStorage.setItem("token", user.accessToken);
-      secureLocalStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", user.accessToken);
+      localStorage.setItem("user", JSON.stringify(user));
       setLoggedIn(true);
     } catch (error) {
       console.error(error);

@@ -46,6 +46,12 @@ app.post('/userAction', userActionController.postItem);
 app.put('/userAction', userActionController.updateItem);
 app.delete('/userAction/:userActionId', userActionController.deleteItem);
 
+const journeyMapController = require('../Controllers/journeyMapController');
+
+app.get('/journeyMap', journeyMapController.getUserMaps);
+app.post('/journeyMap', journeyMapController.createMap);
+
+
 
 app.listen(port, () => {
   console.log(`---------------------------------------------`);

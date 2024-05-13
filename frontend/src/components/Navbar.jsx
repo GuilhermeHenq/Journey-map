@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Github, LogOut } from 'lucide-react';
 import './Navbar.css'
-import secureLocalStorage from 'react-secure-storage';
 
-const Navbar = ({ onSaveClick, onInfoClick, onScenarioClick, onLogoutClick, dataLoaded, currentJourneyMap, handlePostClick }) => {
+const Navbar = ({ onSaveClick, onDownload, onMap, onInfoClick, onScenarioClick, onLogoutClick, dataLoaded, currentJourneyMap, handlePostClick }) => {
   
   const [nameTrue, setNameTrue] = useState(false);
   const [journeyMapName, setJourneyMapName] = useState("Clique aqui")
@@ -32,7 +31,7 @@ const Navbar = ({ onSaveClick, onInfoClick, onScenarioClick, onLogoutClick, data
 
       ) : (
         <>
-        <span onClick={onScenarioClick}>Cenário {currentJourneyMap} - {secureLocalStorage.getItem("sceneName")}<span></span></span>
+        <span onClick={onScenarioClick}>Cenário {currentJourneyMap} - {localStorage.getItem("sceneName")}<span></span></span>
         </>
       )}
       <div className="botoes">
@@ -41,6 +40,9 @@ const Navbar = ({ onSaveClick, onInfoClick, onScenarioClick, onLogoutClick, data
         </button>
         <button className="button info" id="infoButton" style={{ marginLeft: "3vh", marginRight: "3vh" }} onClick={onInfoClick}>
           i
+        </button>
+        <button className="button map" id="infoButton" style={{ marginLeft: "1vh", marginRight: "3vh" }} onClick={onMap}>
+          Mapas
         </button>
         <button className="button logout" onClick={onLogoutClick}>
           <LogOut />

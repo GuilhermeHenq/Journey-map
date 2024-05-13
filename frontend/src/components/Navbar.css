@@ -51,6 +51,17 @@
   align-items: center;      
 }
 
+.button.map {
+  background-color: #C4C4C4;
+  color: white;
+  border: none;       
+  font-size: 15px; 
+  cursor: pointer;     
+  display: flex;       
+  justify-content: center;  
+  align-items: center;      
+}
+
 .button.logout {
   background-color: #FF5858;
   color: white;

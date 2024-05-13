@@ -4,7 +4,6 @@ import { auth } from '../../services/firebase'
 import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from 'firebase/auth'
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react'
-import secureLocalStorage from "react-secure-storage";
 
 import img from "../../assets/mascote.png";
 
@@ -55,8 +54,8 @@ function Signup() {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         //console.log(userCredential);
         const user = userCredential.user;
-        secureLocalStorage.setItem("token", user.accessToken);
-        secureLocalStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("token", user.accessToken);
+        localStorage.setItem("user", JSON.stringify(user));
         setLoggedIn(true);
         showSucess();
         

@@ -39,6 +39,26 @@ class JourneyMapModel {
         throw error;
       });
   }
+
+  async updateMapName(userId, newName) {
+    try {
+      const result = await db.execute("UPDATE journeyMap SET map_name = ? WHERE user_id = ?", [newName, userId]);
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error("Error updating map name:", error);
+      throw error;
+    }
+  }
+
+  async deleteUserMaps(userId) {
+    try {
+      const result = await db.execute("DELETE FROM journeyMap WHERE user_id = ?", [userId]);
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error("Error deleting user maps:", error);
+      throw error;
+    }
+  }
 }
 
 module.exports = JourneyMapModel;

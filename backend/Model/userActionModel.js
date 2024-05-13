@@ -1,6 +1,17 @@
 const db = require('./db');
 
 class UserActionModel {
+  getAllItemsByJourneyMapId(journeyMapId) {
+    return db.query("SELECT * FROM userAction WHERE journeyMap_id = ?", [journeyMapId])
+      .then(([rows]) => {
+        return rows;
+      })
+      .catch((error) => {
+        console.error("Error fetching userActions by journeyMapId:", error);
+        throw error;
+      });
+  }
+
   getAllItems() {
     return db.query("SELECT * FROM userAction")
       .then(([rows]) => {

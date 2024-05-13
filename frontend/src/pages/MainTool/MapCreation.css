@@ -1,0 +1,241 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-color: #FFFFFF;
+}
+
+body {
+  font-family: Nunito, sans-serif;
+}
+
+.nenhum {
+  font-size: 80px;
+  margin-top: 10px;
+  color: #434343;
+}
+
+.bloconovo{
+  width: 100%;
+  height: 80px;
+  border: none;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.botaosavename{
+  background-color: #4caf50;
+  width: 30%;
+  border: none;       
+  border-radius: 18px;
+  color: white;
+  padding: 11px 40px;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  font-size: 32px;
+  font-family: Inter;
+  font-weight: 500;
+  align-items: right;
+  justify-content: right;
+}
+
+.botaosavename:hover{
+  background-color: #309c35;
+  width: 30%;
+  border: none;       
+  border-radius: 18px;
+  color: white;
+  padding: 11px 40px;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  font-size: 32px;
+  font-family: Inter;
+  font-weight: 500;
+  align-items: right;
+  justify-content: right;
+}
+
+.inputname {
+  width: 100%;
+  height: 130px;
+  font-size: 25px;
+  align-items: top;
+  margin-top: 30px;
+  margin-bottom: 50px;
+  border-radius: 20px;
+  font-family: Inter;
+  padding-top: 20px;
+  padding-left: 10px;
+  padding-bottom: 20px;
+}
+
+.navbar {
+  background-color: #454545;
+  color: white;
+  font-family: Inter;
+  font-weight: 700;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  z-index: 2;
+}
+
+.botaologout {
+  width: 45px;
+  height: 45px;
+  border: none;
+  background-color: #FF5858;
+  color: white;
+  cursor: pointer;        
+  justify-content: center;  
+  align-items: center;      
+}
+
+.textoboas {
+  font-size: 15px;
+}
+
+.mapasuser {
+  margin-top: 10px;
+  margin-left: 6%;
+  color: #434343;
+  font-size: 35px;
+}
+
+.botaologout:hover {
+  background-color: #a80505;
+  color: white;
+  cursor: pointer;        
+  justify-content: center;  
+  align-items: center;      
+}
+
+.blocoadd {
+  box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+  font-size: 40px;
+  padding: 10px;
+  background: -webkit-linear-gradient(to left, #1791ad, #b721ff);
+  background: -o-linear-gradient(to left, #1791ad, #b721ff);
+  background: -moz-linear-gradient(to left, #1791ad, #b721ff);
+  background: linear-gradient(to left, #1791ad, #b721ff);
+  width: 300px;
+  height: 300px;
+  border-radius: 15px;
+}
+
+.blocoadd:hover {
+  font-size: 40px;
+  padding: 10px;
+  background: -webkit-linear-gradient(to left, #2abcde, #c268ed);
+  background: -o-linear-gradient(to left, #2abcde, #c268ed);
+  background: -moz-linear-gradient(to left, #2abcde, #c268ed);
+  background: linear-gradient(to left, #2abcde, #c268ed);
+  width: 300px;
+  height: 300px;
+  border-radius: 15px;
+}
+
+.bloco {
+  box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+  font-size: 40px;
+  padding: 10px;
+  width: 300px;
+  height: 300px;
+  border-radius: 15px;
+  color: #434343;
+}
+
+.bloco:hover {
+  font-size: 40px;
+  padding: 10px;
+  width: 300px;
+  height: 300px;
+  border-radius: 15px;
+  color: #434343;
+}
+
+.separar {
+  padding: 20px;
+}
+
+.margem {
+  margin-top: 100px;
+}
+
+.margem2 {
+  margin-top: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.texto {
+  color: #434343;
+}
+
+.icon {
+  color: #FFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0px;
+}
+
+.pad {
+  padding: 0px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.divbotoes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 160px;
+}
+
+.lixeira{
+  color: #434343;
+  border: none;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 100px;
+}
+
+.lixeira:hover {
+  color: #005d7d;
+  border: none;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 100px;
+}
+
+.botao {
+  border: none;
+  border-radius: 10px;
+  width: 40%;
+  height: 50px;
+  font-size: 20px;
+}
+
+.botao:hover {
+  background-color: #a7e6fc;
+  border: none;
+  border-radius: 10px;
+  width: 40%;
+  height: 50px;
+  font-size: 20px;
+}
