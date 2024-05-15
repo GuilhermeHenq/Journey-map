@@ -148,21 +148,21 @@ const MapCreation = () => {
           <h1 className="mapasuser">Mapas do Usuário:</h1>
           <div className="pad">
             <div className="separar">
-              <div className="blocoadd" onClick={handleClickModal}>
+              {/* <div className="blocoadd" onClick={handleClickModal}>
                 <h4 className="icon"><Plus size={200} /></h4>
                 <div className="bloconovo">
                   <p>Novo mapa</p>
                 </div>
-              </div>
+              </div> */}
             </div>
             {maps.map((map, index) => (
               <div key={map.id}>
                 <div className="separar">
                   <div className="bloco" style={{ backgroundColor: getColorAtIndex(index) }} onClick={() => handleSelectMap(map.id)} >
                     <h4 className="texto">{truncateText(map.name)}</h4>
-                    <div className="divbotoes">
+                    {/* <div className="divbotoes">
                       <button className="lixeira" onClick={(e) => { e.stopPropagation(); handleDeleteButtonClick(map.id); }}> <Trash className='icontrash' size={40} /> </button>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -173,12 +173,12 @@ const MapCreation = () => {
         <div className="margem2" >
           <p className="nenhum">Nenhum mapa encontrado.</p>
           <div className="separar">
-            <div className="blocoadd" onClick={handleClickModal}>
+            {/* <div className="blocoadd" onClick={handleClickModal}>
               <h4 className="icon"><Plus size={200} /></h4>
               <div className="bloconovo">
                 <p>Novo mapa</p>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       )}
