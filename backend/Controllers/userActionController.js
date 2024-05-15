@@ -77,7 +77,25 @@ const userActionController = {
       console.error("Error deleting UserAction:", error);
       res.status(500).json({ error: 'Erro ao excluir Ação do usuário' });
     }
-}
+  },
+
+  deleteItemsByJourneyMapId: async (req, res) => {
+    try {
+      const putData = req.body;
+      const journeyMapId = putData.journeyMap_id;
+      const userActionModel = new UserActionModel();
+      const success = await userActionModel.deleteUserActionsByJourneyMapId(journeyMapId);
+      
+      if (success) {
+        res.status(200).json({ message: 'Ações do usuário excluídas com sucesso' });
+      } else {
+        res.status(404).json({ error: 'Nenhuma ação do usuário encontrada para o mapa fornecido' });
+      }
+    } catch (error) {
+      console.error("Error deleting user actions by journeyMapId:", error);
+      res.status(500).json({ error: 'Erro ao excluir ações do usuário' });
+    }
+  },
   
 };
 

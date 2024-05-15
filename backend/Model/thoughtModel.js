@@ -70,6 +70,15 @@ class ThoughtModel {
         throw error;
       });
   }
+
+  deleteByJourneyMapId(journeyMapId) {
+    return db.execute("DELETE FROM thought WHERE journeyMap_id = ?", [journeyMapId])
+    .then(() => true)
+    .catch((error) => {
+      console.error("Error deleting thought:", error);
+      throw error;
+    });
+  }
   
 }
 

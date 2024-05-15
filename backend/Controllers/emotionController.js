@@ -80,6 +80,24 @@ const emotionController = {
       console.error("Error deleting Emotion:", error);
       res.status(500).json({ error: 'Erro ao excluir Emoção' });
     }
+  },
+
+  deleteItemsByJourneyMapId: async (req, res) => {
+    try {
+      const putData = req.body;
+      const journeyMapId = putData.journeyMap_id;
+      const emotionModel = new EmotionModel();
+      const success = await emotionModel.deleteByJourneyMapId(journeyMapId);
+      
+      if (success) {
+        res.status(200).json({ message: 'Emoções excluídas com sucesso' });
+      } else {
+        res.status(404).json({ error: 'Nenhuma emoção encontrada para o mapa fornecido' });
+      }
+    } catch (error) {
+      console.error("Error deleting emotion by journeyMapId:", error);
+      res.status(500).json({ error: 'Erro ao excluir emoções' });
+    }
   }
   
 };

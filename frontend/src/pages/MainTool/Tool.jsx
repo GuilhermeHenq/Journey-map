@@ -568,7 +568,7 @@ const Tool = ({}) => {
       if (colIndex !== undefined) {
         novoX = colIndexToType[colIndex];
       } else {
-        novoX = colIndex * 270 + 290;
+        novoX = 20;
       }
   
       if (!type) {
@@ -587,7 +587,7 @@ const Tool = ({}) => {
   
       if (type === 'emotion') {
         postData = {
-          "posX": novoX + 270,
+          "posX": novoX,
           "lineY": -15,
           "emojiTag": "🔴",
           "journeyMap_id": id_mapa

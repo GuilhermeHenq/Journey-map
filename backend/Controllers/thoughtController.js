@@ -77,7 +77,25 @@ const thoughtController = {
       console.error("Error deleting Thought:", error);
       res.status(500).json({ error: 'Erro ao excluir pensamento' });
     }
-}
+  },
+
+  deleteItemsByJourneyMapId: async (req, res) => {
+    try {
+      const putData = req.body;
+      const journeyMapId = putData.journeyMap_id;
+      const thoughtModel = new ThoughtModel();
+      const success = await thoughtModel.deleteByJourneyMapId(journeyMapId);
+      
+      if (success) {
+        res.status(200).json({ message: 'Pensamentos excluídos com sucesso' });
+      } else {
+        res.status(404).json({ error: 'Nenhum pensamento encontrado para o mapa fornecido' });
+      }
+    } catch (error) {
+      console.error("Error deleting thought by journeyMapId:", error);
+      res.status(500).json({ error: 'Erro ao excluir pensamentos' });
+    }
+  }
   
 };
 

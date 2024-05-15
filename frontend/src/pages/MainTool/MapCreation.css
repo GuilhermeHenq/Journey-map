@@ -59,6 +59,40 @@ body {
   justify-content: right;
 }
 
+.botaocancelname{
+  background-color: #e60909;
+  width: 30%;
+  border: none;       
+  border-radius: 18px;
+  color: white;
+  padding: 11px 40px;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  font-size: 32px;
+  font-family: Inter;
+  font-weight: 500;
+  align-items: right;
+  justify-content: right;
+}
+
+.botaocancelname:hover{
+  background-color: #bf0808;
+  width: 30%;
+  border: none;       
+  border-radius: 18px;
+  color: white;
+  padding: 11px 40px;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  font-size: 32px;
+  font-family: Inter;
+  font-weight: 500;
+  align-items: right;
+  justify-content: right;
+}
+
 .inputname {
   width: 100%;
   height: 130px;
@@ -102,10 +136,12 @@ body {
 }
 
 .mapasuser {
-  margin-top: 10px;
-  margin-left: 6%;
+  font-weight: 50px;
+  margin-top: 60px;
+  margin-left: 3%;
   color: #434343;
   font-size: 35px;
+  background-color: transparent;
 }
 
 .botaologout:hover {
@@ -120,10 +156,11 @@ body {
   box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
   font-size: 40px;
   padding: 10px;
-  background: -webkit-linear-gradient(to left, #1791ad, #b721ff);
+  background-color: #434343;
+  /* background: -webkit-linear-gradient(to left, #1791ad, #b721ff);
   background: -o-linear-gradient(to left, #1791ad, #b721ff);
   background: -moz-linear-gradient(to left, #1791ad, #b721ff);
-  background: linear-gradient(to left, #1791ad, #b721ff);
+  background: linear-gradient(to left, #1791ad, #b721ff); */
   width: 300px;
   height: 300px;
   border-radius: 15px;
@@ -132,10 +169,11 @@ body {
 .blocoadd:hover {
   font-size: 40px;
   padding: 10px;
-  background: -webkit-linear-gradient(to left, #2abcde, #c268ed);
+  background-color: #434768;
+  /* background: -webkit-linear-gradient(to left, #2abcde, #c268ed);
   background: -o-linear-gradient(to left, #2abcde, #c268ed);
   background: -moz-linear-gradient(to left, #2abcde, #c268ed);
-  background: linear-gradient(to left, #2abcde, #c268ed);
+  background: linear-gradient(to left, #2abcde, #c268ed); */
   width: 300px;
   height: 300px;
   border-radius: 15px;
@@ -149,13 +187,15 @@ body {
   height: 300px;
   border-radius: 15px;
   color: #434343;
+  word-wrap: break-word;
 }
 
 .bloco:hover {
+  box-shadow: rgba(0, 0, 0, 0.43) 0px 10px 20px, rgba(0, 0, 0, 0.43) 0px 6px 6px;
   font-size: 40px;
   padding: 10px;
-  width: 300px;
-  height: 300px;
+  width: 305px;
+  height: 305px;
   border-radius: 15px;
   color: #434343;
 }
@@ -165,8 +205,9 @@ body {
 }
 
 .margem {
-  margin-top: 100px;
-}
+  background-color: transparent;
+  padding: 50px;
+} 
 
 .margem2 {
   margin-top: 100px;
@@ -194,36 +235,43 @@ body {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+  margin-top: 50px;
 }
 
 .divbotoes {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   margin-top: 160px;
 }
 
 .lixeira{
   color: #434343;
   border: none;
+  border-radius: 10px;
   background-color: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-right: 100px;
 }
 
 .lixeira:hover {
-  color: #005d7d;
+  color: #434343;
   border: none;
-  background-color: transparent;
+  /* background-color: #a7e6fc; */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-right: 100px;
+}
+
+.icontrash:hover {
+  width: 45px;
+  height: 45px;
 }
 
 .botao {
+  background-color: #434343;
+  color: white;
   border: none;
   border-radius: 10px;
   width: 40%;
@@ -232,10 +280,11 @@ body {
 }
 
 .botao:hover {
-  background-color: #a7e6fc;
+  background-color: #434343;
+  color: white;
   border: none;
   border-radius: 10px;
   width: 40%;
   height: 50px;
-  font-size: 20px;
+  font-size: 22px;
 }

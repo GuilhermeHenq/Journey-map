@@ -152,7 +152,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                             <Text
                                 x={square.x + 13}
                                 y={square.y}
-                                text={square.width === 230 ? 
+                                text={square.width === 230 ?
                                     (square.text && square.text.length > 60 ? `${square.text.slice(0, 57)}...` : square.text)
                                     :
                                     (square.text && square.text.length > 150 ? `${square.text.slice(0, 147)}...` : square.text)
@@ -166,7 +166,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                                 fontFamily="Inter"
                             />
                             <Rect
-                                x={(square.x + square.width) - 20 }
+                                x={(square.x + square.width) - 20}
                                 y={square.y}
                                 width={20}
                                 height={20}
@@ -180,7 +180,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                                 cornerRadius={3}
                             />
                             <Text
-                                x={(square.x + square.width) - 14 }
+                                x={(square.x + square.width) - 14}
                                 y={square.y + 5}
                                 text="X"
                                 fontSize={12}
@@ -256,53 +256,49 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                 </Group>
             ))
         ))}
-        {matrix.map((row, rowIndex) => {
-            // Encontrar o quadrado com o maior valor de x na linha
-            const maxXSquare = row.reduce((maxSquare, currentSquare) => {
-                return currentSquare.x > (maxSquare ? maxSquare.x : -Infinity) ? currentSquare : maxSquare;
-            }, null);
+        {matrix.map((row, rowIndex) => (
+            <Group key={`row_${rowIndex}`}>
+                {/* Adiciona um quadrado no início da linha se estiver vazia */}
+                {row.length === 0 && (
+                    <>
+                        <Rect
+                            x={20 + 80}
+                            y={rowIndex * 170 + 104} // Ajuste conforme necessário
+                            width={60}
+                            height={45}
+                            fill="gray"
+                            opacity={1}
+                            draggable={false}
+                            onClick={() => handleAddSquare(rowIndex, undefined, 230)}
+                            listening={true}
+                            style={{ cursor: 'pointer' }}
+                            cornerRadius={10}
+                        />
+                        <Text
+                            x={31 + 80}
+                            y={rowIndex * 170 + 102}
+                            text="+"
+                            fontSize={60}
+                            fill="#d9d9d9"
+                            align="center"
+                            verticalAlign="middle"
+                            listening={false}
+                            onMouseEnter={(e) => {
+                                const container = e.target.getStage().container();
+                                container.style.cursor = "pointer";
+                                // e.target.opacity(1);
+                            }}
+                            onMouseLeave={(e) => {
+                                const container = e.target.getStage().container();
+                                container.style.cursor = "default";
+                                // e.target.opacity(0);
+                            }}
+                        />
 
-            // return (
-            //     <Group key={`addButtonRow_${rowIndex}`}
-            //         onMouseEnter={(e) => {
-            //             const container = e.target.getStage().container();
-            //             container.style.cursor = "pointer";
-            //             e.target.opacity(1);
-            //         }}
-            //         onMouseLeave={(e) => {
-            //             const container = e.target.getStage().container();
-            //             container.style.cursor = "default";
-            //             e.target.opacity(0);
-            //         }}
-            //     >
-            //         {/* Quadrado maior */}
-            //         <Rect
-            //             x={maxXSquare ? (maxXSquare.width === 230 ? maxXSquare.x + 259 * maxXSquare.width / 230  : maxXSquare.x + 282 * maxXSquare.width / 270) : 30}
-            //             y={rowIndex === 2 ? rowIndex * 170 + 117 : rowIndex * 170 + 104}
-            //             width={60}
-            //             height={45}
-            //             fill="gray"
-            //             opacity={0}
-            //             draggable={false}
-            //             onClick={() => handleAddSquare(rowIndex, (row.length - 1))}
-            //             listening={true}
-            //             style={{ cursor: 'pointer' }}
-            //             cornerRadius={10}
-            //         />
-            //         <Text
-            //             x={maxXSquare ? (maxXSquare.width === 230 ? maxXSquare.x + 273 * maxXSquare.width / 230  : maxXSquare.x + 287 * maxXSquare.width / 270) : 45}
-            //             y={rowIndex === 2 ? rowIndex * 170 + 117 : rowIndex * 170 + 104}
-            //             text="+"
-            //             fontSize={50}
-            //             fill='#d9d9d9'
-            //             align="center"
-            //             verticalAlign="middle"
-            //             listening={false}
-            //             opacity={1}
-            //         />
-            //     </Group>
-            // );
-        })}
+                    </>
+                )}
+            </Group>
+        ))}
 
     </>
 );

@@ -40,9 +40,9 @@ class JourneyMapModel {
       });
   }
 
-  async updateMapName(userId, newName) {
+  async updateMapName(journeyMapId, newName) {
     try {
-      const result = await db.execute("UPDATE journeyMap SET map_name = ? WHERE user_id = ?", [newName, userId]);
+      const result = await db.execute("UPDATE journeyMap SET map_name = ? WHERE journeyMap_id = ?", [newName, journeyMapId]);
       return result.affectedRows > 0;
     } catch (error) {
       console.error("Error updating map name:", error);
@@ -50,9 +50,9 @@ class JourneyMapModel {
     }
   }
 
-  async deleteUserMaps(userId) {
+  async deleteMap(journeyMapId) {
     try {
-      const result = await db.execute("DELETE FROM journeyMap WHERE user_id = ?", [userId]);
+      const result = await db.execute("DELETE FROM journeyMap WHERE journeyMap_id = ?", [journeyMapId]);
       return result.affectedRows > 0;
     } catch (error) {
       console.error("Error deleting user maps:", error);

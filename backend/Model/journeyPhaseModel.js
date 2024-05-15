@@ -69,6 +69,15 @@ class JourneyPhaseModel {
         throw error;
       });
   }
+
+  deleteByJourneyMapId(journeyMapId) {
+    return db.execute("DELETE FROM journeyPhase WHERE journeyMap_id = ?", [journeyMapId])
+    .then(() => true)
+    .catch((error) => {
+      console.error("Error deleting journeyPhase:", error);
+      throw error;
+    });
+  }
   
 }
 

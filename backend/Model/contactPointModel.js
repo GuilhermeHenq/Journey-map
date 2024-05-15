@@ -70,6 +70,15 @@ class ContactPointModel {
         throw error;
       });
   }
+
+  deleteByJourneyMapId(journeyMapId) {
+    return db.execute("DELETE FROM contactpoint WHERE journeyMap_id = ?", [journeyMapId])
+    .then(() => true)
+    .catch((error) => {
+      console.error("Error deleting contactpoint:", error);
+      throw error;
+    });
+  }
 }
 
 module.exports = ContactPointModel;

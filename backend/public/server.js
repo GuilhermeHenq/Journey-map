@@ -17,6 +17,7 @@ app.get('/emotion', emotionController.getAllItems);
 app.post('/emotion', emotionController.postItem);
 app.put('/emotion', emotionController.updateItem);
 app.delete('/emotion/:emotionId', emotionController.deleteItem);
+app.delete('/emotion', emotionController.deleteItemsByJourneyMapId);
 
 const contactPointController = require('../Controllers/contactPointController');
 
@@ -24,6 +25,7 @@ app.get('/contactPoint', contactPointController.getAllItems);
 app.post('/contactPoint', contactPointController.postItem);
 app.put('/contactPoint', contactPointController.updateItem);
 app.delete('/contactPoint/:contactPointId', contactPointController.deleteItem);
+app.delete('/contactPoint', contactPointController.deleteItemsByJourneyMapId);
 
 const journeyPhaseController = require('../Controllers/journeyPhaseController');
 
@@ -31,6 +33,7 @@ app.get('/journeyPhase', journeyPhaseController.getAllItems);
 app.post('/journeyPhase', journeyPhaseController.postItem);
 app.put('/journeyPhase', journeyPhaseController.updateItem);
 app.delete('/journeyPhase/:journeyPhaseId', journeyPhaseController.deleteItem);
+app.delete('/journeyPhase', journeyPhaseController.deleteItemsByJourneyMapId);
 
 const thoughtController = require('../Controllers/thoughtController');
 
@@ -38,6 +41,7 @@ app.get('/thought', thoughtController.getAllItems);
 app.post('/thought', thoughtController.postItem);
 app.put('/thought', thoughtController.updateItem);
 app.delete('/thought/:thoughtId', thoughtController.deleteItem);
+app.delete('/thought', thoughtController.deleteItemsByJourneyMapId);
 
 const userActionController = require('../Controllers/userActionController');
 
@@ -45,11 +49,14 @@ app.get('/userAction', userActionController.getAllItems);
 app.post('/userAction', userActionController.postItem);
 app.put('/userAction', userActionController.updateItem);
 app.delete('/userAction/:userActionId', userActionController.deleteItem);
+app.delete('/userAction', userActionController.deleteItemsByJourneyMapId);
 
 const journeyMapController = require('../Controllers/journeyMapController');
 
 app.get('/journeyMap', journeyMapController.getUserMaps);
 app.post('/journeyMap', journeyMapController.createMap);
+app.delete('/journeyMap/:journeyMapId', journeyMapController.deleteUserMaps);
+app.put('/journeyMap', journeyMapController.updateMapName);
 
 
 

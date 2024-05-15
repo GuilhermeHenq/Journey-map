@@ -69,6 +69,15 @@ class UserActionModel {
         throw error;
       });
   }
+
+  deleteUserActionsByJourneyMapId(journeyMapId) {
+    return db.execute("DELETE FROM userAction WHERE journeyMap_id = ?", [journeyMapId])
+    .then(() => true)
+    .catch((error) => {
+      console.error("Error deleting userAction:", error);
+      throw error;
+    });
+  }
   
 }
 
