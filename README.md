@@ -30,4 +30,4 @@ Server should start running on port 3000.
 
 <b><h2>How to create <i>mapjourney</i> table in MySQL:</h2></b>
 
-- Run the mapjourney.sql file to configure and create your database
+- Import the mapjourneyDB.sql file to configure and create your database
