@@ -404,41 +404,56 @@ const Tool = ({ navigate }) => {
 
   };
 
+  const [tempWidth, setTempWidth] = useState()
 
-  const handleSaveHouse = () => {
+  const handleSaveHouse = async () => {
     setMatrix((prevMatrix) => {
       let updatedMatrix = prevMatrix.map((row) => {
         let rowUpdated = false;
-        const updatedRow = row.map((rect) => {
+        let extendedRect; // To store the extended rectangle
+        let extendedIndex = -1; // To store the index of the extended rectangle
+  
+        const updatedRow = row.map((rect, index) => {
           const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
-
+          
           if (rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex) {
             rowUpdated = true;
-            return { ...rect, width: selectedHouses * 270 - 40 };
+            // Save the original X position before extending the width
+            const originalX = rect.x;
+            extendedRect = { ...rect, width: selectedHouses * 270 - 40, x: originalX }; // Maintain the original X position
+            extendedIndex = index;
+            return extendedRect;
           }
           return rect;
         });
-
-        // Se a linha foi atualizada, ajuste os rects subsequentes na mesma linha
+        
+        console.log(extendedRect)
+  
+        // If the row was updated, adjust the X position of subsequent rectangles
         if (rowUpdated) {
-          let adjustedX = -1;
+          let adjustedX = extendedRect.x + extendedRect.width; // Start X position after the extended rectangle
           updatedRow.forEach((rect, index) => {
-            if (adjustedX !== -1 && rect) {
-              rect.x = adjustedX + 40;
-              adjustedX += rect.width;
-            }
-            if (rect && rect[`${rect.type}_id`] === editedRectId && rect.y === editedRowIndex) {
-              adjustedX = rect.x + rect.width;
+            if (rect && index > extendedIndex) {
+              rect.x = adjustedX + 40; // Adjust subsequent rectangles with the 40px gap
+              adjustedX += rect.width + 40; // Increment adjustedX by rect.width and 40px gap
             }
           });
         }
 
+        // const postData = {
+        //     "width": extendedRect.width,
+        // };
+
+        // axios.post(import.meta.env.VITE_BACKEND + `/${extendedRect?.type}`, postData);
+
+        // fetchData();
+  
         return updatedRow;
       });
-
+  
       return updatedMatrix;
     });
-
+  
     setSelectedHouses(1);
   };
 
@@ -520,17 +535,21 @@ const Tool = ({ navigate }) => {
             return;
         }
 
-        // Check for overlapping rectangles
-        const isOverlapping = matrix[rowIndex].some(rect =>
+        // Find the index of the overlapping rectangle, if any
+        const overlappingIndex = matrix[rowIndex].findIndex(rect =>
             rect.type === type &&
             rect.x + rect.width >= novoX && // Check if the right edge of the existing rectangle overlaps with the new rectangle
             novoX + squarewidth >= rect.x // Check if the left edge of the new rectangle overlaps with the existing rectangle
         );
 
-        // If there is an overlap, return without adding the square
-        if (isOverlapping) {
-            console.log("Overlap detected, square not added");
-            return;
+        // If there is an overlap, push subsequent cards forward and update their positions on the backend
+        if (overlappingIndex !== -1) {
+            for (let i = overlappingIndex; i < matrix[rowIndex].length; i++) {
+                const card = matrix[rowIndex][i];
+                card.x += squarewidth + 40;
+                // Update the position of the card on the backend
+                await axios.patch(import.meta.env.VITE_BACKEND + `/${type}`, { posX: card.x });
+            }
         }
 
         // Create a new card on the backend
@@ -553,35 +572,6 @@ const Tool = ({ navigate }) => {
 
         fetchData();
 
-        // // Get the id of the newly created card from the response
-        // const newCardId = response.data.id;
-
-        // // Add the new square to the matrix state with the received id
-        // const newSquare = {
-        //     type: type,
-        //     [`${type}_id`]: newCardId,
-        //     x: squarewidth - 230 + novoX,
-        //     y: rowIndex === 2 ? 567 : rowIndex === 0 ? 61 : rowIndex === 1 ? 231 : rowIndex === 3 ? 571 : 741,
-        //     width: 230,
-        //     height: 135,
-        //     color: rowIndex === 2 ? "#FEC3A6" : rowIndex === 0 ? "#FFAC81" : rowIndex === 1 ? "#FF928B" : rowIndex === 3 ? "#EFE9AE" : "#CDEAC0",
-        //     text: "",
-        //     emojiTag: rowIndex === 2 ? "🔴" : "Novo emoji",
-        // };
-
-        // setMatrix(prevMatrix => {
-        //     const updatedMatrix = [...prevMatrix];
-        //     updatedMatrix[rowIndex].push(newSquare);
-
-        //     // Rearrange the squares based on their x positions
-        //     const rearrangedMatrix = updatedMatrix.map((row) => {
-        //         return row.sort((a, b) => {
-        //             return (a.x - 20) / 270 - (b.x - 20) / 270;
-        //         });
-        //     });
-
-        //     return rearrangedMatrix;
-        // });
     } catch (error) {
         console.error("Erro ao adicionar quadrado:", error);
     }
