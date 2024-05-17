@@ -138,9 +138,11 @@ body {
 .mapasuser {
   font-weight: 50px;
   margin-top: 60px;
-  margin-left: 3%;
+  display: flex;
+  justify-content: center;  
+  align-items: center;      
   color: #434343;
-  font-size: 35px;
+  font-size: 300%;
   background-color: transparent;
 }
 
@@ -210,7 +212,7 @@ body {
 } 
 
 .margem2 {
-  margin-top: 100px;
+  padding: 70px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -246,6 +248,7 @@ body {
 }
 
 .lixeira{
+  cursor: pointer;
   color: #434343;
   border: none;
   border-radius: 10px;
@@ -287,4 +290,31 @@ body {
   width: 40%;
   height: 50px;
   font-size: 22px;
+}
+
+.input-wrapper {
+  display: flex;
+  justify-content: center;  
+  align-items: center;      
+  text-align: center;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.input-filter {
+  height: 40px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  margin-right: 10px; /* Margem à direita */
+  box-sizing: border-box;
+  padding: 20px;
+  font-size: 25px;
+  width: 30%;
+  outline: none;
+}
+
+.x{
+  cursor: pointer;
+  margin-right:
 }

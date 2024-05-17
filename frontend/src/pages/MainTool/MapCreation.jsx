@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, Search, X } from 'lucide-react';
 import ModalName from "../../components/ModalName";
 import { LogOut, Trash } from 'lucide-react';
 import { auth } from '../../services/firebase';
@@ -18,9 +18,13 @@ const MapCreation = () => {
   const navigate = useNavigate();
   const usuario = JSON.parse(localStorage.getItem('user'));
   console.log(usuario);
+  console.log(usuario.providerData);
+  console.log(usuario.providerData[0].photoURL);
   const [isPickerVisible, setPickerVisible] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false); // Estado para controlar a exibição do modal de confirmação
-  const [mapToDelete, setMapToDelete] = useState(null); // Estado para armazenar o ID do mapa a ser excluído
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [mapToDelete, setMapToDelete] = useState(null);
+  const [filterText, setFilterText] = useState('');
+
 
   useEffect(() => {
     const fetchUserMaps = async () => {
@@ -102,6 +106,10 @@ const MapCreation = () => {
   const handleCancelDelete = () => {
     setConfirmDelete(false);
   };
+  
+  const handleClearInput = () => {
+    setFilterText("");
+  }
 
   const handleDeleteMap = async (mapId) => {
     try {
@@ -121,13 +129,13 @@ const MapCreation = () => {
   };
 
   return (
-    <div className="map-creation-container" style={{ backgroundImage: `url(${background})`, height: "100vh", width: "100vw" }}>
+    <div className="map-creation-container" style={{ backgroundColor: "#c1c1c1", height: "100vh", width: "100vw" }}>
       <div className="navbar" style={{ textAlign: "left", padding: "31px", fontSize: "30px", display: "flex", alignItems: "center" }}>
         <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "50px", marginRight: "20px" }} alt="mascote"></img>
         <div className="textoboas" style={{ flex: "1" }}>
-          <h1 style={{ margin: "0", textAlign: "center" }}>Olá, seja bem vindo {usuario.displayName ? usuario.displayName : ""}!</h1>
+          <h1 style={{ margin: "0", textAlign: "center" }}>Olá {usuario.displayName ? usuario.displayName : ""}, seja muito bem-vindo(a)!</h1>
         </div>
-        <img src={usuario.photoURL || "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG.png"} alt="Profile" style={{ width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover", marginRight: "20px" }} />
+        <img src={usuario.providerData[0].photoURL || "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG.png"} alt="Profile" style={{ width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover", marginRight: "20px" }} />
         <button className="botaologout" onClick={handleLogout}>
           <LogOut />
         </button>
@@ -138,47 +146,59 @@ const MapCreation = () => {
             <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px" }}>Criar Mapa</h1>
           </div>
           <input type="text" value={newMapName} onChange={handleMapNameChange} className="inputname" placeholder="Nome do novo mapa" />
-          <div className="" style={{ margin: "0", textAlign: "center"}}>
+          <div className="" style={{ margin: "0", textAlign: "center" }}>
             <button className="botaosavename" onClick={() => { handleCreateNewMap(); handlePickerClose(); }} disabled={!newMapName.trim()}>Criar Novo Mapa</button>
           </div>
         </ModalName>
       )}
       {maps.length > 0 ? (
         <div className="margem">
-          <h1 className="mapasuser">Mapas do Usuário:</h1>
+          <h1 className="mapasuser">Seus mapas de jornada:</h1>
+          <div className="input-wrapper">
+            <input
+              type="text"
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              placeholder="Filtrar por nome..."
+              className="input-filter"
+            />
+            <X className='x' onClick={handleClearInput} size={40} />
+          </div>
           <div className="pad">
             <div className="separar">
-              {/* <div className="blocoadd" onClick={handleClickModal}>
+              <div className="blocoadd" onClick={handleClickModal}>
                 <h4 className="icon"><Plus size={200} /></h4>
                 <div className="bloconovo">
                   <p>Novo mapa</p>
                 </div>
-              </div> */}
+              </div>
             </div>
-            {maps.map((map, index) => (
-              <div key={map.id}>
-                <div className="separar">
-                  <div className="bloco" style={{ backgroundColor: getColorAtIndex(index) }} onClick={() => handleSelectMap(map.id)} >
-                    <h4 className="texto">{truncateText(map.name)}</h4>
-                    {/* <div className="divbotoes">
-                      <button className="lixeira" onClick={(e) => { e.stopPropagation(); handleDeleteButtonClick(map.id); }}> <Trash className='icontrash' size={40} /> </button>
-                    </div> */}
+            {maps
+              .filter(map => map.name.toLowerCase().includes(filterText.toLowerCase()))
+              .map((map, index) => (
+                <div key={map.id}>
+                  <div className="separar">
+                    <div className="bloco" style={{ backgroundColor: getColorAtIndex(index) }} onClick={() => handleSelectMap(map.id)} >
+                      <h4 className="texto">{truncateText(map.name)}</h4>
+                      <div className="divbotoes">
+                        <button className="lixeira" onClick={(e) => { e.stopPropagation(); handleDeleteButtonClick(map.id); }}> <Trash className='icontrash' size={40} /> </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       ) : (
         <div className="margem2" >
           <p className="nenhum">Nenhum mapa encontrado.</p>
           <div className="separar">
-            {/* <div className="blocoadd" onClick={handleClickModal}>
+            <div className="blocoadd" onClick={handleClickModal}>
               <h4 className="icon"><Plus size={200} /></h4>
               <div className="bloconovo">
                 <p>Novo mapa</p>
               </div>
-            </div> */}
+            </div>
           </div>
         </div>
       )}

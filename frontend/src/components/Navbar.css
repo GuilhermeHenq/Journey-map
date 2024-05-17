@@ -52,7 +52,18 @@
 }
 
 .button.map {
-  background-color: #C4C4C4;
+  background-color: #e39a74;
+  color: white;
+  border: none;       
+  font-size: 15px; 
+  cursor: pointer;     
+  display: flex;       
+  justify-content: center;  
+  align-items: center;      
+}
+
+.button.map:hover {
+  background-color: #d68b65;
   color: white;
   border: none;       
   font-size: 15px; 
