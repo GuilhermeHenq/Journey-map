@@ -7,7 +7,7 @@ import { LogOut, Trash } from 'lucide-react';
 import { auth } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
 
-import background from "../../assets/Background.png";
+import fundomapas from "../../assets/Fundomapas.png";
 
 import "./MapCreation.css";
 
@@ -129,7 +129,7 @@ const MapCreation = () => {
   };
 
   return (
-    <div className="map-creation-container" style={{ backgroundColor: "#c1c1c1", height: "100vh", width: "100vw" }}>
+    <div className="map-creation-container" style={{ backgroundImage: `url(${fundomapas})`, height: "100vh", width: "100vw" }}>
       <div className="navbar" style={{ textAlign: "left", padding: "31px", fontSize: "30px", display: "flex", alignItems: "center" }}>
         <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "50px", marginRight: "20px" }} alt="mascote"></img>
         <div className="textoboas" style={{ flex: "1" }}>
@@ -153,8 +153,8 @@ const MapCreation = () => {
       )}
       {maps.length > 0 ? (
         <div className="margem">
-          <h1 className="mapasuser">Seus mapas de jornada:</h1>
           <div className="input-wrapper">
+            <h1 className="mapasuser">Mapas:</h1>
             <input
               type="text"
               value={filterText}

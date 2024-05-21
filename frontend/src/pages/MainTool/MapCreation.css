@@ -137,13 +137,13 @@ body {
 
 .mapasuser {
   font-weight: 50px;
-  margin-top: 60px;
   display: flex;
   justify-content: center;  
   align-items: center;      
   color: #434343;
   font-size: 300%;
   background-color: transparent;
+  margin-right: 53%;
 }
 
 .botaologout:hover {
@@ -298,14 +298,18 @@ body {
   align-items: center;      
   text-align: center;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 80px;
 }
 
 .input-filter {
   height: 40px;
   padding: 8px 12px;
-  border: none;
   border-radius: 5px;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  border-bottom: 5px solid #00ABCD;
+  background-color: #FFF;
   margin-right: 10px; /* Margem à direita */
   box-sizing: border-box;
   padding: 20px;
@@ -317,4 +321,5 @@ body {
 .x{
   cursor: pointer;
   margin-right:
+  color: white;
 }
