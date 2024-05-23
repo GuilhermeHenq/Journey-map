@@ -23,7 +23,9 @@ const showAlert = () => {
   toast.success('Progresso salvo com sucesso!')
 };
 
-
+const sizeUpdated = () => {
+  toast.success('Tamanho atualizado com sucesso!')
+};
 
 const Tool = ({ navigate }) => {
 
@@ -310,6 +312,8 @@ const Tool = ({ navigate }) => {
     });
     setEditedRectId(id);
     setForceUpdate((prev) => prev + 1);
+    setSaveTriggered(true);
+    setShowMessage(false);
   };
 
   const handleSaveClick = () => {
@@ -361,8 +365,12 @@ const Tool = ({ navigate }) => {
     // Execute todas as solicitações
     Promise.all(requests)
       .then(() => {
-        console.log("Dados salvos com sucesso!");
-        showAlert();
+        if (showMessage) {
+          console.log("Dados salvos com sucesso!");
+          showAlert();
+        } else {
+          setShowMessage(true)
+        }
       })
       .catch((error) => {
         console.error("Erro ao salvar os dados:", error);
@@ -407,14 +415,20 @@ const Tool = ({ navigate }) => {
   const [tempWidth, setTempWidth] = useState()
 
   const handleSaveHouse = async () => {
+    let tempMatrix = [];
+    let foundExtendedRect = null;
+  
     setMatrix((prevMatrix) => {
-      let updatedMatrix = prevMatrix.map((row) => {
+      console.log('Previous Matrix:', prevMatrix);
+      
+      tempMatrix = prevMatrix.map((row) => {
         let rowUpdated = false;
         let extendedRect; // To store the extended rectangle
         let extendedIndex = -1; // To store the index of the extended rectangle
   
         const updatedRow = row.map((rect, index) => {
           const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
+          if (!type) return rect; // Skip if type is null
           
           if (rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex) {
             rowUpdated = true;
@@ -422,12 +436,11 @@ const Tool = ({ navigate }) => {
             const originalX = rect.x;
             extendedRect = { ...rect, width: selectedHouses * 270 - 40, x: originalX }; // Maintain the original X position
             extendedIndex = index;
+            console.log('Extended Rect:', extendedRect);
             return extendedRect;
           }
           return rect;
         });
-        
-        console.log(extendedRect)
   
         // If the row was updated, adjust the X position of subsequent rectangles
         if (rowUpdated) {
@@ -438,24 +451,33 @@ const Tool = ({ navigate }) => {
               adjustedX += rect.width + 40; // Increment adjustedX by rect.width and 40px gap
             }
           });
+          console.log('Row Updated:', updatedRow);
+          foundExtendedRect = extendedRect; // Track the extended rectangle
         }
-
-        // const postData = {
-        //     "width": extendedRect.width,
-        // };
-
-        // axios.post(import.meta.env.VITE_BACKEND + `/${extendedRect?.type}`, postData);
-
-        // fetchData();
   
         return updatedRow;
       });
-  
-      return updatedMatrix;
+      
+      console.log('Temporary Matrix:', tempMatrix);
+      return tempMatrix;
     });
   
+    // Use a state variable to trigger saving the data after the state update completes
+    setSaveTriggered(true);
+    setShowMessage(false);
     setSelectedHouses(1);
   };
+  
+  const [saveTriggered, setSaveTriggered] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  
+  useEffect(() => {
+    if (saveTriggered) {
+      handleSaveClick();
+      setSaveTriggered(false);
+    }
+  }, [saveTriggered, matrix]); // Run when saveTriggered or matrix changes
+  
 
 
 
@@ -617,11 +639,11 @@ const Tool = ({ navigate }) => {
 
       // Atualizar a matriz com os novos dados após a exclusão
       const newData = await fetchData();
-      // if (newData) {
-      //   setMatrix(newData);
-      // } else {
-      //   console.error("Erro ao obter os dados atualizados após a exclusão do quadrado.");
-      // }
+      if (newData) {
+        setMatrix(newData);
+      } else {
+        console.error("Erro ao obter os dados atualizados após a exclusão do quadrado.");
+      }
     } catch (error) {
       console.error("Erro ao excluir quadrado:", error);
     }
