@@ -58,6 +58,12 @@ app.post('/journeyMap', journeyMapController.createMap);
 app.delete('/journeyMap/:journeyMapId', journeyMapController.deleteUserMaps);
 app.put('/journeyMap', journeyMapController.updateMapName);
 
+const scenarioController = require('../Controllers/scenarioController');
+
+app.get('/scenario/:journeyMapId', scenarioController.getScenarios);
+app.post('/scenario', scenarioController.createScenario);
+app.put('/scenario', scenarioController.updateScenario);
+
 
 
 app.listen(port, () => {

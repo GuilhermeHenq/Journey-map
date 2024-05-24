@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigate, Link } from "react-router-dom";
-import { auth } from '../../services/firebase'
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
+import { auth } from '../../services/firebase';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Chrome } from 'lucide-react';
+import { Eye, EyeOff, Sun, Moon } from 'lucide-react';
 import { GoogleAuthProvider } from 'firebase/auth';
 
 import img from "../../assets/mascote.png";
@@ -17,6 +17,19 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [googleUser, setGoogleUser] = useState(null);
+  const [theme, setTheme] = useState("light");
+
+  useEffect(() => {
+    console.log("Current theme:", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prevTheme) => {
+      const newTheme = prevTheme === "dark" ? "light" : "dark";
+      console.log("Theme changed to:", newTheme);  // Log the new theme
+      return newTheme;
+    });
+  };
 
   const showSuccess = () => {
     toast.success('Login realizado com sucesso!')
@@ -73,37 +86,40 @@ function Login() {
   };
 
   return (
-    <div className="container">
-      <div className="container-login">
-        <div className="wrap-login">
+    <div className={`container ${theme}`}>
+      <div className={`container-login ${theme}`}>
+        <div className={`wrap-login ${theme}`}>
+          <button onClick={toggleTheme} className="toggle-theme-btn">
+            {theme === "dark" ? <Moon /> : <Sun />}
+          </button>
           <form className="login-form">
-            <span className="login-form-title"> Login </span>
+            <span className={`login-form-title ${theme}`}> Login </span>
 
-            <span className="login-form-title">
+            <span className={`login-form-title ${theme}`}>
               <img src={img} alt="Mascote" />
             </span>
 
-            <div className="wrap-input">
+            <div className={`wrap-input ${theme}`}>
               <input
-                className={email !== "" ? "has-val input" : "input"}
+                className={email !== "" ? `has-val input ${theme}` : `input ${theme}`}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <span className="focus-input" data-placeholder="Email"></span>
+              <span className={`focus-input ${theme}`} data-placeholder="Email"></span>
             </div>
 
-            <div className="wrap-input">
+            <div className={`wrap-input ${theme}`}>
               <input
-                className={password !== "" ? "has-val input" : "input"}
+                className={password !== "" ? `has-val input ${theme}` : `input ${theme}`}
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <span className="focus-input" data-placeholder="Password"></span>
+              <span className={`focus-input ${theme}`} data-placeholder="Password"></span>
               <button
                 type="button"
-                className="show-password-button"
+                className={`show-password-button ${theme}`}
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <Eye /> : <EyeOff />}
@@ -122,7 +138,7 @@ function Login() {
 
             <div className="container-login-form-btn">
               <button
-                className="login-google-btn"
+                className={`login-google-btn ${theme}`}
                 type="button"
                 onClick={handleGoogleLogin}
               >
@@ -137,10 +153,9 @@ function Login() {
               )}
             </div>
 
-
             <div className="text-center">
-              <span className="txt1">Não possui conta? </span>
-              <Link className="txt2" to="/signup">
+              <span className={`txt1 ${theme}`}>Não possui conta? </span>
+              <Link className={`txt2 ${theme}`} to="/signup">
                 Criar conta
               </Link>
             </div>

@@ -9,11 +9,25 @@ body {
   font-family: Nunito, sans-serif;
 }
 
+.google-login-btn {
+  background-color: white;
+  display: flex;
+  align-items: center;
+  color: white;
+}
+
 .container {
   width: 100vw;
   height: 100vh;
   margin: 0 auto;
+}
+
+.container.dark {
   background-color: #111;
+}
+
+.container.light {
+  background-color: #f0f0f0;
 }
 
 .container-login {
@@ -24,16 +38,35 @@ body {
   align-items: center;
   justify-content: center;
   padding: 15px;
+}
+
+.container-login.dark {
   background-color: #111;
 }
 
+.container-login.light {
+  background-color: #f0f0f0;
+}
+
 .wrap-login {
+  position: relative;
   width: 390px;
   background-color: #333;
   border-radius: 10px;
   overflow: hidden;
   padding: 77px 55px 33px 55px;
   box-shadow: 0 5px 10px 0px rgba(0, 0, 0, 0.2);
+}
+
+.wrap-login.dark {
+  background-color: #333;
+  color: #fff;
+}
+
+.wrap-login.light {
+  background-color: #fff;
+  color: #000;
+  box-shadow: 0 5px 10px 0px rgba(0, 0, 0, 0.1);
 }
 
 .login-form {
@@ -44,20 +77,16 @@ body {
   font-family: Nunito, sans-serif;
   display: block;
   font-size: 30px;
-  color: azure;
   line-height: 1.2;
   text-align: center;
-  padding-bottom: 30px;
 }
 
-.mascote {
-  width: 50px;
-
+.login-form-title.dark {
+  color: azure;
 }
 
-.mascote:hover {
-  width: 92px;
-  
+.login-form-title.light {
+  color: #333;
 }
 
 .login-form-title img {
@@ -69,7 +98,7 @@ body {
   animation: spin 4s infinite;
 }
 
-@-webkit-keyframes spin{
+@-webkit-keyframes spin {
   from {
     -webkit-transform: rotateY(0deg);
   }
@@ -78,13 +107,12 @@ body {
   }
 }
 
-@keyframes spin{
+@keyframes spin {
   from {
     -moz-transform: rotateY(0deg);
     -ms-transform: rotateY(0deg);
     transform: rotateY(0deg);
   }
-  
   to {
     -moz-transform: rotateY(-360deg);
     -ms-transform: rotateY(-360deg);
@@ -93,15 +121,34 @@ body {
 }
 
 .wrap-input {
+  display: flex;
   width: 100%;
   position: relative;
   border-bottom: 2px solid #adadad;
   margin-bottom: 37px;
 }
 
+.show-password-button {
+  background-color: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.show-password-button.dark {
+  background-color: #333;
+  color: #fff;
+}
+
+.show-password-button.light {
+  background-color: #FFF;
+  color: #333;
+}
+
 .input {
   font-size: 15px;
-  color: #fff;
   line-height: 1.2;
   border: none;
   display: block;
@@ -112,6 +159,14 @@ body {
   font-family: Nunito, sans-serif;
 }
 
+.input.dark {
+  color: #fff;
+}
+
+.input.light {
+  color: #000;
+}
+
 .focus-input {
   position: absolute;
   display: block;
@@ -120,7 +175,6 @@ body {
   top: 0;
   left: 0;
   pointer-events: none;
-  color: #adadad;
   font-family: Nunito, sans-serif;
 }
 
@@ -146,7 +200,6 @@ body {
 .focus-input::after {
   font-family: Nunito, sans-serif;
   font-size: 15px;
-  color: #999999;
   line-height: 1.2;
   content: attr(data-placeholder);
   display: block;
@@ -161,23 +214,31 @@ body {
   transition: all 0.4s;
 }
 
+.focus-input.dark {
+  color: #adadad;
+}
+
+.focus-input.light {
+  color: #666;
+}
+
 .input:focus {
   outline: 0;
 }
 
-.input:focus+.focus-input::after {
+.input:focus + .focus-input::after {
   top: -15px;
 }
 
-.input:focus+.focus-input::before {
+.input:focus + .focus-input::before {
   width: 100%;
 }
 
-.has-val+.focus-input::after {
+.has-val + .focus-input::after {
   top: -15px;
 }
 
-.has-val+.focus-input::before {
+.has-val + .focus-input::before {
   width: 100%;
 }
 
@@ -207,29 +268,10 @@ body {
   background: linear-gradient(to left, #21d4fd, #b721ff);
 }
 
-.show-password-button {
-  background-color: #333;
-  border: none;
-  color: #fff;
-}
 
-.login-form-btn:hover {
-  font-size: 15px;
-  border: none;
-  border-radius: 10px;
-  color: #fff;
-  line-height: 1.2;
-  text-transform: uppercase;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 50px;
-  background: #6a7dfe;
-  background: -webkit-linear-gradient(to left, #91DDEE, #6E0C9D);
-  background: -o-linear-gradient(to left, #91DDEE, #6E0C9D);
-  background: -moz-linear-gradient(to left, #91DDEE, #6E0C9D);
-  background: linear-gradient(to left, #91DDEE, #6E0C9D);
+.login-google-btn:hover {
+  cursor: pointer;
+  background: #f5f4f2;
 }
 
 .login-form-btn:hover {
@@ -245,14 +287,55 @@ body {
 
 .txt1 {
   font-size: 14px;
-  color: #adadad;
   line-height: 1.5;
   padding-right: 5px;
 }
 
+.txt1.dark {
+  color: #adadad;
+}
+
+.txt1.light {
+  color: #666;
+}
+
 .txt2 {
   font-size: 14px;
-  color: #6a7dfe;
   line-height: 1.5;
   text-decoration: none;
 }
+
+.txt2.dark {
+  color: #6a7dfe;
+}
+
+.txt2.light {
+  color: #6a7dfe;
+}
+
+.toggle-theme-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 24px;
+  transition: color 0.3s ease;
+}
+
+.toggle-theme-btn svg {
+  transition: transform 0.3s ease;
+  width: 35px;
+  height: 35px;
+}
+
+.toggle-theme-btn:hover svg {
+  transform: rotate(180deg);
+}
+
+.toggle-theme-btn:hover {
+  color: #21d4fd;
+}
+

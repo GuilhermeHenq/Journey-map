@@ -302,13 +302,14 @@ body {
 }
 
 .input-filter {
+  box-shadow: rgba(0, 0, 0, 0.13) 10px 10px 20px, rgba(0, 0, 0, 0.13) 0px 6px 6px;
   height: 40px;
   padding: 8px 12px;
   border-radius: 5px;
-  border-top: none;
-  border-right: none;
-  border-left: none;
-  border-bottom: 5px solid #00ABCD;
+  border-top: 1px solid #adadad;
+  border-right: 1px solid #adadad;
+  border-left: 1px solid #adadad;
+  border-bottom: 2px solid #adadad;
   background-color: #FFF;
   margin-right: 10px; /* Margem à direita */
   box-sizing: border-box;
@@ -322,4 +323,39 @@ body {
   cursor: pointer;
   margin-right:
   color: white;
+}
+
+.buttonPage {
+  background-color: #0bcbe4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 5px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.buttonPage:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.buttonPage:not(:disabled):hover {
+  background-color: #09a8bd;
+}
+
+.pagePar {
+  font-size: 18px;
+  margin: 0 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
 }

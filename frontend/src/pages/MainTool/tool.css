@@ -3,7 +3,7 @@ body {
   padding: 0;
   display: flex;
   flex-direction: column;
-  background-color: #d9d9d9;
+  background-color: #E6E6E6;
   max-height: 100vh;
   /* overflow-y: hidden; */
   /* overflow-y: hidden; */
@@ -142,7 +142,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 50vh;
+    height: 70%;
 
   }
   
