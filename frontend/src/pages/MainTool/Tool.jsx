@@ -65,7 +65,6 @@ const Tool = ({ }) => {
     img.src = stageDataURL;
   };
 
-  console.log(id_mapa);
   const handlePostClick = async () => {
     try {
       await axios.post(import.meta.env.VITE_BACKEND + '/journeyPhase', {
@@ -847,37 +846,38 @@ const Tool = ({ }) => {
           )}
 
           <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+            <div className="barra1"/>
             <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Fases da Jornada</div>
             </div>
           </div>
           <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
           <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+          <div className="barra2"/>
             <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Ações do Usuário</div>
             </div>
           </div>
           <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
           <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+          <div className="barra3"/>
             <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Emoções</div>
             </div>
           </div>
           <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
           <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+          <div className="barra4"/>
             <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Pensamentos</div>
             </div>
           </div>
           <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
           <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+          <div className="barra5"/>
             <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Pontos de Contato</div>
             </div>
-          </div>
-          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
-          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-            <div className="fases-text"></div>
           </div>
           <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
         </>
