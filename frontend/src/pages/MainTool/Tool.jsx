@@ -24,6 +24,10 @@ const showAlert = () => {
   toast.success('Progresso salvo com sucesso!')
 };
 
+const sizeUpdated = () => {
+  toast.success('Tamanho atualizado com sucesso!')
+};
+
 function downloadURI(uri, name) {
   var link = document.createElement('a');
   link.download = name;
@@ -135,7 +139,7 @@ const Tool = ({ }) => {
         emotionData,
         thoughtData,
         contactPointData,
-      ] = await Promise.all([
+     ] = await Promise.all([
         axios.get(import.meta.env.VITE_BACKEND + "/journeyPhase", { params: { journeyMap_id: id_mapa } }),
         axios.get(import.meta.env.VITE_BACKEND + "/userAction", { params: { journeyMap_id: id_mapa } }),
         axios.get(import.meta.env.VITE_BACKEND + "/emotion", { params: { journeyMap_id: id_mapa } }),
@@ -143,6 +147,7 @@ const Tool = ({ }) => {
         axios.get(import.meta.env.VITE_BACKEND + "/contactPoint", { params: { journeyMap_id: id_mapa } }),
       ]);
 
+      // Mapeie os dados da API para o formato desejado na matriz
       const journeyMatrix = journeyData.data.map(item => ({
         type: 'journeyPhase',
         journeyPhase_id: item.journeyPhase_id.toString(),
@@ -200,8 +205,9 @@ const Tool = ({ }) => {
       }));
 
       const newMatrix = [journeyMatrix, userActionMatrix, emotionMatrix, thoughtMatrix, contactPointMatrix];
+      console.log(newMatrix);
       setMatrix(newMatrix);
-
+      // Verifique se pelo menos uma matriz tem dados
       if (newMatrix.some(matrix => matrix.length > 0)) {
         setDataLoaded(true);
       } else {
@@ -211,15 +217,21 @@ const Tool = ({ }) => {
       const convertedEmojis = {};
 
       for (const item of emotionMatrix) {
+        //console.log("emojiTag antes da pesquisa: " + item.emojiTag);
         const emojis = item.emojiTag;
+        //console.log("Emojis após a pesquisa: " + emojis);
+
         if (emojis.length > 0) {
+          // Pegar o primeiro native do array de skins
           const native = emojis;
+          //console.log("NATIVE A SER INSERIDO: " + native);
           convertedEmojis[item.emotion_id] = native;
         }
       }
 
       setEmojis(convertedEmojis);
-      return (newMatrix);
+      //console.log("Emojis após converter emojiTag to Native: " + JSON.stringify(convertedEmojis));
+      return(newMatrix);
 
     } catch (error) {
       console.error("Erro ao buscar os dados:", error);
@@ -259,59 +271,73 @@ const Tool = ({ }) => {
     let constantToAdd = 0;
     console.log(closeY);
 
+    // Verificar quantos intervalos de 270 cabem em newX
     const intervalCount = Math.floor(newX / 270);
+    console.log("intervalo: ", intervalCount);
     updatedX = intervalCount * 270;
 
+    // Se o newX não estiver em um intervalo de 270, ajuste para o intervalo mais próximo
     if (newX % 270 !== 0) {
       if (newX > 0) {
-        updatedX += 270;
+        updatedX += 270; // Mover para o próximo intervalo à direita
       } else {
-        updatedX -= 270;
+        updatedX -= 270; // Mover para o próximo intervalo à esquerda
       }
     }
 
+    // Se constantToAdd for diferente de zero, significa que não há uma alteração válida para newX
     if (constantToAdd !== 0) {
       return matrix;
     }
 
+    console.log("id antes do overlapping: " + id.toString());
+    // Verificando se há sobreposição apenas na mesma linha
     const rowIndex = matrix.findIndex(row => row.some(rect => rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()));
     const row = matrix[rowIndex];
-    const newXEnd = x + updatedX + length - 20;
+    const newXEnd = x + updatedX + length - 20; // Final do novo intervalo do retângulo movido
+    console.log("newX end que é o x recebido + o X que ele ia somar: " + newXEnd);
     const isOverlapping = row.some(rect =>
       rect[tipo + "_id"] !== undefined &&
       rect[tipo + "_id"].toString() === id.toString() &&
       row.some(otherRect =>
         otherRect[tipo + "_id"] !== undefined &&
         otherRect[tipo + "_id"].toString() !== id.toString() &&
-        (newXEnd > otherRect.x && newXEnd < otherRect.x + otherRect.width) ||
-        (x + updatedX > otherRect.x && x + updatedX < otherRect.x + otherRect.width)
+        (newXEnd > otherRect.x && newXEnd < otherRect.x + otherRect.width) || // Verifica se há sobreposição à direita ou
+        (x + updatedX > otherRect.x && x + updatedX < otherRect.x + otherRect.width) // Verifica se há sobreposição à esquerda
       )
     );
 
+    // Se houver sobreposição na mesma linha, retorne a matriz original
     if (isOverlapping) {
       return matrix;
     }
 
+    console.log(matrix);
     return matrix.map((row, rowIndex) =>
-      row.map((rect) => {
-        if (rect.type === 'emotion' && rect.emotion_id.toString() === id.toString()) {
-          const newLineY = Math.max(-60, Math.min(35, rect.lineY + closeY));
-          return {
-            ...rect,
-            x: Math.max(20, Math.min(Infinity, rect.x + updatedX)),
-            lineY: newLineY,
-          };
-        } else if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
-          return {
-            ...rect,
-            x: Math.max(20, Math.min(Infinity, rect.x + updatedX)),
-          };
-        } else {
-          return rect;
-        }
-      })
-    );
+        row.map((rect) => {
+            if (rect.type === 'emotion' && rect.emotion_id.toString() === id.toString()) {
+                // Limita o valor de lineY no intervalo de -50 a +50
+                const newLineY = Math.max(-60, Math.min(35, rect.lineY + closeY));
+                return {
+                    ...rect,
+                    x: Math.max(20, Math.min(Infinity, rect.x + updatedX)),
+                    lineY: newLineY,
+                };
+            } else if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
+                return {
+                    ...rect,
+                    x: Math.max(20, Math.min(Infinity, rect.x + updatedX)),
+                };
+            } else {
+                return rect;
+            }
+        })
+    );      
   };
+
+
+
+
 
   const handleDragEnd = (e, id, tipo, length, x, closeY) => {
     const newX = e.target.x();
@@ -324,17 +350,23 @@ const Tool = ({ }) => {
         });
       });
 
+      console.log(updatedMatrix)
       return updatedMatrix;
     });
     setEditedRectId(id);
     setForceUpdate((prev) => prev + 1);
+    setSaveTriggered(true);
+    setShowMessage(false);
   };
 
   const handleSaveClick = () => {
     const putConfig = { method: "PUT" };
-
+    console.log("Final matrix: ", matrix)
+    // Mapeie os dados da matriz para os dados necessários para cada tipo de entidade
     const dataToPut = matrix.reduce((acc, row) => {
       row.forEach((rect) => {
+        console.log("Saving data for rect:", rect);
+
         if (rect.contactPoint_id !== undefined) {
           acc.push({
             endpoint: "contactPoint",
@@ -365,19 +397,30 @@ const Tool = ({ }) => {
       return acc;
     }, []);
 
+    console.log("Data to put:", dataToPut);
+
+    // Envie as solicitações para a API usando os dados mapeados
     const requests = dataToPut.map(({ endpoint, data }) => {
       const url = import.meta.env.VITE_BACKEND + `/${endpoint}`;
       return axios.put(url, data, putConfig);
     });
 
+    // Execute todas as solicitações
     Promise.all(requests)
       .then(() => {
-        showAlert();
+        if (showMessage) {
+          console.log("Dados salvos com sucesso!");
+          showAlert();
+        } else {
+          setShowMessage(true)
+        }
       })
       .catch((error) => {
         console.error("Erro ao salvar os dados:", error);
       });
   };
+
+
 
   const [buttonPopup, setButtonPopup] = useState(false);
   const [editedRowIndex, setEditedRowIndex] = useState("0");
@@ -386,11 +429,12 @@ const Tool = ({ }) => {
   const [textEdit, setTextEdit] = useState(false)
 
   const handleRectClick = (currentText, id, rectY) => {
-    setEditedText(currentText);
+    setEditedText(currentText); // Define o texto atual para edição no popup
     setEditedRectId(id);
     setEditedRowIndex(rectY);
-    setButtonPopup(true);
-    setTextEdit(true);
+    setButtonPopup(true); // Abre o popup
+    setTextEdit(true); // Define a edição de texto como verdadeira
+
 
     setMatrix((prevMatrix) => {
       const updatedMatrix = prevMatrix.map((row) =>
@@ -407,55 +451,101 @@ const Tool = ({ }) => {
 
       return updatedMatrix;
     });
+
+
   };
 
-  const handleSaveHouse = () => {
-    setMatrix((prevMatrix) => {
-      let updatedMatrix = prevMatrix.map((row) => {
-        let rowUpdated = false;
-        const updatedRow = row.map((rect) => {
-          const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
+  const [tempWidth, setTempWidth] = useState()
 
+  const handleSaveHouse = async () => {
+    let tempMatrix = [];
+    let foundExtendedRect = null;
+  
+    setMatrix((prevMatrix) => {
+      console.log('Previous Matrix:', prevMatrix);
+      
+      tempMatrix = prevMatrix.map((row) => {
+        let rowUpdated = false;
+        let extendedRect; // To store the extended rectangle
+        let extendedIndex = -1; // To store the index of the extended rectangle
+  
+        const updatedRow = row.map((rect, index) => {
+          const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
+          if (!type) return rect; // Skip if type is null
+          
           if (rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex) {
             rowUpdated = true;
-            return { ...rect, width: selectedHouses * 270 - 40 };
+            // Save the original X position before extending the width
+            const originalX = rect.x;
+            extendedRect = { ...rect, width: selectedHouses * 270 - 40, x: originalX }; // Maintain the original X position
+            extendedIndex = index;
+            console.log('Extended Rect:', extendedRect);
+            return extendedRect;
           }
           return rect;
         });
-
+  
+        // If the row was updated, adjust the X position of subsequent rectangles
         if (rowUpdated) {
-          let adjustedX = -1;
+          let adjustedX = extendedRect.x + extendedRect.width; // Start X position after the extended rectangle
           updatedRow.forEach((rect, index) => {
-            if (adjustedX !== -1 && rect) {
-              rect.x = adjustedX + 40;
-              adjustedX += rect.width;
-            }
-            if (rect && rect[`${rect.type}_id`] === editedRectId && rect.y === editedRowIndex) {
-              adjustedX = rect.x + rect.width;
+            if (rect && index > extendedIndex) {
+              rect.x = adjustedX + 40; // Adjust subsequent rectangles with the 40px gap
+              adjustedX += rect.width + 40; // Increment adjustedX by rect.width and 40px gap
             }
           });
+          console.log('Row Updated:', updatedRow);
+          foundExtendedRect = extendedRect; // Track the extended rectangle
         }
-
+  
         return updatedRow;
       });
-
-      return updatedMatrix;
+      
+      console.log('Temporary Matrix:', tempMatrix);
+      return tempMatrix;
     });
-
+  
+    // Use a state variable to trigger saving the data after the state update completes
+    setSaveTriggered(true);
+    setShowMessage(false);
     setSelectedHouses(1);
   };
+  
+  const [saveTriggered, setSaveTriggered] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  
+  useEffect(() => {
+    if (saveTriggered) {
+      handleSaveClick();
+      setSaveTriggered(false);
+    }
+  }, [saveTriggered, matrix]); // Run when saveTriggered or matrix changes
+  
+
+
 
   const handleTextChange = (rowIndex, colIndex, newText) => {
     const newMatrix = [...matrix];
+
+    // Se o novo texto tiver mais de 30 caracteres, abrevie com reticências
     const abbreviatedText = newText.length > 30 ? newText.slice(0, 27) + '...' : newText;
+
+    // Crie uma nova constante que guarde o valor do texto original
     const newTextOriginal = newText;
-    setEditedText(newTextOriginal);
+    setEditedText(newTextOriginal); // Atualize a constante do texto original
     setEditedRowIndex(rowIndex);
+
+    // Atualize o texto na matriz
     newMatrix[rowIndex][colIndex].text = abbreviatedText;
-    setMatrix(newMatrix);
+    setMatrix(newMatrix); // Atualiza a matriz
+
   };
 
   const handleTextSubmit = () => {
+    console.log("rectid:", editedRectId);
+    console.log("editedRowIndex:", editedRowIndex);
+
+    // Salvar o texto editado quando o usuário confirmar
     const updatedMatrix = matrix.map((row) =>
       row.map((rect) => {
         const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
@@ -468,6 +558,7 @@ const Tool = ({ }) => {
       })
     );
 
+    console.log("editedText:", editedText);
     setMatrix(updatedMatrix);
     setEditedText("");
     setEditedRectId("");
@@ -476,116 +567,106 @@ const Tool = ({ }) => {
   const [newSquareId, setNewSquareId] = useState(null);
 
   const handleAddSquare = async (rowIndex, colIndex, squarewidth) => {
+    console.log("handleAddSquare rowIndex, colIndex, squarewidth:", rowIndex, colIndex, squarewidth);
     try {
-      const rowIndexToType = {
-        0: 'journeyPhase',
-        1: 'userAction',
-        2: 'emotion',
-        3: 'thought',
-        4: 'contactPoint'
-      };
-
-      const type = rowIndexToType[rowIndex];
-
-      const colIndexToType = {
-        0: 290,
-        1: 560,
-        2: 830,
-        3: 1100,
-        4: 1370,
-        5: 1640
-      };
-
-      let novoX;
-      if (colIndex !== undefined) {
-        novoX = colIndexToType[colIndex];
-      } else {
-        novoX = 20;
-      }
-
-      if (!type) {
-        console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
-        return;
-      }
-
-      let postData = {
-        "journeyMap_id": id_mapa,
-        "linePos": 285,
-        "posX": squarewidth - 230 + novoX,
-        "length": 230,
-        "description": "",
-        "emojiTag": "Novo emoji"
-      };
-
-      if (type === 'emotion') {
-        postData = {
-          "posX": novoX,
-          "lineY": -15,
-          "emojiTag": "🔴",
-          "journeyMap_id": id_mapa
+        const rowIndexToType = {
+            0: 'journeyPhase',
+            1: 'userAction',
+            2: 'emotion',
+            3: 'thought',
+            4: 'contactPoint'
         };
-      }
 
-      const response = await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
-      const newCardId = response.data.id;
+        const type = rowIndexToType[rowIndex];
 
-      const isOverlapping = matrix[rowIndex].some(rect =>
-        rect.type === type &&
-        rect.x + rect.width >= novoX &&
-        novoX + squarewidth >= rect.x
-      );
+        const colIndexToType = {
+            0: 290,
+            1: 560,
+            2: 830,
+            3: 1100,
+            4: 1370,
+            5: 1640
+        };
 
-      if (isOverlapping) {
-        setMatrix(prevMatrix => {
-          const updatedMatrix = prevMatrix.map(row =>
-            row.map(rect =>
-              rect.type === type && rect.x >= novoX
-                ? { ...rect, x: rect.x + 270 }
-                : rect
-            )
-          );
-          return updatedMatrix;
-        });
-      }
+        let novoX;
+        if (colIndex !== undefined) {
+            novoX = colIndexToType[colIndex];
+        } else {
+            novoX = colIndex * 270 + 290;
+        }
 
-      const newSquare = {
-        type: type,
-        [`${type}_id`]: newCardId,
-        x: squarewidth - 230 + novoX,
-        y: rowIndex === 2 ? 567 : rowIndex === 0 ? 61 : rowIndex === 1 ? 231 : rowIndex === 3 ? 571 : 741,
-        width: 230,
-        height: 135,
-        color: rowIndex === 2 ? "#FEC3A6" : rowIndex === 0 ? "#FFAC81" : rowIndex === 1 ? "#FF928B" : rowIndex === 3 ? "#EFE9AE" : "#CDEAC0",
-        text: "",
-        emojiTag: rowIndex === 2 ? "🔴" : "Novo emoji",
-      };
+        if (!type) {
+            console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
+            return;
+        }
 
-      setMatrix(prevMatrix => {
-        const updatedMatrix = [...prevMatrix];
-        updatedMatrix[rowIndex].push(newSquare);
+        // Find the index of the overlapping rectangle, if any
+        const overlappingIndex = matrix[rowIndex].findIndex(rect =>
+            rect.type === type &&
+            rect.x + rect.width >= novoX && // Check if the right edge of the existing rectangle overlaps with the new rectangle
+            novoX + squarewidth >= rect.x // Check if the left edge of the new rectangle overlaps with the existing rectangle
+        );
 
-        const rearrangedMatrix = updatedMatrix.map((row) => {
-          return row.sort((a, b) => {
-            return (a.x - 20) / 270 - (b.x - 20) / 270;
-          });
-        });
+        // If there is an overlap, push subsequent cards forward and update their positions on the backend
+        if (overlappingIndex !== -1) {
+            for (let i = overlappingIndex; i < matrix[rowIndex].length; i++) {
+                const card = matrix[rowIndex][i];
+                card.x += squarewidth + 40;
+                // Update the position of the card on the backend
+                await axios.patch(import.meta.env.VITE_BACKEND + `/${type}`, { posX: card.x });
+            }
+        }
 
-        return rearrangedMatrix;
-      });
+        // Create a new card on the backend
+        const postData = {
+            "journeyMap_id": id_mapa,
+            "linePos": 285,
+            "posX": squarewidth - 230 + novoX,
+            "length": 230,
+            "description": "",
+            "emojiTag": "Novo emoji"
+        };
+
+        if (type === 'emotion') {
+            postData.posX = novoX;
+            postData.journeyMap_id = id_mapa;
+            postData.lineY = -15;
+            postData.emojiTag = "🔴";
+        }
+
+        await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
+
+        fetchData();
+
     } catch (error) {
-      console.error("Erro ao adicionar quadrado:", error);
+        console.error("Erro ao adicionar quadrado:", error);
     }
-  };
+};
+
+  
+  
+
 
   useEffect(() => {
     if (newSquareId && matrix) {
       const [journeyPhase, userAction, emotions] = matrix;
+      console.log("[emotions]: ", emotions);
       const emotionIds = emotions.map(emotion => emotion.emotion_id);
+      console.log("emotion ids: ", emotionIds);
+      console.log("newSquareID: ", newSquareId);
+
       if (emotionIds.includes(newSquareId)) {
+        console.log("ID DO EMOJI", newSquareId);
         handleCircleClick(newSquareId);
+        console.log("handleCircleClick chamado");
+      } else {
+        console.log("ID DO EMOJI não encontrado na lista de emoções");
       }
+    } else {
+      console.log("newSquareId ou matrix estão ausentes");
     }
   }, [newSquareId, matrix]);
+
 
   const handleDeleteSquare = async (rowIndex, colIndex) => {
     try {
@@ -593,26 +674,46 @@ const Tool = ({ }) => {
       const squareType = square.type;
       const squareId = square[`${squareType}_id`];
 
+      console.log(`Iniciando exclusão do quadrado: ${squareId}`);
+      console.log(`Iniciando exclusão do quadrado: ${squareType}`);
+
       await axios.delete(import.meta.env.VITE_BACKEND + `/${squareType}/${squareId}`);
 
+      console.log(`Quadrado ${squareId} excluído com sucesso!`);
+
+      // Atualizar a matriz com os novos dados após a exclusão
       const newData = await fetchData();
+      if (newData) {
+        setMatrix(newData);
+      } else {
+        console.error("Erro ao obter os dados atualizados após a exclusão do quadrado.");
+      }
     } catch (error) {
       console.error("Erro ao excluir quadrado:", error);
     }
   };
 
+
+
+
   const [currentCellId, setCurrentCellId] = useState("");
   const [isPickerVisible, setPickerVisible] = useState(false);
 
+
   const handleCircleClick = (cellId) => {
+    console.log("Clicked on circle with ID: ", cellId);
+    console.log("Matrix state: ", matrix); // Verifique se matrix está atualizada
+    console.log("cellId: ", cellId);
     setCurrentCellId(cellId);
   };
 
   useEffect(() => {
     if (currentCellId !== "") {
+      console.log("CurrentCellId: ", currentCellId);
       setPickerVisible(true);
     }
   }, [currentCellId]);
+
 
   const handlePickerClose = (selectedEmoji) => {
     if (selectedEmoji) {
@@ -622,18 +723,18 @@ const Tool = ({ }) => {
             row.map((rect) =>
               rect.emotion_id === currentCellId
                 ? {
-                  ...rect,
-                  emojiTag: emojiData.native,
-                }
+                    ...rect,
+                    emojiTag: emojiData.native,
+                  }
                 : rect
             )
           );
-
+  
           setEmojis((prevEmojis) => ({
             ...prevEmojis,
             [currentCellId]: emojiData.native,
           }));
-
+  
           return updatedMatrix;
         });
       });
@@ -784,21 +885,22 @@ const Tool = ({ }) => {
             ) : (
               <>
                 <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-                  <h1 style={{ fontSize: "50px" }}>Cenário</h1>
-                  <button className="button info" style={{ marginLeft: "1.5vh" }}>
+                  <h1 style={{ fontSize: "50px" }}>Mapas de jornada</h1>
+                  <button className="button info" style={{ marginLeft: "1.5vh", cursor: "auto" }}>
                     i
                   </button>
                 </div>
                 <div>
-                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-                  <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "20px", width: "70%", textAlign: "center", display: "flex", padding: "5px" }} >
-                    <Github style={{ marginTop: "px", marginRight: "5px" }} />
-                    <p>Repositório Git</p>
-                  </a>
-                  <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+                  <hr style={{ marginTop: "30px"}} />
+                  <p style={{ marginTop: "30px"}} >Mapas de jornada de usuário são representações visuais que ilustram as etapas pelas quais os usuários passam ao interagir com um produto ou serviço. Eles ajudam a entender a experiência do usuário, identificando pontos de contato, emoções e possíveis obstáculos. Essa ferramenta é essencial para empresas melhorarem seus processos, otimizando a satisfação e a retenção de clientes.</p>
+                  <div style={{ textAlign: "left", display: "flex", alignItems: "center", marginTop: "30px" }}>
                     <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
-                    <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
+                    <button className="buttonconfModal" style={{ marginLeft: "75%", marginTop: "" }} onClick={() => setButtonPopup(false)}>OK</button>
                   </div>
+                  <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "5px", width: "70%", textAlign: "center", display: "flex", padding: "5px", marginLeft: "15px", }} >
+                    <Github style={{ marginTop: "px", marginRight: "5px" }} />
+                    <p>Source code</p>
+                  </a>
                 </div>
               </>
             )}

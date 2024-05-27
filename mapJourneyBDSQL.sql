@@ -35,7 +35,7 @@ CREATE TABLE `contactpoint` (
   PRIMARY KEY (`contactPoint_id`),
   KEY `journeyMap_id` (`journeyMap_id`),
   CONSTRAINT `contactpoint_ibfk_1` FOREIGN KEY (`journeyMap_id`) REFERENCES `journeymap` (`journeyMap_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,7 +44,7 @@ CREATE TABLE `contactpoint` (
 
 LOCK TABLES `contactpoint` WRITE;
 /*!40000 ALTER TABLE `contactpoint` DISABLE KEYS */;
-INSERT INTO `contactpoint` VALUES (66,3,285,20,230,'esse é um ponto de contato ','emoji triste'),(68,6,285,20,230,'esse é um ponto de contato ','emoji triste'),(70,8,285,20,230,'esse é um ponto de contato ','emoji triste');
+INSERT INTO `contactpoint` VALUES (66,3,285,20,230,'esse é um ponto de contato ','emoji triste'),(79,34,285,20,230,'','Novo emoji'),(80,8,285,20,230,'esse é um ponto de contato ','emoji triste'),(81,42,285,20,230,'esse é um ponto de contato ','emoji triste'),(83,57,285,20,230,'esse é um ponto de contato ','emoji triste');
 /*!40000 ALTER TABLE `contactpoint` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -64,7 +64,7 @@ CREATE TABLE `emotion` (
   PRIMARY KEY (`emotion_id`),
   KEY `journeyMap_id` (`journeyMap_id`),
   CONSTRAINT `emotion_ibfk_1` FOREIGN KEY (`journeyMap_id`) REFERENCES `journeymap` (`journeyMap_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=197 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=212 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -73,7 +73,7 @@ CREATE TABLE `emotion` (
 
 LOCK TABLES `emotion` WRITE;
 /*!40000 ALTER TABLE `emotion` DISABLE KEYS */;
-INSERT INTO `emotion` VALUES (180,3,290,-15,'?'),(182,3,20,35,'?'),(188,6,20,0,'?'),(190,8,20,0,'?');
+INSERT INTO `emotion` VALUES (182,3,20,-10,'?'),(205,34,830,-15,'?'),(207,8,20,-15,'?'),(208,42,20,0,'?'),(210,8,560,35,'?'),(211,57,20,0,'?');
 /*!40000 ALTER TABLE `emotion` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -89,7 +89,7 @@ CREATE TABLE `journeymap` (
   `map_name` varchar(45) DEFAULT NULL,
   `user_id` varchar(256) NOT NULL,
   PRIMARY KEY (`journeyMap_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=74 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -98,7 +98,7 @@ CREATE TABLE `journeymap` (
 
 LOCK TABLES `journeymap` WRITE;
 /*!40000 ALTER TABLE `journeymap` DISABLE KEYS */;
-INSERT INTO `journeymap` VALUES (3,'teste','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(4,'teste 5','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(5,'aaaaaaa','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(6,'bbb','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(8,'teste gui','hKEeVlMbyLV3wxy2mgWNksYvzIc2'),(9,'este 2','hKEeVlMbyLV3wxy2mgWNksYvzIc2'),(10,'teste 3','hKEeVlMbyLV3wxy2mgWNksYvzIc2'),(11,'teste 5','hKEeVlMbyLV3wxy2mgWNksYvzIc2'),(12,'teste 6','hKEeVlMbyLV3wxy2mgWNksYvzIc2'),(34,'teste','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(42,'a','fDqye2D2J5gJHA0IF4Z8Yy3szF23');
+INSERT INTO `journeymap` VALUES (3,'Mapa 1','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(4,'teste 5','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(5,'aaaaaaa','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(8,'teste gui','hKEeVlMbyLV3wxy2mgWNksYvzIc2'),(9,'este 2','hKEeVlMbyLV3wxy2mgWNksYvzIc2'),(10,'teste 3','hKEeVlMbyLV3wxy2mgWNksYvzIc2'),(11,'teste 5','hKEeVlMbyLV3wxy2mgWNksYvzIc2'),(12,'teste 6','hKEeVlMbyLV3wxy2mgWNksYvzIc2'),(34,'teste','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(42,'a','fDqye2D2J5gJHA0IF4Z8Yy3szF23'),(56,'ste','hKEeVlMbyLV3wxy2mgWNksYvzIc2'),(57,'ste','o0A9IBiMZEbemv5MIYgyzw5itSu2'),(58,'teste 9','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(67,'2','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(68,'e2','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(69,'e3','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(70,'e34','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(71,'3','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(72,'2','dcYhGgvKAoP91IFfAtQRJWryB4J2'),(73,'aq','dcYhGgvKAoP91IFfAtQRJWryB4J2');
 /*!40000 ALTER TABLE `journeymap` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -120,7 +120,7 @@ CREATE TABLE `journeyphase` (
   PRIMARY KEY (`journeyPhase_id`),
   KEY `journeyMap_id` (`journeyMap_id`),
   CONSTRAINT `journeyphase_ibfk_1` FOREIGN KEY (`journeyMap_id`) REFERENCES `journeymap` (`journeyMap_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=184 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,7 +129,7 @@ CREATE TABLE `journeyphase` (
 
 LOCK TABLES `journeyphase` WRITE;
 /*!40000 ALTER TABLE `journeyphase` DISABLE KEYS */;
-INSERT INTO `journeyphase` VALUES (163,3,285,20,230,'essa é uma fase de jornada','emoji feliz'),(167,3,285,290,230,'','Novo emoji'),(169,6,285,20,230,'essa é uma fase de jornada','emoji feliz'),(171,8,285,830,230,'essa é uma fase de jornada','emoji feliz');
+INSERT INTO `journeyphase` VALUES (163,3,285,20,230,'essa é uma fase de jornada','emoji feliz'),(179,34,285,20,230,'essa é uma fase de jornada','emoji feliz'),(180,8,285,20,1040,'comprar celular','emoji feliz'),(181,42,285,20,230,'essa é uma fase de jornada','emoji feliz'),(183,57,285,20,230,'essa é uma fase de jornada','emoji feliz');
 /*!40000 ALTER TABLE `journeyphase` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -196,10 +196,11 @@ CREATE TABLE `scenario` (
   `scenario_id` int NOT NULL AUTO_INCREMENT,
   `journeyMap_id` int DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`scenario_id`),
   KEY `journeyMap_id` (`journeyMap_id`),
   CONSTRAINT `scenario_ibfk_1` FOREIGN KEY (`journeyMap_id`) REFERENCES `journeymap` (`journeyMap_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -208,6 +209,7 @@ CREATE TABLE `scenario` (
 
 LOCK TABLES `scenario` WRITE;
 /*!40000 ALTER TABLE `scenario` DISABLE KEYS */;
+INSERT INTO `scenario` VALUES (1,3,'vai comprar um telemovel','compra celular'),(3,34,'','');
 /*!40000 ALTER TABLE `scenario` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -229,7 +231,7 @@ CREATE TABLE `thought` (
   PRIMARY KEY (`thought_id`),
   KEY `journeyMap_id` (`journeyMap_id`),
   CONSTRAINT `thought_ibfk_1` FOREIGN KEY (`journeyMap_id`) REFERENCES `journeymap` (`journeyMap_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -238,7 +240,7 @@ CREATE TABLE `thought` (
 
 LOCK TABLES `thought` WRITE;
 /*!40000 ALTER TABLE `thought` DISABLE KEYS */;
-INSERT INTO `thought` VALUES (48,3,285,20,230,'esse é um thought','emoji pensando'),(50,6,285,20,230,'esse é um pensamento','emoji pensando'),(52,8,285,20,230,'esse é um pensamento','emoji pensando');
+INSERT INTO `thought` VALUES (48,3,285,20,230,'esse é um thought','emoji pensando'),(61,34,285,20,230,'','Novo emoji'),(62,8,285,290,230,'\"esse é um pensamento\"','emoji pensando'),(63,42,285,20,230,'esse é um pensamento','emoji pensando'),(66,57,285,20,230,'esse é um pensamento','emoji pensando');
 /*!40000 ALTER TABLE `thought` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -260,7 +262,7 @@ CREATE TABLE `useraction` (
   PRIMARY KEY (`userAction_id`),
   KEY `journeyMap_id` (`journeyMap_id`),
   CONSTRAINT `useraction_ibfk_1` FOREIGN KEY (`journeyMap_id`) REFERENCES `journeymap` (`journeyMap_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=295 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=323 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -269,7 +271,7 @@ CREATE TABLE `useraction` (
 
 LOCK TABLES `useraction` WRITE;
 /*!40000 ALTER TABLE `useraction` DISABLE KEYS */;
-INSERT INTO `useraction` VALUES (273,3,285,20,230,'essa é uma ação do usuario','emoji feliz'),(277,3,285,290,230,'111','Novo emoji');
+INSERT INTO `useraction` VALUES (273,3,285,20,230,'essa é uma ação do usuario','emoji feliz'),(315,34,285,20,230,'','Novo emoji'),(318,8,285,20,230,'teste','Novo emoji'),(319,42,285,20,230,'essa é uma ação do usuario','emoji feliz'),(321,57,285,20,230,'essa é uma ação do usuario','emoji feliz');
 /*!40000 ALTER TABLE `useraction` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -306,4 +308,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-14 11:40:11
+-- Dump completed on 2024-05-27 10:18:00

@@ -139,31 +139,31 @@ body {
   }
 
   .barra1 {
-    width: 300%;
+    width: 250px;
     height: 100%;
     background-color: #FFAC81;
   }
 
   .barra2 {
-    width: 300%;
+    width: 250px;
     height: 100%;
     background-color: #FF928B;
   }
 
   .barra3 {
-    width: 300%;
+    width: 250px;
     height: 100%;
     background-color: #FEC3A6;
   }
 
   .barra4 {
-    width: 300%;
+    width: 250px;
     height: 100%;
     background-color: #EFE9AE;
   }
 
   .barra5 {
-    width: 300%;
+    width: 250px;
     height: 100%;
     background-color: #CDEAC0;
   }
@@ -251,6 +251,35 @@ body {
     border: none;       
     border-radius: 18px;
     background-color: #353535;
+    color: white;
+    padding: 11px 40px;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 32px;
+    font-family: Inter;
+    font-weight: 500;
+  }
+
+  .buttonconfModal {
+    width: 10%;
+    border: none;       
+    border-radius: 18px;
+    background-color: #353535;
+    color: white;
+    padding: 11px 40px;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 32px;
+    font-family: Inter;
+    font-weight: 500;
+  }
+
+  .buttonconfModal:hover {
+    border: none;       
+    border-radius: 18px;
+    background-color: #00962A;
     color: white;
     padding: 11px 40px;
     text-decoration: none;
