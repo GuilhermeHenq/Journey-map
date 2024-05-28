@@ -48,7 +48,24 @@ const journeyMapController = {
       console.error("Error deleting user maps:", error);
       res.status(500).json({ error: 'Erro ao excluir os mapas do usuário' });
     }
+  },
+
+  getMapOwner: async (req, res) => {
+    try {
+      const journeyMapId = req.params.journeyMapId;
+      const journeyMapModel = new JourneyMapModel();
+      const owner = await journeyMapModel.getMapOwner(journeyMapId);
+      if (owner) {
+        res.status(200).json({ uid: owner.uid });
+      } else {
+        res.status(404).json({ error: 'Mapa não encontrado' });
+      }
+    } catch (error) {
+      console.error("Error getting map owner:", error);
+      res.status(500).json({ error: 'Erro ao obter dono do mapa' });
+    }
   }
+  
 };
 
 module.exports = journeyMapController;

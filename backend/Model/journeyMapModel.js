@@ -59,6 +59,21 @@ class JourneyMapModel {
       throw error;
     }
   }
+
+  getMapOwner(journeyMapId) {
+    return db.query("SELECT user_id as uid FROM journeyMap WHERE journeyMap_id = ?", [journeyMapId])
+      .then(([rows]) => {
+        if (rows.length > 0) {
+          return { uid: rows[0].uid };
+        } else {
+          return null;
+        }
+      })
+      .catch((error) => {
+        console.error("Error getting map owner:", error);
+        throw error;
+      });
+  }
 }
 
 module.exports = JourneyMapModel;

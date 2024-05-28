@@ -61,9 +61,25 @@ const MapCreation = () => {
     }
   };
 
-  const handleSelectMap = (selectedMapId) => {
-    navigate(`/home/${selectedMapId}`);
+  const handleSelectMap = async (selectedMapId) => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.uid) {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND}/journeyMap/${selectedMapId}/owner`);
+        const owner = response.data;
+        if (owner.uid === user.uid) {
+          navigate(`/home/${selectedMapId}`);
+        } else {
+          alert("Você não tem permissão para acessar este mapa.");
+        }
+      } catch (error) {
+        console.error('Error verifying map ownership:', error);
+        alert("Erro ao verificar a propriedade do mapa.");
+      }
+    }
   };
+  
+  
 
   const handlePickerClose = () => {
     setPickerVisible(false);

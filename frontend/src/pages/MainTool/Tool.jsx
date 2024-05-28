@@ -276,19 +276,17 @@ const Tool = ({ }) => {
     console.log("intervalo: ", intervalCount);
     updatedX = intervalCount * 270;
 
-    // Se o newX não estiver em um intervalo de 270, ajuste para o intervalo mais próximo
-    if (newX % 270 !== 0) {
-      if (newX > 0) {
-        updatedX += 270; // Mover para o próximo intervalo à direita
-      } else {
-        updatedX -= 270; // Mover para o próximo intervalo à esquerda
-      }
-    }
+    // // Se o newX não estiver em um intervalo de 270, ajuste para o intervalo mais próximo
+    // if (newX % 270 !== 0) {
+    //   if (newX > 0) {
+    //     updatedX += 270; // Mover para o próximo intervalo à direita
+    //   } else {
+    //     updatedX -= 270; // Mover para o próximo intervalo à esquerda
+    //   }
+    // }
 
-    // Se constantToAdd for diferente de zero, significa que não há uma alteração válida para newX
-    if (constantToAdd !== 0) {
-      return matrix;
-    }
+    console.log(newX);
+    console.log(constantToAdd);
 
     console.log("id antes do overlapping: " + id.toString());
     // Verificando se há sobreposição apenas na mesma linha
@@ -313,6 +311,7 @@ const Tool = ({ }) => {
     }
 
     console.log(matrix);
+    console.log(updatedX);
     return matrix.map((row, rowIndex) =>
         row.map((rect) => {
             if (rect.type === 'emotion' && rect.emotion_id.toString() === id.toString()) {
@@ -576,37 +575,31 @@ const Tool = ({ }) => {
             3: 'thought',
             4: 'contactPoint'
         };
-
+  
         const type = rowIndexToType[rowIndex];
-
-        const colIndexToType = {
-            0: 290,
-            1: 560,
-            2: 830,
-            3: 1100,
-            4: 1370,
-            5: 1640
-        };
-
+  
+        // Calculate novoX based on colIndex, handling cases beyond the predefined columns
         let novoX;
         if (colIndex !== undefined) {
-            novoX = colIndexToType[colIndex];
+            novoX = 290 + colIndex * 270;
         } else {
-            novoX = colIndex * 270 + 290;
+            console.error("colIndex is undefined");
+            return;
         }
-
+  
         if (!type) {
             console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
             return;
         }
-
+  
+  
         // Find the index of the overlapping rectangle, if any
         const overlappingIndex = matrix[rowIndex].findIndex(rect =>
             rect.type === type &&
             rect.x + rect.width >= novoX && // Check if the right edge of the existing rectangle overlaps with the new rectangle
             novoX + squarewidth >= rect.x // Check if the left edge of the new rectangle overlaps with the existing rectangle
         );
-
+  
         // If there is an overlap, push subsequent cards forward and update their positions on the backend
         if (overlappingIndex !== -1) {
             for (let i = overlappingIndex; i < matrix[rowIndex].length; i++) {
@@ -616,7 +609,7 @@ const Tool = ({ }) => {
                 await axios.patch(import.meta.env.VITE_BACKEND + `/${type}`, { posX: card.x });
             }
         }
-
+  
         // Create a new card on the backend
         const postData = {
             "journeyMap_id": id_mapa,
@@ -626,22 +619,25 @@ const Tool = ({ }) => {
             "description": "",
             "emojiTag": "Novo emoji"
         };
-
+  
         if (type === 'emotion') {
             postData.posX = novoX;
             postData.journeyMap_id = id_mapa;
             postData.lineY = -15;
             postData.emojiTag = "🔴";
         }
-
+  
         await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
-
+  
         fetchData();
-
+  
     } catch (error) {
         console.error("Erro ao adicionar quadrado:", error);
     }
-};
+  };
+  
+  
+
 
   
   

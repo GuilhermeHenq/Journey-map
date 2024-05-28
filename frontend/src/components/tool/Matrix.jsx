@@ -1,7 +1,7 @@
 import React from "react";
 import { Stage, Layer, Rect, Circle, Text, Group, Image } from "react-konva";
 import EditableRect from "./EditableRect";
-import useImage from 'use-image'
+import useImage from 'use-image';
 
 const Fase = () => {
     const [image] = useImage('https://cdn-icons-png.flaticon.com/512/30/30630.png');
@@ -35,10 +35,8 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                     onDragMove={(e) => {
                         const newY = e.target.y();
 
-                        // Se rowIndex for 2, limita o movimento entre -50 e 50 em y
                         if (rowIndex === 2) {
                             e.target.y(Math.max(-60, Math.min(50, newY)));
-                            // e.target.y(0);
                         } else {
                             e.target.y(0);
                         }
@@ -51,42 +49,30 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                     onDragEnd={(e) => {
                         const tipo = square.type;
                         const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;
-                        console.log("O ID ANTES é " + id);
-                        console.log("E Target X antes = " + e.target.x());
-                        console.log("E Target Y antes = " + e.target.y());
-                        //console.log("E Target Y antes = " + e.target.y());
-                        const initialX = square.x; // Posição inicial do quadrado
+
+                        const initialX = square.x;
                         const initialY = square.y;
 
-                        const intervalWidth = 270; // Largura do intervalo
+                        const intervalWidth = 270;
                         const intervalWidthY = 50;
 
-                        // Calcula a nova posição x com base na diferença entre a posição do mouse e a posição inicial
                         const diffX = e.target.x() - initialX;
                         let newX = initialX + diffX;
 
                         const diffY = e.target.y() - initialY;
                         let newY = initialY + diffY;
 
-                        // Garante que newX não seja negativo
-                        //newX = Math.max(0, newX);
-
-                        // Ajusta para o múltiplo de 270 mais próximo
                         const closestMultiple = Math.round(newX / intervalWidth) * intervalWidth;
                         const closestMultipleY = Math.round(newY / intervalWidthY) * intervalWidthY;
 
-                        console.log(closestMultipleY);
                         e.target.x(closestMultiple);
-                        //e.target.y(closestMultipleY);
-                        console.log("newX = " + newX);
-                        console.log("E Target X Depois = " + e.target.x());
-                        //console.log("E Target Y Depois = " + e.target.y());
                         e.target.opacity(1);
-                        handleDragEnd(e, id, tipo, square.width, square.x, closestMultipleY);
-                    }}
 
+                        const newColIndex = Math.round(closestMultiple / intervalWidth);
+
+                        handleDragEnd(e, id, tipo, square.width, newColIndex, closestMultipleY);
+                    }}
                 >
-                    {/* Botão de adição de quadrados */}
                     <Rect
                         x={rowIndex === 2 ? square.x + 230 : (square.x + square.width) + 5}
                         y={rowIndex === 2 ? square.y + square.lineY - 50 : square.y}
@@ -95,7 +81,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                         fill="gray"
                         opacity={0}
                         draggable={false}
-                        onClick={() => handleAddSquare(rowIndex, colIndex, square.width)}
+                        onClick={() => handleAddSquare(rowIndex, Math.round(((square.x + square.width + 5) / 270) - 1), square.width)}
                         listening={true}
                         style={{ cursor: 'pointer' }}
                         cornerRadius={10}
@@ -145,7 +131,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                                 color={square.color}
                                 onClick={() => {
                                     const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;
-                                    handleRectClick(square.text, id, square.y)
+                                    handleRectClick(square.text, id, square.y);
                                 }}
                                 onTextChange={(newText) => handleTextChange(rowIndex, colIndex, newText)}
                             />
@@ -212,12 +198,11 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                         </>
                     ) : (
                         <>
-                            {console.log("Line y aqui o: " + square.lineY)}
                             <Text
-                                x={square.x + 60 - 18}  // Ajuste conforme necessário
-                                y={square.y + square.lineY} // Ajuste conforme necessário + square.lineY 
-                                fontSize={40}           // Ajuste conforme necessário
-                                fill="#000"             // Ajuste conforme necessário
+                                x={square.x + 60 - 18}
+                                y={square.y + square.lineY}
+                                fontSize={40}
+                                fill="#000"
                                 align="center"
                                 verticalAlign="middle"
                                 text={emojis[square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id] || "🔴"}
@@ -258,12 +243,11 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
         ))}
         {matrix.map((row, rowIndex) => (
             <Group key={`row_${rowIndex}`}>
-                {/* Adiciona um quadrado no início da linha se estiver vazia */}
                 {row.length === 0 && (
                     <>
                         <Rect
                             x={20 + 80}
-                            y={rowIndex * 170 + 104} // Ajuste conforme necessário
+                            y={rowIndex * 170 + 104}
                             width={60}
                             height={45}
                             fill="gray"
@@ -286,20 +270,16 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                             onMouseEnter={(e) => {
                                 const container = e.target.getStage().container();
                                 container.style.cursor = "pointer";
-                                // e.target.opacity(1);
                             }}
                             onMouseLeave={(e) => {
                                 const container = e.target.getStage().container();
                                 container.style.cursor = "default";
-                                // e.target.opacity(0);
                             }}
                         />
-
                     </>
                 )}
             </Group>
         ))}
-
     </>
 );
 

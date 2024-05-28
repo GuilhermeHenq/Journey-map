@@ -57,6 +57,7 @@ app.get('/journeyMap', journeyMapController.getUserMaps);
 app.post('/journeyMap', journeyMapController.createMap);
 app.delete('/journeyMap/:journeyMapId', journeyMapController.deleteUserMaps);
 app.put('/journeyMap', journeyMapController.updateMapName);
+app.get('/journeyMap/:journeyMapId/owner', journeyMapController.getMapOwner);
 
 const scenarioController = require('../Controllers/scenarioController');
 
