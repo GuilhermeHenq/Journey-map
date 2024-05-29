@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Plus, X } from 'lucide-react';
 import ModalName from "../../components/ModalName";
-import { LogOut, Trash, Pencil } from 'lucide-react';
+import { LogOut, Trash, Pencil, ChevronRight , ChevronLeft, ChevronsRight , ChevronsLeft } from 'lucide-react';
 import { auth } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
 
@@ -264,11 +264,11 @@ const MapCreation = () => {
               ))}
           </div>
           <div className="pagination">
-            <button className="buttonPage" onClick={handleFirstPage} disabled={currentPage === 1}>Primeira página</button>
-            <button className="buttonPage" onClick={handlePreviousPage} disabled={currentPage === 1}>Página anterior</button>
+            <button className="buttonPage" onClick={handleFirstPage} disabled={currentPage === 1}> <ChevronsLeft/> </button>
+            <button className="buttonPage" onClick={handlePreviousPage} disabled={currentPage === 1}><ChevronLeft/></button>
             <p className="pagePar" > Página {currentPage} de {totalPages} </p>
-            <button className="buttonPage" onClick={handleNextPage} disabled={currentPage === totalPages}>Próxima página</button>
-            <button className="buttonPage" onClick={handleLastPage} disabled={currentPage === totalPages}>Ultima página</button>
+            <button className="buttonPage" onClick={handleNextPage} disabled={currentPage === totalPages}><ChevronRight/></button>
+            <button className="buttonPage" onClick={handleLastPage} disabled={currentPage === totalPages}><ChevronsRight/></button>
           </div>
         </div>
       ) : (
