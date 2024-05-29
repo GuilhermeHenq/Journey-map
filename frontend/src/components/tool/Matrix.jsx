@@ -4,22 +4,22 @@ import EditableRect from "./EditableRect";
 import useImage from 'use-image';
 
 const Fase = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/30/30630.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/30/30630.png', 'Anonymous');
     return <Image image={image} width={20} height={20} />;
 };
 
 const Acao = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/1589/1589051.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/1589/1589051.png', 'Anonymous');
     return <Image image={image} width={20} height={20} />;
 };
 
 const Pensamento = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2258/2258911.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2258/2258911.png', 'Anonymous');
     return <Image image={image} width={20} height={20} />;
 };
 
 const Contato = () => {
-    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2199/2199553.png');
+    const [image] = useImage('https://cdn-icons-png.flaticon.com/512/2199/2199553.png', 'Anonymous');
     return <Image image={image} width={20} height={20} />;
 };
 
@@ -70,12 +70,12 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
 
                         const newColIndex = Math.round(closestMultiple / intervalWidth);
 
-                        handleDragEnd(e, id, tipo, square.width, newColIndex, closestMultipleY);
+                        handleDragEnd(e, id, tipo, square.width, newColIndex, closestMultipleY, initialX);
                     }}
                 >
                     <Rect
                         x={rowIndex === 2 ? square.x + 230 : (square.x + square.width) + 5}
-                        y={rowIndex === 2 ? square.y + square.lineY - 50 : square.y}
+                        y={rowIndex === 2 ? square.y - 65 : square.y}
                         width={30}
                         height={135}
                         fill="gray"
@@ -99,7 +99,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
 
                     <Text
                         x={rowIndex === 2 ? square.x + 236 : (square.x + square.width) + 11}
-                        y={rowIndex === 2 ? square.y + square.lineY + 7 : square.y + 52}
+                        y={rowIndex === 2 ? square.y - 8: square.y + 52}
                         text="+"
                         fontSize={30}
                         fill="#d9d9d9"
@@ -253,7 +253,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                             fill="gray"
                             opacity={1}
                             draggable={false}
-                            onClick={() => handleAddSquare(rowIndex, undefined, 230)}
+                            onClick={() => handleAddSquare(rowIndex, -1, 230)}
                             listening={true}
                             style={{ cursor: 'pointer' }}
                             cornerRadius={10}

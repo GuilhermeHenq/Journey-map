@@ -27,10 +27,9 @@ const emotionController = {
         && postData.emojiTag !== undefined
         && postData.lineY !== undefined) {
         const emotionModel = new EmotionModel();
-        const success = await emotionModel.insertEmotion(postData);
-
-        if (success) {
-          const insertedId = await emotionModel.getLastInsertedId();
+        const insertedId = await emotionModel.insertEmotion(postData);
+  
+        if (insertedId) {
           res.status(201).json({ id: insertedId, message: 'Dados inseridos com sucesso' });
         } else {
           res.status(500).json({ error: 'Erro ao inserir dados' });
@@ -43,6 +42,7 @@ const emotionController = {
       res.status(500).json({ error: 'Erro ao inserir emoção' });
     }
   },
+  
 
   updateItem: async (req, res) => {
     try {

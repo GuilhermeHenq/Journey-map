@@ -30,7 +30,10 @@ class EmotionModel {
       const { journeyMap_id, posX, lineY, emojiTag } = data;
       return db.execute("INSERT INTO emotion (journeyMap_id, posX, lineY, emojiTag) VALUES (?, ?, ?, ?)", 
       [journeyMap_id, posX, lineY, emojiTag])
-        .then(() => true)
+        .then(async () => {
+          const [rows] = await db.query("SELECT LAST_INSERT_ID() as last_inserted_id");
+          return rows[0].last_inserted_id;
+        })
         .catch((error) => {
           console.error("Error inserting emotion:", error);
           throw error;
@@ -39,6 +42,7 @@ class EmotionModel {
       return Promise.resolve(false);
     }
   }
+  
 
   updateEmotion(data) {
     const { emotion_id, posX, lineY, emojiTag } = data;

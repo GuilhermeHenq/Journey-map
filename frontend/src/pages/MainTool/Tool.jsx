@@ -7,7 +7,7 @@ import Navbar from "../../components/Navbar";
 import Matrix from "../../components/tool/Matrix";
 import { toast } from 'sonner';
 import Picker from '@emoji-mart/react';
-import { Github, LogOut } from 'lucide-react';
+import { Github, LogOut, Download } from 'lucide-react';
 import data from '@emoji-mart/data';
 import { auth } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
@@ -15,6 +15,7 @@ import { init, getEmojiDataFromNative, SearchIndex } from 'emoji-mart';
 import { useNavigate } from 'react-router-dom';
 import img from "../../assets/mascote.png";
 import { useParams } from 'react-router-dom';
+import html2canvas from 'html2canvas';
 
 import './tool.css';
 
@@ -28,14 +29,6 @@ const sizeUpdated = () => {
   toast.success('Tamanho atualizado com sucesso!')
 };
 
-function downloadURI(uri, name) {
-  var link = document.createElement('a');
-  link.download = name;
-  link.href = uri;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
 
 const Tool = ({ }) => {
   const navigate = useNavigate();
@@ -46,28 +39,67 @@ const Tool = ({ }) => {
 
   const stageRef = React.useRef(null);
 
-  const handleExport = () => {
-    const stage = stageRef.current.getStage();
+  const [loading, setLoading] = useState(false);
 
-    const tempImage = new Image();
-    const stageDataURL = stage.toDataURL();
+  const handleExport = async () => {
+    setLoading(true);
+    console.log("entrou em handleExport");
+    try {
+      // Capturar a imagem do stage Konva
+      const stage = stageRef.current.getStage();
+      const konvaDataURL = stage.toDataURL({ pixelRatio: 2 });
 
-    const img = new Image();
-    img.crossOrigin = 'Anonymous';
+      const konvaImage = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = konvaDataURL;
+      });
 
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
+      // Capturar a imagem de fundo
+      const backgroundCanvas = await html2canvas(document.querySelector('.stage-container'), {
+        backgroundColor: null,
+      });
 
-      const uri = canvas.toDataURL();
-      console.log(uri);
-    };
+      // Juntar as imagens capturadas em um único canvas
+      console.log("konva width: ", konvaImage.width);
+      console.log("konva height: ", konvaImage.height);
+      console.log("backgroundCanvas width: ", backgroundCanvas.width);
+      console.log("backgroundCanvas height: ", backgroundCanvas.height);
+      const totalWidth = Math.max(backgroundCanvas.width, konvaImage.width + 200); // Ajuste a largura total
+      const totalHeight = Math.max(backgroundCanvas.height, konvaImage.height);
 
-    img.src = stageDataURL;
+      console.log(totalWidth);
+      console.log(totalHeight);
+
+      const finalCanvas = document.createElement('canvas');
+      finalCanvas.width = totalWidth;
+      finalCanvas.height = totalHeight;
+      const ctx = finalCanvas.getContext('2d');
+
+      // Desenhar a imagem de fundo
+      ctx.drawImage(konvaImage, 0, 0);
+
+      // Exportar o canvas final como imagem
+      const finalImage = finalCanvas.toDataURL('image/png');
+      downloadURI(finalImage, 'mapa_de_jornada.png');
+    } catch (error) {
+      console.error('Erro ao exportar o mapa de jornada:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const downloadURI = (uri, name) => {
+    console.log("entrou em downloadURI");
+    const link = document.createElement('a');
+    link.download = name;
+    link.href = uri;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
 
   const handlePostClick = async () => {
     try {
@@ -139,7 +171,7 @@ const Tool = ({ }) => {
         emotionData,
         thoughtData,
         contactPointData,
-     ] = await Promise.all([
+      ] = await Promise.all([
         axios.get(import.meta.env.VITE_BACKEND + "/journeyPhase", { params: { journeyMap_id: id_mapa } }),
         axios.get(import.meta.env.VITE_BACKEND + "/userAction", { params: { journeyMap_id: id_mapa } }),
         axios.get(import.meta.env.VITE_BACKEND + "/emotion", { params: { journeyMap_id: id_mapa } }),
@@ -231,7 +263,7 @@ const Tool = ({ }) => {
 
       setEmojis(convertedEmojis);
       //console.log("Emojis após converter emojiTag to Native: " + JSON.stringify(convertedEmojis));
-      return(newMatrix);
+      return (newMatrix);
 
     } catch (error) {
       console.error("Erro ao buscar os dados:", error);
@@ -266,82 +298,99 @@ const Tool = ({ }) => {
   };
 
 
-  const updateMatrixWithX = (matrix, id, newX, tipo, length, x, closeY) => {
+  const updateMatrixWithX = (matrix, id, newX, tipo, length, x, closeY, xoriginal) => {
     let updatedX;
-    let constantToAdd = 0;
-    console.log(closeY);
+    console.log("closeY:", closeY);
 
     // Verificar quantos intervalos de 270 cabem em newX
     const intervalCount = Math.floor(newX / 270);
-    console.log("intervalo: ", intervalCount);
+    console.log("intervalo:", intervalCount);
     updatedX = intervalCount * 270;
 
-    // // Se o newX não estiver em um intervalo de 270, ajuste para o intervalo mais próximo
-    // if (newX % 270 !== 0) {
-    //   if (newX > 0) {
-    //     updatedX += 270; // Mover para o próximo intervalo à direita
-    //   } else {
-    //     updatedX -= 270; // Mover para o próximo intervalo à esquerda
-    //   }
-    // }
+    console.log("x:", x);
+    console.log("xoriginal:", xoriginal);
+    console.log("newX:", newX);
 
-    console.log(newX);
-    console.log(constantToAdd);
-
-    console.log("id antes do overlapping: " + id.toString());
+    console.log("id antes do overlapping:", id.toString());
     // Verificando se há sobreposição apenas na mesma linha
     const rowIndex = matrix.findIndex(row => row.some(rect => rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()));
+    if (rowIndex === -1) {
+      console.log("Rect não encontrado na matriz.");
+      return matrix;
+    }
     const row = matrix[rowIndex];
-    const newXEnd = x + updatedX + length - 20; // Final do novo intervalo do retângulo movido
-    console.log("newX end que é o x recebido + o X que ele ia somar: " + newXEnd);
-    const isOverlapping = row.some(rect =>
-      rect[tipo + "_id"] !== undefined &&
-      rect[tipo + "_id"].toString() === id.toString() &&
-      row.some(otherRect =>
-        otherRect[tipo + "_id"] !== undefined &&
-        otherRect[tipo + "_id"].toString() !== id.toString() &&
-        (newXEnd > otherRect.x && newXEnd < otherRect.x + otherRect.width) || // Verifica se há sobreposição à direita ou
-        (x + updatedX > otherRect.x && x + updatedX < otherRect.x + otherRect.width) // Verifica se há sobreposição à esquerda
-      )
-    );
+    console.log("updatedX:", updatedX);
+    console.log("length:", length);
+    console.log("x + updatedX:", x + updatedX);
 
-    // Se houver sobreposição na mesma linha, retorne a matriz original
+    const newXStart = xoriginal + updatedX; // Atualize xoriginal em vez de x
+    const newXEnd = newXStart + length;
+    console.log("newX start:", newXStart);
+    console.log("newX end:", newXEnd);
+
+    const isOverlapping = row.some(rect => {
+      if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString()) {
+        const rectStart = rect.x;
+        const rectEnd = rect.x + rect.width;
+        const overlap = !(newXEnd <= rectStart || newXStart >= rectEnd);
+        if (overlap) {
+          console.log(`Overlap detected: movedRect(${newXStart}, ${newXEnd}) with rect(${rectStart}, ${rectEnd})`);
+        } else {
+          console.log(`No overlap: movedRect(${newXStart}, ${newXEnd}) with rect(${rectStart}, ${rectEnd})`);
+        }
+        return overlap;
+      }
+      return false;
+    });
+
+    // Se houver sobreposição na mesma linha ou a nova posição for menor que 20, retorne a matriz original
     if (isOverlapping) {
+      console.log("Overlap detected or new position is less than 20, returning original matrix.");
       return matrix;
     }
 
-    console.log(matrix);
-    console.log(updatedX);
-    return matrix.map((row, rowIndex) =>
-        row.map((rect) => {
-            if (rect.type === 'emotion' && rect.emotion_id.toString() === id.toString()) {
-                // Limita o valor de lineY no intervalo de -50 a +50
-                const newLineY = Math.max(-60, Math.min(35, rect.lineY + closeY));
-                return {
-                    ...rect,
-                    x: Math.max(20, Math.min(Infinity, rect.x + updatedX)),
-                    lineY: newLineY,
-                };
-            } else if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
-                return {
-                    ...rect,
-                    x: Math.max(20, Math.min(Infinity, rect.x + updatedX)),
-                };
-            } else {
-                return rect;
-            }
-        })
-    );      
+    console.log("No overlap, updating matrix.");
+
+    return matrix.map((row) =>
+      row.map((rect) => {
+        if (rect.type === 'emotion' && rect.emotion_id.toString() === id.toString()) {
+          // Limita o valor de lineY no intervalo de -60 a 35
+          const newLineY = Math.max(-60, Math.min(35, rect.lineY + closeY));
+          console.log(`Updating emotion rect: ${rect.emotion_id} to newX: ${Math.max(20, newXStart)} and newLineY: ${newLineY}`);
+          return {
+            ...rect,
+            x: Math.max(20, newXStart),
+            lineY: newLineY,
+          };
+        } else if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
+          console.log(`Updating rect: ${rect[tipo + "_id"]} to newX: ${Math.max(20, newXStart)}`);
+          return {
+            ...rect,
+            x: Math.max(20, newXStart),
+          };
+        } else {
+          return rect;
+        }
+      })
+    );
   };
 
 
 
 
 
-  const handleDragEnd = (e, id, tipo, length, x, closeY) => {
+
+
+
+
+
+
+  const handleDragEnd = (e, id, tipo, length, x, closeY, xoriginal) => {
     const newX = e.target.x();
+    console.log(newX);
+    console.log(x);
     setMatrix((prevMatrix) => {
-      const rearrangedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x, closeY);
+      const rearrangedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x, closeY, xoriginal);
 
       const updatedMatrix = rearrangedMatrix.map((row) => {
         return row.sort((a, b) => {
@@ -459,19 +508,19 @@ const Tool = ({ }) => {
   const handleSaveHouse = async () => {
     let tempMatrix = [];
     let foundExtendedRect = null;
-  
+
     setMatrix((prevMatrix) => {
       console.log('Previous Matrix:', prevMatrix);
-      
+
       tempMatrix = prevMatrix.map((row) => {
         let rowUpdated = false;
         let extendedRect; // To store the extended rectangle
         let extendedIndex = -1; // To store the index of the extended rectangle
-  
+
         const updatedRow = row.map((rect, index) => {
           const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
           if (!type) return rect; // Skip if type is null
-          
+
           if (rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex) {
             rowUpdated = true;
             // Save the original X position before extending the width
@@ -483,7 +532,7 @@ const Tool = ({ }) => {
           }
           return rect;
         });
-  
+
         // If the row was updated, adjust the X position of subsequent rectangles
         if (rowUpdated) {
           let adjustedX = extendedRect.x + extendedRect.width; // Start X position after the extended rectangle
@@ -496,30 +545,30 @@ const Tool = ({ }) => {
           console.log('Row Updated:', updatedRow);
           foundExtendedRect = extendedRect; // Track the extended rectangle
         }
-  
+
         return updatedRow;
       });
-      
+
       console.log('Temporary Matrix:', tempMatrix);
       return tempMatrix;
     });
-  
+
     // Use a state variable to trigger saving the data after the state update completes
     setSaveTriggered(true);
     setShowMessage(false);
     setSelectedHouses(1);
   };
-  
+
   const [saveTriggered, setSaveTriggered] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
-  
+
   useEffect(() => {
     if (saveTriggered) {
       handleSaveClick();
       setSaveTriggered(false);
     }
   }, [saveTriggered, matrix]); // Run when saveTriggered or matrix changes
-  
+
 
 
 
@@ -568,79 +617,103 @@ const Tool = ({ }) => {
   const handleAddSquare = async (rowIndex, colIndex, squarewidth) => {
     console.log("handleAddSquare rowIndex, colIndex, squarewidth:", rowIndex, colIndex, squarewidth);
     try {
-        const rowIndexToType = {
-            0: 'journeyPhase',
-            1: 'userAction',
-            2: 'emotion',
-            3: 'thought',
-            4: 'contactPoint'
-        };
+      const rowIndexToType = {
+        0: 'journeyPhase',
+        1: 'userAction',
+        2: 'emotion',
+        3: 'thought',
+        4: 'contactPoint'
+      };
   
-        const type = rowIndexToType[rowIndex];
+      const type = rowIndexToType[rowIndex];
   
-        // Calculate novoX based on colIndex, handling cases beyond the predefined columns
-        let novoX;
-        if (colIndex !== undefined) {
-            novoX = 290 + colIndex * 270;
-        } else {
-            console.error("colIndex is undefined");
-            return;
+      // Calculate novoX based on colIndex, handling cases beyond the predefined columns
+      let novoX;
+      if (colIndex !== undefined) {
+        novoX = 290 + colIndex * 270; // Ajuste a posição inicial se necessário
+      } else {
+        console.error("colIndex is undefined");
+        return;
+      }
+  
+      if (!type) {
+        console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
+        return;
+      }
+  
+      console.log(novoX);
+  
+      // Check if there's a rect with the same novoX and type
+      const isOverlapping = matrix[rowIndex].some(rect =>
+        rect.type === type &&
+        rect.x === novoX
+      );
+  
+      // If there is an overlap, push subsequent cards forward and update their positions on the backend
+      if (isOverlapping) {
+        for (let i = 0; i < matrix[rowIndex].length; i++) {
+          const card = matrix[rowIndex][i];
+          if (card.x >= novoX) {
+            card.x += 270; // Empurrar para frente
+            // Update the position of the card on the backend
+            const putData = {
+              [`${type}_id`]: card[`${type}_id`],
+              posX: card.x,
+              description: card.text || "",
+              width: card.width
+            };
+            console.log(putData);
+            await axios.put(import.meta.env.VITE_BACKEND + `/${type}`, putData);
+          }
         }
+      }
   
-        if (!type) {
-            console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
-            return;
-        }
-  
-  
-        // Find the index of the overlapping rectangle, if any
-        const overlappingIndex = matrix[rowIndex].findIndex(rect =>
-            rect.type === type &&
-            rect.x + rect.width >= novoX && // Check if the right edge of the existing rectangle overlaps with the new rectangle
-            novoX + squarewidth >= rect.x // Check if the left edge of the new rectangle overlaps with the existing rectangle
-        );
-  
-        // If there is an overlap, push subsequent cards forward and update their positions on the backend
-        if (overlappingIndex !== -1) {
-            for (let i = overlappingIndex; i < matrix[rowIndex].length; i++) {
-                const card = matrix[rowIndex][i];
-                card.x += squarewidth + 40;
-                // Update the position of the card on the backend
-                await axios.patch(import.meta.env.VITE_BACKEND + `/${type}`, { posX: card.x });
-            }
-        }
-  
-        // Create a new card on the backend
-        const postData = {
-            "journeyMap_id": id_mapa,
-            "linePos": 285,
-            "posX": squarewidth - 230 + novoX,
-            "length": 230,
-            "description": "",
-            "emojiTag": "Novo emoji"
-        };
-  
-        if (type === 'emotion') {
-            postData.posX = novoX;
-            postData.journeyMap_id = id_mapa;
-            postData.lineY = -15;
-            postData.emojiTag = "🔴";
-        }
-  
-        await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
-  
-        fetchData();
+      // If the type is 'emotion', open the Picker and wait for the user to select an emoji
+      if (type === 'emotion') {
+        setCurrentCellId('new');
+        setPickerVisible(true);
+        setPendingPostData({ novoX, rowIndex, colIndex, squarewidth });
+      } else {
+        await postNewCard({ novoX, rowIndex, colIndex, squarewidth }, type);
+      }
   
     } catch (error) {
-        console.error("Erro ao adicionar quadrado:", error);
+      console.error("Erro ao adicionar quadrado:", error);
     }
   };
   
-  
+
+  const [pendingPostData, setPendingPostData] = useState(null);
+
+  const postNewCard = async ({ novoX, rowIndex, colIndex, squarewidth }, type, emojiTag = "Novo emoji") => {
+    const postData = {
+      "journeyMap_id": id_mapa,
+      "linePos": 285,
+      "posX": novoX,
+      "length": 230,
+      "description": "",
+      "emojiTag": emojiTag
+    };
+
+    if (type === 'emotion') {
+      postData.posX = novoX;
+      postData.journeyMap_id = id_mapa;
+      postData.lineY = -15;
+    }
+
+    const response = await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
+
+    fetchData();
+  };
 
 
-  
-  
+
+
+
+
+
+
+
 
 
   useEffect(() => {
@@ -714,29 +787,50 @@ const Tool = ({ }) => {
   const handlePickerClose = (selectedEmoji) => {
     if (selectedEmoji) {
       getEmojiDataFromNative(selectedEmoji).then((emojiData) => {
-        setMatrix((prevMatrix) => {
-          const updatedMatrix = prevMatrix.map((row) =>
-            row.map((rect) =>
-              rect.emotion_id === currentCellId
-                ? {
+        if (currentCellId === 'new' && pendingPostData) {
+          const { novoX, rowIndex, colIndex, squarewidth } = pendingPostData;
+          postNewCard({ novoX, rowIndex, colIndex, squarewidth }, 'emotion', emojiData.native);
+        } else {
+          setMatrix((prevMatrix) => {
+            const updatedMatrix = prevMatrix.map((row) =>
+              row.map((rect) => {
+                if (rect.emotion_id === currentCellId) {
+                  const updatedRect = {
                     ...rect,
                     emojiTag: emojiData.native,
-                  }
-                : rect
-            )
-          );
-  
+                  };
+
+                  axios.put(`${import.meta.env.VITE_BACKEND}/emotion`, {
+                    emotion_id: rect.emotion_id,
+                    posX: rect.x,
+                    lineY: rect.lineY,
+                    emojiTag: emojiData.native
+                  }).then(() => {
+                    console.log('Emoji atualizado no backend:', updatedRect);
+                  }).catch((error) => {
+                    console.error('Erro ao atualizar emoji no backend:', error);
+                  });
+
+                  return updatedRect;
+                }
+                return rect;
+              })
+            );
+
+            return updatedMatrix;
+          });
+
           setEmojis((prevEmojis) => ({
             ...prevEmojis,
             [currentCellId]: emojiData.native,
           }));
-  
-          return updatedMatrix;
-        });
+        }
       });
     }
     setPickerVisible(false);
+    setPendingPostData(null);
   };
+
 
   const [scenario, setScenario] = useState(false)
   const [sceneName, setSceneName] = useState("")
@@ -789,6 +883,11 @@ const Tool = ({ }) => {
     <div className="scrollable-container">
       <div style={{ width: "100vw", height: "100vh" }}>
         <>
+          {loading && (
+            <div className="loading-overlay">
+              <div className="loading-spinner"></div>
+            </div>
+          )}
           <Navbar
             onSaveClick={handleSaveClick}
             onInfoClick={() => setButtonPopup(true)}
@@ -887,16 +986,23 @@ const Tool = ({ }) => {
                   </button>
                 </div>
                 <div>
-                  <hr style={{ marginTop: "30px"}} />
-                  <p style={{ marginTop: "30px"}} >Mapas de jornada de usuário são representações visuais que ilustram as etapas pelas quais os usuários passam ao interagir com um produto ou serviço. Eles ajudam a entender a experiência do usuário, identificando pontos de contato, emoções e possíveis obstáculos. Essa ferramenta é essencial para empresas melhorarem seus processos, otimizando a satisfação e a retenção de clientes.</p>
+                  <hr style={{ marginTop: "30px" }} />
+                  <p style={{ marginTop: "30px" }} >Mapas de jornada de usuário são representações visuais que ilustram as etapas pelas quais os usuários passam ao interagir com um produto ou serviço. Eles ajudam a entender a experiência do usuário, identificando pontos de contato, emoções e possíveis obstáculos. Essa ferramenta é essencial para empresas melhorarem seus processos, otimizando a satisfação e a retenção de clientes.</p>
                   <div style={{ textAlign: "left", display: "flex", alignItems: "center", marginTop: "30px" }}>
                     <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
-                    <button className="buttonconfModal" style={{ marginLeft: "75%", marginTop: "" }} onClick={() => setButtonPopup(false)}>OK</button>
+                    <button className="button-download" style={{ marginLeft: "75%" }}  onClick={() => handleExport()} disabled={loading}>
+                      <><Download size={30} style={{ marginRight: "5px" }} /> Download <br />
+                        Mapa</>
+                    </button>
                   </div>
                   <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "5px", width: "70%", textAlign: "center", display: "flex", padding: "5px", marginLeft: "15px", }} >
                     <Github style={{ marginTop: "px", marginRight: "5px" }} />
                     <p>Source code</p>
                   </a>
+                  {/* <button className="button-download" onClick={() => handleExport()} disabled={loading}>
+                    <><Download size={30} style={{ marginRight: "5px" }} /> Download <br />
+                    Mapa</>
+                  </button> */}
                 </div>
               </>
             )}
@@ -944,35 +1050,35 @@ const Tool = ({ }) => {
           )}
 
           <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-            <div className="barra1"/>
+            <div className="barra1" />
             <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Fases da Jornada</div>
             </div>
           </div>
           <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
           <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-          <div className="barra2"/>
+            <div className="barra2" />
             <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Ações do Usuário</div>
             </div>
           </div>
           <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
           <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-          <div className="barra3"/>
+            <div className="barra3" />
             <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Emoções</div>
             </div>
           </div>
           <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
           <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-          <div className="barra4"/>
+            <div className="barra4" />
             <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Pensamentos</div>
             </div>
           </div>
           <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
           <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-          <div className="barra5"/>
+            <div className="barra5" />
             <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
               <div className="fases-text">Pontos de Contato</div>
             </div>

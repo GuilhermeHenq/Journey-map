@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import ModalName from "../../components/ModalName";
 import { LogOut, Trash, Pencil } from 'lucide-react';
 import { auth } from '../../services/firebase';
@@ -138,7 +138,7 @@ const MapCreation = () => {
       try {
         await axios.put(`${import.meta.env.VITE_BACKEND}/journeyMap`, { journeyMapId: mapToUpdate, newName: newMapNameUpdate });
         setReloadMaps(prevState => !prevState);
-        setNewMapName('');
+        setNewMapNameUpdate('');
       } catch (error) {
         console.error('Error att name map:', error);
       }

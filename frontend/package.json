@@ -16,6 +16,7 @@
     "axios": "^1.6.5",
     "emoji-mart": "^5.5.2",
     "firebase": "^10.6.0",
+    "html2canvas": "^1.4.1",
     "konva": "^9.3.6",
     "localforage": "^1.10.0",
     "lucide-react": "^0.341.0",
