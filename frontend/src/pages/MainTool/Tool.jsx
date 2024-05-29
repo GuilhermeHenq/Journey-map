@@ -458,7 +458,6 @@ const Tool = ({ }) => {
       .then(() => {
         if (showMessage) {
           console.log("Dados salvos com sucesso!");
-          showAlert();
         } else {
           setShowMessage(true)
         }
@@ -609,6 +608,7 @@ const Tool = ({ }) => {
     console.log("editedText:", editedText);
     setMatrix(updatedMatrix);
     setEditedText("");
+    setSaveTriggered(true);
     setEditedRectId("");
   };
 
@@ -889,7 +889,7 @@ const Tool = ({ }) => {
             </div>
           )}
           <Navbar
-            onSaveClick={handleSaveClick}
+            onSaveClick={() => {handleSaveClick(); showAlert()}}
             onInfoClick={() => setButtonPopup(true)}
             onScenarioClick={() => { setButtonPopup(true); setScenario(true) }}
             onLogoutClick={handleLogout}
@@ -990,10 +990,10 @@ const Tool = ({ }) => {
                   <p style={{ marginTop: "30px" }} >Mapas de jornada de usuário são representações visuais que ilustram as etapas pelas quais os usuários passam ao interagir com um produto ou serviço. Eles ajudam a entender a experiência do usuário, identificando pontos de contato, emoções e possíveis obstáculos. Essa ferramenta é essencial para empresas melhorarem seus processos, otimizando a satisfação e a retenção de clientes.</p>
                   <div style={{ textAlign: "left", display: "flex", alignItems: "center", marginTop: "30px" }}>
                     <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
-                    <button className="button-download" style={{ marginLeft: "75%" }}  onClick={() => handleExport()} disabled={loading}>
+                    {/* <button className="button-download" style={{ marginLeft: "75%" }}  onClick={() => handleExport()} disabled={loading}>
                       <><Download size={30} style={{ marginRight: "5px" }} /> Download <br />
                         Mapa</>
-                    </button>
+                    </button> */}
                   </div>
                   <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "5px", width: "70%", textAlign: "center", display: "flex", padding: "5px", marginLeft: "15px", }} >
                     <Github style={{ marginTop: "px", marginRight: "5px" }} />
