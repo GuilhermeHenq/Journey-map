@@ -203,7 +203,7 @@ const MapCreation = () => {
   }, [filterText]);
 
   return (
-    <div className="map-creation-container" style={{ backgroundColor: "#FFF", height: "100vh", width: "100vw" }}>
+    <div className="map-creation-container" style={{ backgroundImage: `url(${fundomapas})`, height: "100vh", width: "100vw" }}>
       <div className="navbar" style={{ textAlign: "left", padding: "31px", fontSize: "30px", display: "flex", alignItems: "center" }}>
         <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "50px", marginRight: "20px" }} alt="mascote"></img>
         <div className="textoboas" style={{ flex: "1" }}>
