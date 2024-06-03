@@ -46,13 +46,31 @@ class EmotionModel {
 
   updateEmotion(data) {
     const { emotion_id, posX, lineY, emojiTag } = data;
-    return db.execute("UPDATE emotion SET posX = ?, lineY = ?, emojiTag = ? WHERE emotion_id = ?", [posX, lineY, emojiTag, emotion_id])
+
+    if (emotion_id === undefined || posX === undefined || lineY === undefined) {
+      console.error("Missing required fields for updating emotion:", { emotion_id, posX, lineY });
+      throw new Error("Missing required fields for updating emotion");
+    }
+
+    let query = "UPDATE emotion SET posX = ?, lineY = ?";
+    const queryParams = [posX, lineY];
+
+    if (emojiTag !== undefined) {
+      query += ", emojiTag = ?";
+      queryParams.push(emojiTag);
+    }
+
+    query += " WHERE emotion_id = ?";
+    queryParams.push(emotion_id);
+
+    return db.execute(query, queryParams)
       .then(() => true)
       .catch((error) => {
         console.error("Error updating emotion:", error);
         throw error;
       });
   }
+
   deleteEmotion(emotion_id) {
     return db.execute("DELETE FROM emotion WHERE emotion_id = ?", [emotion_id])
       .then(() => true)

@@ -343,7 +343,7 @@ body {
 }
 
 .buttonPage:not(:disabled):hover {
-  background-color: #09a8bd;
+  background-color: #696969;
 }
 
 .pagePar {

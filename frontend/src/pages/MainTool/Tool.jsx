@@ -13,7 +13,6 @@ import { auth } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
 import { init, getEmojiDataFromNative, SearchIndex } from 'emoji-mart';
 import { useNavigate } from 'react-router-dom';
-import img from "../../assets/mascote.png";
 import { useParams } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 
@@ -301,34 +300,34 @@ const Tool = ({ }) => {
   const updateMatrixWithX = (matrix, id, newX, tipo, length, x, closeY, xoriginal) => {
     console.log("Iniciando updateMatrixWithX");
     console.log("Parâmetros: id:", id, "newX:", newX, "tipo:", tipo, "length:", length, "x:", x, "closeY:", closeY, "xoriginal:", xoriginal);
-  
+
     let updatedX;
-  
+
     // Verificar quantos intervalos de 270 cabem em newX
     const intervalCount = Math.floor(newX / 270);
     updatedX = intervalCount * 270;
-  
+
     console.log("intervalCount:", intervalCount);
     console.log("updatedX:", updatedX);
-  
+
     const newXStart = xoriginal + updatedX; // Atualize xoriginal em vez de x
     const newXEnd = newXStart + length;
-  
+
     console.log("newXStart:", newXStart);
     console.log("newXEnd:", newXEnd);
-  
+
     return matrix.map((row, rowIndex) => {
       console.log("Analisando linha:", rowIndex);
-  
+
       // Verificar se há sobreposição apenas na mesma linha
       const rectIndex = row.findIndex(rect => rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString());
       if (rectIndex === -1) {
         console.log("Rect não encontrado na linha:", rowIndex);
         return row;
       }
-  
+
       console.log("Rect encontrado na linha:", rowIndex);
-  
+
       // Verificar se há um retângulo no qual o usuário arrastou por cima com o mesmo width
       const overlappingRect = row.find(rect => {
         if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString() && rect.width === length) {
@@ -342,13 +341,13 @@ const Tool = ({ }) => {
         }
         return false;
       });
-  
+
       // Se há um retângulo com o mesmo width, trocar os X
       if (overlappingRect) {
         console.log("Encontrado retângulo sobreposto com o mesmo width:", overlappingRect);
         const tempX = overlappingRect.x;
         overlappingRect.x = xoriginal; // O rect que foi sobreposto assume a posição original do rect movido
-  
+
         return row.map(rect => {
           if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
             console.log("Trocando posições:", "Rect ID:", rect[tipo + "_id"], "Novo X:", tempX);
@@ -360,7 +359,7 @@ const Tool = ({ }) => {
           return rect;
         });
       }
-  
+
       // Caso contrário, verifique se há sobreposição com tamanho diferente e, se houver, retorne a matriz original
       const isOverlappingWithDifferentSize = row.some(rect => {
         if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString()) {
@@ -374,16 +373,17 @@ const Tool = ({ }) => {
         }
         return false;
       });
-  
+
       if (isOverlappingWithDifferentSize) {
         console.log("Sobreposição detectada com retângulo de tamanho diferente, operação não permitida.");
         return row;
       }
-  
+
       return row.map((rect) => {
         if (rect.type === 'emotion' && rect.emotion_id.toString() === id.toString()) {
-          // Limita o valor de lineY no intervalo de -60 a 35
-          const newLineY = Math.max(-60, Math.min(35, rect.lineY + closeY));
+          // Limita o valor de lineY aos valores permitidos
+          const allowedValues = [35, -15, -60];
+          const newLineY = allowedValues.reduce((prev, curr) => (Math.abs(curr - (rect.lineY + closeY)) < Math.abs(prev - (rect.lineY + closeY)) ? curr : prev));
           console.log("Atualizando rect de emotion:", rect, "Novo X:", newXStart, "Novo LineY:", newLineY);
           return {
             ...rect,
@@ -413,14 +413,14 @@ const Tool = ({ }) => {
       });
     });
   };
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
 
 
 
@@ -671,9 +671,9 @@ const Tool = ({ }) => {
         3: 'thought',
         4: 'contactPoint'
       };
-  
+
       const type = rowIndexToType[rowIndex];
-  
+
       // Calculate novoX based on colIndex, handling cases beyond the predefined columns
       let novoX;
       if (colIndex !== undefined) {
@@ -682,20 +682,20 @@ const Tool = ({ }) => {
         console.error("colIndex is undefined");
         return;
       }
-  
+
       if (!type) {
         console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
         return;
       }
-  
+
       console.log(novoX);
-  
+
       // Check if there's a rect with the same novoX and type
       const isOverlapping = matrix[rowIndex].some(rect =>
         rect.type === type &&
         rect.x === novoX
       );
-  
+
       // If there is an overlap, push subsequent cards forward and update their positions on the backend
       if (isOverlapping) {
         for (let i = 0; i < matrix[rowIndex].length; i++) {
@@ -706,15 +706,18 @@ const Tool = ({ }) => {
             const putData = {
               [`${type}_id`]: card[`${type}_id`],
               posX: card.x,
-              description: card.text || "",
-              width: card.width
+              width: card.width,
+              lineY: card.lineY
             };
+            if (type !== 'emotion') {
+              putData.description = card.text || "";
+            }
             console.log(putData);
             await axios.put(import.meta.env.VITE_BACKEND + `/${type}`, putData);
           }
         }
       }
-  
+
       // If the type is 'emotion', open the Picker and wait for the user to select an emoji
       if (type === 'emotion') {
         setCurrentCellId('new');
@@ -723,12 +726,12 @@ const Tool = ({ }) => {
       } else {
         await postNewCard({ novoX, rowIndex, colIndex, squarewidth }, type);
       }
-  
+
     } catch (error) {
       console.error("Erro ao adicionar quadrado:", error);
     }
   };
-  
+
 
   const [pendingPostData, setPendingPostData] = useState(null);
 
@@ -748,6 +751,7 @@ const Tool = ({ }) => {
       postData.lineY = -15;
     }
 
+    console.log(postData);
     const response = await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
 
     fetchData();
@@ -936,7 +940,7 @@ const Tool = ({ }) => {
             </div>
           )}
           <Navbar
-            onSaveClick={() => {handleSaveClick(); showAlert()}}
+            onSaveClick={() => { handleSaveClick(); showAlert() }}
             onInfoClick={() => setButtonPopup(true)}
             onScenarioClick={() => { setButtonPopup(true); setScenario(true) }}
             onLogoutClick={handleLogout}
