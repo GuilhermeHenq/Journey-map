@@ -299,71 +299,99 @@ const Tool = ({ }) => {
 
 
   const updateMatrixWithX = (matrix, id, newX, tipo, length, x, closeY, xoriginal) => {
+    console.log("Iniciando updateMatrixWithX");
+    console.log("Parâmetros: id:", id, "newX:", newX, "tipo:", tipo, "length:", length, "x:", x, "closeY:", closeY, "xoriginal:", xoriginal);
+  
     let updatedX;
-    console.log("closeY:", closeY);
-
+  
     // Verificar quantos intervalos de 270 cabem em newX
     const intervalCount = Math.floor(newX / 270);
-    console.log("intervalo:", intervalCount);
     updatedX = intervalCount * 270;
-
-    console.log("x:", x);
-    console.log("xoriginal:", xoriginal);
-    console.log("newX:", newX);
-
-    console.log("id antes do overlapping:", id.toString());
-    // Verificando se há sobreposição apenas na mesma linha
-    const rowIndex = matrix.findIndex(row => row.some(rect => rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()));
-    if (rowIndex === -1) {
-      console.log("Rect não encontrado na matriz.");
-      return matrix;
-    }
-    const row = matrix[rowIndex];
+  
+    console.log("intervalCount:", intervalCount);
     console.log("updatedX:", updatedX);
-    console.log("length:", length);
-    console.log("x + updatedX:", x + updatedX);
-
+  
     const newXStart = xoriginal + updatedX; // Atualize xoriginal em vez de x
     const newXEnd = newXStart + length;
-    console.log("newX start:", newXStart);
-    console.log("newX end:", newXEnd);
-
-    const isOverlapping = row.some(rect => {
-      if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString()) {
-        const rectStart = rect.x;
-        const rectEnd = rect.x + rect.width;
-        const overlap = !(newXEnd <= rectStart || newXStart >= rectEnd);
-        if (overlap) {
-          console.log(`Overlap detected: movedRect(${newXStart}, ${newXEnd}) with rect(${rectStart}, ${rectEnd})`);
-        } else {
-          console.log(`No overlap: movedRect(${newXStart}, ${newXEnd}) with rect(${rectStart}, ${rectEnd})`);
-        }
-        return overlap;
+  
+    console.log("newXStart:", newXStart);
+    console.log("newXEnd:", newXEnd);
+  
+    return matrix.map((row, rowIndex) => {
+      console.log("Analisando linha:", rowIndex);
+  
+      // Verificar se há sobreposição apenas na mesma linha
+      const rectIndex = row.findIndex(rect => rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString());
+      if (rectIndex === -1) {
+        console.log("Rect não encontrado na linha:", rowIndex);
+        return row;
       }
-      return false;
-    });
-
-    // Se houver sobreposição na mesma linha ou a nova posição for menor que 20, retorne a matriz original
-    if (isOverlapping) {
-      console.log("Overlap detected or new position is less than 20, returning original matrix.");
-      return matrix;
-    }
-
-    console.log("No overlap, updating matrix.");
-
-    return matrix.map((row) =>
-      row.map((rect) => {
+  
+      console.log("Rect encontrado na linha:", rowIndex);
+  
+      // Verificar se há um retângulo no qual o usuário arrastou por cima com o mesmo width
+      const overlappingRect = row.find(rect => {
+        if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString() && rect.width === length) {
+          const rectStart = rect.x;
+          const rectEnd = rect.x + rect.width;
+          const isOverlapping = !(newXEnd <= rectStart || newXStart >= rectEnd);
+          if (isOverlapping) {
+            console.log("Sobreposição detectada com rect:", rect);
+          }
+          return isOverlapping;
+        }
+        return false;
+      });
+  
+      // Se há um retângulo com o mesmo width, trocar os X
+      if (overlappingRect) {
+        console.log("Encontrado retângulo sobreposto com o mesmo width:", overlappingRect);
+        const tempX = overlappingRect.x;
+        overlappingRect.x = xoriginal; // O rect que foi sobreposto assume a posição original do rect movido
+  
+        return row.map(rect => {
+          if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
+            console.log("Trocando posições:", "Rect ID:", rect[tipo + "_id"], "Novo X:", tempX);
+            return {
+              ...rect,
+              x: newXStart, // O rect movido assume a nova posição
+            };
+          }
+          return rect;
+        });
+      }
+  
+      // Caso contrário, verifique se há sobreposição com tamanho diferente e, se houver, retorne a matriz original
+      const isOverlappingWithDifferentSize = row.some(rect => {
+        if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString()) {
+          const rectStart = rect.x;
+          const rectEnd = rect.x + rect.width;
+          const isOverlapping = !(newXEnd <= rectStart || newXStart >= rectEnd);
+          if (isOverlapping && rect.width !== length) {
+            console.log("Sobreposição detectada com tamanho diferente para rect:", rect);
+            return true;
+          }
+        }
+        return false;
+      });
+  
+      if (isOverlappingWithDifferentSize) {
+        console.log("Sobreposição detectada com retângulo de tamanho diferente, operação não permitida.");
+        return row;
+      }
+  
+      return row.map((rect) => {
         if (rect.type === 'emotion' && rect.emotion_id.toString() === id.toString()) {
           // Limita o valor de lineY no intervalo de -60 a 35
           const newLineY = Math.max(-60, Math.min(35, rect.lineY + closeY));
-          console.log(`Updating emotion rect: ${rect.emotion_id} to newX: ${Math.max(20, newXStart)} and newLineY: ${newLineY}`);
+          console.log("Atualizando rect de emotion:", rect, "Novo X:", newXStart, "Novo LineY:", newLineY);
           return {
             ...rect,
             x: Math.max(20, newXStart),
             lineY: newLineY,
           };
         } else if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
-          console.log(`Updating rect: ${rect[tipo + "_id"]} to newX: ${Math.max(20, newXStart)}`);
+          console.log("Atualizando rect:", rect, "Novo X:", newXStart);
           return {
             ...rect,
             x: Math.max(20, newXStart),
@@ -371,9 +399,28 @@ const Tool = ({ }) => {
         } else {
           return rect;
         }
-      })
-    );
+      });
+    }).map((row) => {
+      // Verificar e corrigir as posições duplicadas após a troca
+      const positions = new Set();
+      return row.map((rect) => {
+        if (positions.has(rect.x)) {
+          console.log("Corrigindo posição duplicada para rect:", rect);
+          rect.x = newXStart;
+        }
+        positions.add(rect.x);
+        return rect;
+      });
+    });
   };
+  
+  
+  
+  
+  
+  
+  
+  
 
 
 
