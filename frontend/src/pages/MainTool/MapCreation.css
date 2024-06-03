@@ -136,6 +136,7 @@ body {
 }
 
 .mapasuser {
+  width: 25%;
   font-weight: 50px;
   display: flex;
   justify-content: center;  
@@ -143,7 +144,7 @@ body {
   color: #434343;
   font-size: 300%;
   background-color: transparent;
-  margin-right: 53%;
+  margin-right: 40%;
 }
 
 .botaologout:hover {

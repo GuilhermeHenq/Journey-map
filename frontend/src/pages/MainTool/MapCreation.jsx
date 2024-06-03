@@ -206,6 +206,7 @@ const MapCreation = () => {
     <div className="map-creation-container" style={{ backgroundImage: `url(${fundomapas})`, height: "100vh", width: "100vw" }}>
       <div className="navbar" style={{ textAlign: "left", padding: "31px", fontSize: "30px", display: "flex", alignItems: "center" }}>
         <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "50px", marginRight: "20px" }} alt="mascote"></img>
+        <p>JEM</p>
         <div className="textoboas" style={{ flex: "1" }}>
           <h1 style={{ margin: "0", textAlign: "center" }}>Olá {usuario.displayName ? usuario.displayName : ""}, seja muito bem-vindo(a)!</h1>
         </div>
@@ -218,9 +219,9 @@ const MapCreation = () => {
       {isPickerVisible && (
         <ModalName trigger={isPickerVisible} setTrigger={setPickerVisible}>
           <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-            <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px" }}>Criar Mapa</h1>
+            <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px" }}>Criar Mapa de jornada</h1>
           </div>
-          <input type="text" value={newMapName} onChange={handleMapNameChange} className="inputname" placeholder="Nome do novo mapa" />
+          <input type="text" value={newMapName} onChange={handleMapNameChange} className="inputname" placeholder="Título do novo mapa" />
           <div className="" style={{ margin: "0", textAlign: "center" }}>
             <button className="botaosavename" onClick={() => { handleCreateNewMap(); handlePickerClose(); }} disabled={!newMapName.trim()}>Criar Novo Mapa</button>
           </div>
@@ -229,7 +230,7 @@ const MapCreation = () => {
       {maps.length > 0 ? (
         <div className="margem">
           <div className="input-wrapper">
-            <h1 className="mapasuser">Mapas:</h1>
+            <h1 className="mapasuser">Mapas de jornadas:</h1>
             <input
               type="text"
               value={filterText}
@@ -298,9 +299,9 @@ const MapCreation = () => {
       {modalUpdate && (
         <ModalName trigger={modalUpdate} setTrigger={setmodalUpdate}>
           <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-            <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px" }}>Atualizar nome do mapa:</h1>
+            <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px" }}>Atualizar título do mapa:</h1>
           </div>
-          <input type="text" value={newMapNameUpdate} onChange={handleMapNameChangeUpdate} className="inputname" placeholder="Novo nome do mapa" />
+          <input type="text" value={newMapNameUpdate} onChange={handleMapNameChangeUpdate} className="inputname" placeholder="Novo título do mapa" />
           <div className="" style={{ margin: "0", textAlign: "center" }}>
             <button className="botaosavename" onClick={() => { handleConfirmUpdate(); }} disabled={!newMapNameUpdate.trim()}>Salvar</button>
           </div>

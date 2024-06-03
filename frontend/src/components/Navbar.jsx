@@ -45,10 +45,13 @@ const Navbar = ({ onSaveClick, onDownload, onMap, onInfoClick, onScenarioClick, 
 
   return (
     <div className="scenario" style={{ textAlign: "left", padding: "31px", fontSize: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "50px", textAlign: "left" }} alt="Mascote"></img>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "50px", textAlign: "left", marginRight: "20px" }} alt="Mascote"></img>
+      <p>JEM</p>
+      </div>
       {!dataLoaded ? (
         <button className="button-novo-mapa" onClick={handlePostClick}>
-          <p>New Journey Map</p>
+          <p>Novo Mapa de Jornada</p>
         </button>
 
       ) : (

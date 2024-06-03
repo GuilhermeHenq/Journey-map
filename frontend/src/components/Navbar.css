@@ -21,6 +21,13 @@
   font-size: 30px;
   padding: 50px;
   border-radius: 15px;
+  animation: blink-animation 1s infinite; /* Adiciona a animação de piscar */
+}
+
+@keyframes blink-animation {
+  0% { font-size: 20px; }
+  50% { font-size: 23px; }
+  100% { font-size: 20px; }
 }
 
 .button.info {
