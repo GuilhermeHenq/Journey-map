@@ -3,8 +3,13 @@ const JourneyPhaseModel = require('../Model/journeyPhaseModel');
 const journeyPhaseController = {
   getAllItems: async (req, res) => {
     try {
+      const journeyMapId = req.query.journeyMap_id; // Extrair o journeyMap_id dos parâmetros de consulta
+      if (!journeyMapId) {
+        return res.status(400).json({ error: 'Parâmetro journeyMap_id ausente na solicitação' });
+      }
+      
       const journeyPhaseModel = new JourneyPhaseModel();
-      const data = await journeyPhaseModel.getAllItems();
+      const data = await journeyPhaseModel.getAllItemsByJourneyMapId(journeyMapId);
       res.json(data);
     } catch (error) {
       console.error("Error fetching JourneyPhase:", error);
@@ -71,6 +76,24 @@ const journeyPhaseController = {
     } catch (error) {
       console.error("Error deleting JourneyPhase:", error);
       res.status(500).json({ error: 'Erro ao excluir Fase da jornada' });
+    }
+  },
+
+  deleteItemsByJourneyMapId: async (req, res) => {
+    try {
+      const putData = req.body;
+      const journeyMapId = putData.journeyMap_id;
+      const journeyPhaseModel = new JourneyPhaseModel();
+      const success = await journeyPhaseModel.deleteByJourneyMapId(journeyMapId);
+      
+      if (success) {
+        res.status(200).json({ message: 'Fases da jornada excluídas com sucesso' });
+      } else {
+        res.status(404).json({ error: 'Nenhuma fase da jornada encontrada para o mapa fornecido' });
+      }
+    } catch (error) {
+      console.error("Error deleting journeyPhase by journeyMapId:", error);
+      res.status(500).json({ error: 'Erro ao excluir Fases da jornada' });
     }
   }
 

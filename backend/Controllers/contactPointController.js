@@ -5,8 +5,13 @@ const ContactPointModel = require('../Model/ContactPointModel');
 const contactPointController = {
   getAllItems: async (req, res) => {
     try {
+      const journeyMapId = req.query.journeyMap_id; // Extrair o journeyMap_id dos parâmetros de consulta
+      if (!journeyMapId) {
+        return res.status(400).json({ error: 'Parâmetro journeyMap_id ausente na solicitação' });
+      }
+      
       const contactPointModel = new ContactPointModel();
-      const data = await contactPointModel.getAllItems();
+      const data = await contactPointModel.getAllItemsByJourneyMapId(journeyMapId);
       res.json(data);
     } catch (error) {
       console.error("Error fetching ContactPoints:", error);
@@ -73,6 +78,24 @@ const contactPointController = {
     } catch (error) {
       console.error("Error deleting ContactPoint:", error);
       res.status(500).json({ error: 'Erro ao excluir Ponto de contato' });
+    }
+  },
+
+  deleteItemsByJourneyMapId: async (req, res) => {
+    try {
+      const putData = req.body;
+      const journeyMapId = putData.journeyMap_id;
+      const contactPointModel = new ContactPointModel();
+      const success = await contactPointModel.deleteByJourneyMapId(journeyMapId);
+      
+      if (success) {
+        res.status(200).json({ message: 'Pontos de contatos excluídos com sucesso' });
+      } else {
+        res.status(404).json({ error: 'Nenhum ponto de contato encontrado para o mapa fornecido' });
+      }
+    } catch (error) {
+      console.error("Error deleting contact point by journeyMapId:", error);
+      res.status(500).json({ error: 'Erro ao excluir contacts points' });
     }
   }
 

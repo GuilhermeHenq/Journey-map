@@ -5,8 +5,13 @@ const EmotionModel = require('../Model/emotionModel');
 const emotionController = {
   getAllItems: async (req, res) => {
     try {
+      const journeyMapId = req.query.journeyMap_id; // Extrair o journeyMap_id dos parâmetros de consulta
+      if (!journeyMapId) {
+        return res.status(400).json({ error: 'Parâmetro journeyMap_id ausente na solicitação' });
+      }
+
       const emotionModel = new EmotionModel();
-      const data = await emotionModel.getAllItems();
+      const data = await emotionModel.getAllItemsByJourneyMapId(journeyMapId);
       res.json(data);
     } catch (error) {
       console.error("Error fetching emotions:", error);
@@ -22,10 +27,9 @@ const emotionController = {
         && postData.emojiTag !== undefined
         && postData.lineY !== undefined) {
         const emotionModel = new EmotionModel();
-        const success = await emotionModel.insertEmotion(postData);
-
-        if (success) {
-          const insertedId = await emotionModel.getLastInsertedId();
+        const insertedId = await emotionModel.insertEmotion(postData);
+  
+        if (insertedId) {
           res.status(201).json({ id: insertedId, message: 'Dados inseridos com sucesso' });
         } else {
           res.status(500).json({ error: 'Erro ao inserir dados' });
@@ -38,6 +42,7 @@ const emotionController = {
       res.status(500).json({ error: 'Erro ao inserir emoção' });
     }
   },
+  
 
   updateItem: async (req, res) => {
     try {
@@ -74,6 +79,24 @@ const emotionController = {
     } catch (error) {
       console.error("Error deleting Emotion:", error);
       res.status(500).json({ error: 'Erro ao excluir Emoção' });
+    }
+  },
+
+  deleteItemsByJourneyMapId: async (req, res) => {
+    try {
+      const putData = req.body;
+      const journeyMapId = putData.journeyMap_id;
+      const emotionModel = new EmotionModel();
+      const success = await emotionModel.deleteByJourneyMapId(journeyMapId);
+      
+      if (success) {
+        res.status(200).json({ message: 'Emoções excluídas com sucesso' });
+      } else {
+        res.status(404).json({ error: 'Nenhuma emoção encontrada para o mapa fornecido' });
+      }
+    } catch (error) {
+      console.error("Error deleting emotion by journeyMapId:", error);
+      res.status(500).json({ error: 'Erro ao excluir emoções' });
     }
   }
   

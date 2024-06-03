@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { createRoot } from "react-dom/client";
 import { Stage, Layer, Rect, Circle } from "react-konva";
 import axios from "axios";
 import Popup from "../../components/Popup";
+import Navbar from "../../components/Navbar";
 import Matrix from "../../components/tool/Matrix";
 import { toast } from 'sonner';
 import Picker from '@emoji-mart/react';
-import { Github, LogOut } from 'lucide-react';
+import { Github, LogOut, Download } from 'lucide-react';
 import data from '@emoji-mart/data';
 import { auth } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
 import { init, getEmojiDataFromNative, SearchIndex } from 'emoji-mart';
-import secureLocalStorage from "react-secure-storage";
+import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import html2canvas from 'html2canvas';
 
 import './tool.css';
 
@@ -21,224 +24,439 @@ const showAlert = () => {
   toast.success('Progresso salvo com sucesso!')
 };
 
+const sizeUpdated = () => {
+  toast.success('Tamanho atualizado com sucesso!')
+};
 
 
+const Tool = ({ }) => {
+  const navigate = useNavigate();
+  const { id_mapa } = useParams();
 
-const Tool = ({ navigate }) => {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  const stageRef = React.useRef(null);
+
+  const [loading, setLoading] = useState(false);
+
+  const handleExport = async () => {
+    setLoading(true);
+    console.log("entrou em handleExport");
+    try {
+      // Capturar a imagem do stage Konva
+      const stage = stageRef.current.getStage();
+      const konvaDataURL = stage.toDataURL({ pixelRatio: 2 });
+
+      const konvaImage = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = konvaDataURL;
+      });
+
+      // Capturar a imagem de fundo
+      const backgroundCanvas = await html2canvas(document.querySelector('.stage-container'), {
+        backgroundColor: null,
+      });
+
+      // Juntar as imagens capturadas em um único canvas
+      console.log("konva width: ", konvaImage.width);
+      console.log("konva height: ", konvaImage.height);
+      console.log("backgroundCanvas width: ", backgroundCanvas.width);
+      console.log("backgroundCanvas height: ", backgroundCanvas.height);
+      const totalWidth = Math.max(backgroundCanvas.width, konvaImage.width + 200); // Ajuste a largura total
+      const totalHeight = Math.max(backgroundCanvas.height, konvaImage.height);
+
+      console.log(totalWidth);
+      console.log(totalHeight);
+
+      const finalCanvas = document.createElement('canvas');
+      finalCanvas.width = totalWidth;
+      finalCanvas.height = totalHeight;
+      const ctx = finalCanvas.getContext('2d');
+
+      // Desenhar a imagem de fundo
+      ctx.drawImage(konvaImage, 0, 0);
+
+      // Exportar o canvas final como imagem
+      const finalImage = finalCanvas.toDataURL('image/png');
+      downloadURI(finalImage, 'mapa_de_jornada.png');
+    } catch (error) {
+      console.error('Erro ao exportar o mapa de jornada:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const downloadURI = (uri, name) => {
+    console.log("entrou em downloadURI");
+    const link = document.createElement('a');
+    link.download = name;
+    link.href = uri;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
+  const handlePostClick = async () => {
+    try {
+      await axios.post(import.meta.env.VITE_BACKEND + '/journeyPhase', {
+        journeyMap_id: id_mapa,
+        linePos: 285,
+        posX: 20,
+        length: 230,
+        description: 'essa é uma fase de jornada',
+        emojiTag: 'emoji feliz',
+      });
+
+      await axios.post(import.meta.env.VITE_BACKEND + '/userAction', {
+        journeyMap_id: id_mapa,
+        linePos: 285,
+        posX: 20,
+        length: 230,
+        description: 'essa é uma ação do usuario',
+        emojiTag: 'emoji feliz',
+      });
+
+      await axios.post(import.meta.env.VITE_BACKEND + '/thought', {
+        journeyMap_id: id_mapa,
+        linePos: 285,
+        posX: 20,
+        length: 230,
+        description: 'esse é um pensamento',
+        emojiTag: 'emoji pensando',
+      });
+
+      await axios.post(import.meta.env.VITE_BACKEND + '/contactPoint', {
+        journeyMap_id: id_mapa,
+        linePos: 285,
+        posX: 20,
+        length: 230,
+        description: 'esse é um ponto de contato ',
+        emojiTag: 'emoji triste',
+      });
+
+      await axios.post(import.meta.env.VITE_BACKEND + '/emotion', {
+        posX: 20,
+        lineY: 0,
+        emojiTag: '😀',
+        journeyMap_id: id_mapa,
+      });
+
+      window.location.reload();
+    } catch (error) {
+      console.error('Erro ao salvar:', error.message);
+    }
+  };
 
   const handleLogout = async () => {
     await signOut(auth);
-    secureLocalStorage.removeItem('token');
-    secureLocalStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     navigate('/login');
   }
+
+  const onMap = async () => {
+    navigate('/');
+  }
+
+  const fetchData = async () => {
+    try {
+      const [
+        journeyData,
+        userActionData,
+        emotionData,
+        thoughtData,
+        contactPointData,
+      ] = await Promise.all([
+        axios.get(import.meta.env.VITE_BACKEND + "/journeyPhase", { params: { journeyMap_id: id_mapa } }),
+        axios.get(import.meta.env.VITE_BACKEND + "/userAction", { params: { journeyMap_id: id_mapa } }),
+        axios.get(import.meta.env.VITE_BACKEND + "/emotion", { params: { journeyMap_id: id_mapa } }),
+        axios.get(import.meta.env.VITE_BACKEND + "/thought", { params: { journeyMap_id: id_mapa } }),
+        axios.get(import.meta.env.VITE_BACKEND + "/contactPoint", { params: { journeyMap_id: id_mapa } }),
+      ]);
+
+      // Mapeie os dados da API para o formato desejado na matriz
+      const journeyMatrix = journeyData.data.map(item => ({
+        type: 'journeyPhase',
+        journeyPhase_id: item.journeyPhase_id.toString(),
+        x: item.posX,
+        y: 61,
+        width: item.length,
+        height: 135,
+        color: "#FFAC81",
+        text: item.description,
+      }));
+
+      const userActionMatrix = userActionData.data.map(item => ({
+        type: 'userAction',
+        userAction_id: item.userAction_id.toString(),
+        x: item.posX,
+        y: 231,
+        width: item.length,
+        height: 135,
+        color: "#FF928B",
+        text: item.description,
+      }));
+
+      const emotionMatrix = emotionData.data.map(item => ({
+        type: 'emotion',
+        emotion_id: item.emotion_id.toString(),
+        x: item.posX,
+        y: 467,
+        lineY: item.lineY,
+        width: 230,
+        height: 135,
+        color: "#FEC3A6",
+        emojiTag: item.emojiTag
+      }));
+
+      const thoughtMatrix = thoughtData.data.map(item => ({
+        type: 'thought',
+        thought_id: item.thought_id.toString(),
+        x: item.posX,
+        y: 571,
+        width: item.length,
+        height: 135,
+        color: "#EFE9AE",
+        text: item.description,
+      }));
+
+      const contactPointMatrix = contactPointData.data.map(item => ({
+        type: 'contactPoint',
+        contactPoint_id: item.contactPoint_id.toString(),
+        x: item.posX,
+        y: 741,
+        width: item.length,
+        height: 135,
+        color: "#CDEAC0",
+        text: item.description,
+      }));
+
+      const newMatrix = [journeyMatrix, userActionMatrix, emotionMatrix, thoughtMatrix, contactPointMatrix];
+      console.log(newMatrix);
+      setMatrix(newMatrix);
+      // Verifique se pelo menos uma matriz tem dados
+      if (newMatrix.some(matrix => matrix.length > 0)) {
+        setDataLoaded(true);
+      } else {
+        setDataLoaded(false);
+      }
+
+      const convertedEmojis = {};
+
+      for (const item of emotionMatrix) {
+        //console.log("emojiTag antes da pesquisa: " + item.emojiTag);
+        const emojis = item.emojiTag;
+        //console.log("Emojis após a pesquisa: " + emojis);
+
+        if (emojis.length > 0) {
+          // Pegar o primeiro native do array de skins
+          const native = emojis;
+          //console.log("NATIVE A SER INSERIDO: " + native);
+          convertedEmojis[item.emotion_id] = native;
+        }
+      }
+
+      setEmojis(convertedEmojis);
+      //console.log("Emojis após converter emojiTag to Native: " + JSON.stringify(convertedEmojis));
+      return (newMatrix);
+
+    } catch (error) {
+      console.error("Erro ao buscar os dados:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
 
   const [matrix, setMatrix] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
   const [emojis, setEmojis] = useState({});
+  const [dataLoaded, setDataLoaded] = useState(true);
+  const [selectedHouses, setSelectedHouses] = useState(1);
 
-  const updateMatrixWithX = (matrix, id, newX, tipo) => {
-    let updatedX;
-    let constantToAdd = 0;
-
-    console.log("o valor de x antes de passar pelos cases é: " + newX);
-
-    // Switch case based on newX ranges
-    switch (true) {
-      case newX >= -269 && newX <= 269:
-        constantToAdd = 1;
-        break;
-      case newX >= 250 && newX <= 499:
-        updatedX = 270;
-        break;
-      case newX >= -499 && newX <= -250:
-        updatedX = -270;
-        break;
-      case newX >= 500 && newX <= 749:
-        updatedX = 540;
-        break;
-      case newX >= -749 && newX <= -500:
-        updatedX = -540;
-        break;
-      case newX >= 750 && newX <= 999:
-        updatedX = 810;
-        break;
-      case newX >= -999 && newX <= -750:
-        updatedX = -810;
-        break;
-      case newX >= 1000 && newX <= 1249:
-        updatedX = 1080;
-        break;
-      case newX >= -1249 && newX <= -1000:
-        updatedX = -1080;
-        break;
-      case newX >= 1250 && newX <= 1499:
-        updatedX = 1350;
-        break;
-      case newX >= -1499 && newX <= -1250:
-        updatedX = -1350;
-        break;
-      case newX >= 1500 && newX <= 1749:
-        updatedX = 1620;
-        break;
-      case newX >= -1749 && newX <= -1500:
-        updatedX = -1620;
-        break;
-      default:
-        constantToAdd = 1;
-    }
-
-    if (constantToAdd !== 0) {
-      return matrix;
-    }
-
-
-    console.log("o valor de x passando pelos cases é: " + updatedX);
-
-    return matrix.map((row) =>
-      row.map((rect) =>
-        rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()
-          ? {
-            ...rect,
-            x: Math.max(20, Math.min(1620, rect.x + updatedX)),
-          }
-          : rect
-      )
-    );
+  const calculateTotalWidth = (matrix) => {
+    let totalWidth = 0;
+    matrix.forEach(row => {
+      row.forEach(rect => {
+        totalWidth = Math.max(totalWidth, rect.x + rect.width);
+      });
+    });
+    return totalWidth;
   };
 
 
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [
-          journeyData,
-          userActionData,
-          emotionData,
-          thoughtData,
-          contactPointData,
-        ] = await Promise.all([
-          axios.get("http://localhost:3000/journeyPhase"),
-          axios.get("http://localhost:3000/userAction"),
-          axios.get("http://localhost:3000/emotion"),
-          axios.get("http://localhost:3000/thought"),
-          axios.get("http://localhost:3000/contactPoint"),
-        ]);
-
-        // Mapeie os dados da API para o formato desejado na matriz
-        const journeyMatrix = journeyData.data.map(item => ({
-          type: 'journeyPhase',
-          journeyPhase_id: item.journeyPhase_id.toString(),
-          x: item.posX,
-          y: 61,
-          width: 230,
-          height: 135,
-          color: "#FFAC81",
-          text: item.description,
-        }));
-
-        const userActionMatrix = userActionData.data.map(item => ({
-          type: 'userAction',
-          userAction_id: item.userAction_id.toString(),
-          x: item.posX,
-          y: 231,
-          width: 230,
-          height: 135,
-          color: "#FF928B",
-          text: item.description,
-        }));
-
-        const emotionMatrix = emotionData.data.map(item => ({
-          type: 'emotion',
-          emotion_id: item.emotion_id.toString(),
-          x: item.posX,
-          y: 467,
-          lineY: item.lineY,
-          width: 230,
-          height: 135,
-          color: "#FEC3A6",
-          emojiTag: item.emojiTag
-        }));
-
-        const thoughtMatrix = thoughtData.data.map(item => ({
-          type: 'thought',
-          thought_id: item.thought_id.toString(),
-          x: item.posX,
-          y: 571,
-          width: 230,
-          height: 135,
-          color: "#EFE9AE",
-          text: item.description,
-        }));
-
-        const contactPointMatrix = contactPointData.data.map(item => ({
-          type: 'contactPoint',
-          contactPoint_id: item.contactPoint_id.toString(),
-          x: item.posX,
-          y: 741,
-          width: 230,
-          height: 135,
-          color: "#CDEAC0",
-          text: item.description,
-        }));
-
-        const newMatrix = [journeyMatrix, userActionMatrix, emotionMatrix, thoughtMatrix, contactPointMatrix];
-        console.log(newMatrix);
-        setMatrix(newMatrix);
+  const handleSelectChange = (event) => {
+    const value = parseInt(event.target.value, 10);
+    setSelectedHouses(value);
+  };
 
 
-        const convertedEmojis = {};
+  const updateMatrixWithX = (matrix, id, newX, tipo, length, x, closeY, xoriginal) => {
+    console.log("Iniciando updateMatrixWithX");
+    console.log("Parâmetros: id:", id, "newX:", newX, "tipo:", tipo, "length:", length, "x:", x, "closeY:", closeY, "xoriginal:", xoriginal);
 
-        for (const item of emotionMatrix) {
-          console.log("emojiTag antes da pesquisa: " + item.emojiTag);
-          const emojis = await SearchIndex.search(item.emojiTag);
-          //console.log("Emojis após a pesquisa: " + JSON.stringify(emojis));
+    let updatedX;
 
-          if (emojis.length > 0) {
-            // Pegar o primeiro native do array de skins
-            const native = emojis[0].skins[0].native;
-            console.log("NATIVE A SER INSERIDO: " + native);
-            convertedEmojis[item.emotion_id] = native;
+    // Verificar quantos intervalos de 270 cabem em newX
+    const intervalCount = Math.floor(newX / 270);
+    updatedX = intervalCount * 270;
+
+    console.log("intervalCount:", intervalCount);
+    console.log("updatedX:", updatedX);
+
+    const newXStart = xoriginal + updatedX; // Atualize xoriginal em vez de x
+    const newXEnd = newXStart + length;
+
+    console.log("newXStart:", newXStart);
+    console.log("newXEnd:", newXEnd);
+
+    return matrix.map((row, rowIndex) => {
+      console.log("Analisando linha:", rowIndex);
+
+      // Verificar se há sobreposição apenas na mesma linha
+      const rectIndex = row.findIndex(rect => rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString());
+      if (rectIndex === -1) {
+        console.log("Rect não encontrado na linha:", rowIndex);
+        return row;
+      }
+
+      console.log("Rect encontrado na linha:", rowIndex);
+
+      // Verificar se há um retângulo no qual o usuário arrastou por cima com o mesmo width
+      const overlappingRect = row.find(rect => {
+        if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString() && rect.width === length) {
+          const rectStart = rect.x;
+          const rectEnd = rect.x + rect.width;
+          const isOverlapping = !(newXEnd <= rectStart || newXStart >= rectEnd);
+          if (isOverlapping) {
+            console.log("Sobreposição detectada com rect:", rect);
+          }
+          return isOverlapping;
+        }
+        return false;
+      });
+
+      // Se há um retângulo com o mesmo width, trocar os X
+      if (overlappingRect) {
+        console.log("Encontrado retângulo sobreposto com o mesmo width:", overlappingRect);
+        const tempX = overlappingRect.x;
+        overlappingRect.x = xoriginal; // O rect que foi sobreposto assume a posição original do rect movido
+
+        return row.map(rect => {
+          if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
+            console.log("Trocando posições:", "Rect ID:", rect[tipo + "_id"], "Novo X:", tempX);
+            return {
+              ...rect,
+              x: newXStart, // O rect movido assume a nova posição
+            };
+          }
+          return rect;
+        });
+      }
+
+      // Caso contrário, verifique se há sobreposição com tamanho diferente e, se houver, retorne a matriz original
+      const isOverlappingWithDifferentSize = row.some(rect => {
+        if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString()) {
+          const rectStart = rect.x;
+          const rectEnd = rect.x + rect.width;
+          const isOverlapping = !(newXEnd <= rectStart || newXStart >= rectEnd);
+          if (isOverlapping && rect.width !== length) {
+            console.log("Sobreposição detectada com tamanho diferente para rect:", rect);
+            return true;
           }
         }
+        return false;
+      });
 
-        setEmojis(convertedEmojis);
-        console.log("Emojis após converter emojiTag to Native: " + JSON.stringify(convertedEmojis));
-
-      } catch (error) {
-        console.error("Erro ao buscar os dados:", error);
+      if (isOverlappingWithDifferentSize) {
+        console.log("Sobreposição detectada com retângulo de tamanho diferente, operação não permitida.");
+        return row;
       }
-    };
 
-    fetchData();
-  }, []);
-
-
-
-  const handleDragEnd = (e, id, tipo) => {
-    const identificador = id;
-    const newX = e.target.x();
-
-    setMatrix((prevMatrix) => {
-      const updatedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo);
-      return updatedMatrix;
+      return row.map((rect) => {
+        if (rect.type === 'emotion' && rect.emotion_id.toString() === id.toString()) {
+          // Limita o valor de lineY aos valores permitidos
+          const allowedValues = [35, -15, -60];
+          const newLineY = allowedValues.reduce((prev, curr) => (Math.abs(curr - (rect.lineY + closeY)) < Math.abs(prev - (rect.lineY + closeY)) ? curr : prev));
+          console.log("Atualizando rect de emotion:", rect, "Novo X:", newXStart, "Novo LineY:", newLineY);
+          return {
+            ...rect,
+            x: Math.max(20, newXStart),
+            lineY: newLineY,
+          };
+        } else if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
+          console.log("Atualizando rect:", rect, "Novo X:", newXStart);
+          return {
+            ...rect,
+            x: Math.max(20, newXStart),
+          };
+        } else {
+          return rect;
+        }
+      });
+    }).map((row) => {
+      // Verificar e corrigir as posições duplicadas após a troca
+      const positions = new Set();
+      return row.map((rect) => {
+        if (positions.has(rect.x)) {
+          console.log("Corrigindo posição duplicada para rect:", rect);
+          rect.x = newXStart;
+        }
+        positions.add(rect.x);
+        return rect;
+      });
     });
-
-    console.log("id:", id);
-    console.log("newX:", newX);
-    console.log("tipo:", tipo);
-
-
-    setEditedRectId(id);
-    setForceUpdate(prev => prev + 1);
   };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const handleDragEnd = (e, id, tipo, length, x, closeY, xoriginal) => {
+    const newX = e.target.x();
+    console.log(newX);
+    console.log(x);
+    setMatrix((prevMatrix) => {
+      const rearrangedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x, closeY, xoriginal);
+
+      const updatedMatrix = rearrangedMatrix.map((row) => {
+        return row.sort((a, b) => {
+          return (a.x - 20) / 270 - (b.x - 20) / 270;
+        });
+      });
+
+      console.log(updatedMatrix)
+      return updatedMatrix;
+    });
+    setEditedRectId(id);
+    setForceUpdate((prev) => prev + 1);
+    setSaveTriggered(true);
+    setShowMessage(false);
+  };
 
   const handleSaveClick = () => {
     const putConfig = { method: "PUT" };
-
+    console.log("Final matrix: ", matrix)
     // Mapeie os dados da matriz para os dados necessários para cada tipo de entidade
     const dataToPut = matrix.reduce((acc, row) => {
       row.forEach((rect) => {
@@ -247,12 +465,12 @@ const Tool = ({ navigate }) => {
         if (rect.contactPoint_id !== undefined) {
           acc.push({
             endpoint: "contactPoint",
-            data: { contactPoint_id: rect.contactPoint_id, posX: rect.x, description: rect.text },
+            data: { contactPoint_id: rect.contactPoint_id, posX: rect.x, description: rect.text, width: rect.width },
           });
         } else if (rect.userAction_id !== undefined) {
           acc.push({
             endpoint: "userAction",
-            data: { userAction_id: rect.userAction_id, posX: rect.x, description: rect.text },
+            data: { userAction_id: rect.userAction_id, posX: rect.x, description: rect.text, width: rect.width },
           });
         } else if (rect.emotion_id !== undefined) {
           acc.push({
@@ -262,12 +480,12 @@ const Tool = ({ navigate }) => {
         } else if (rect.thought_id !== undefined) {
           acc.push({
             endpoint: "thought",
-            data: { thought_id: rect.thought_id, posX: rect.x, description: rect.text },
+            data: { thought_id: rect.thought_id, posX: rect.x, description: rect.text, width: rect.width },
           });
         } else if (rect.journeyPhase_id !== undefined) {
           acc.push({
             endpoint: "journeyPhase",
-            data: { journeyPhase_id: rect.journeyPhase_id, posX: rect.x, description: rect.text },
+            data: { journeyPhase_id: rect.journeyPhase_id, posX: rect.x, description: rect.text, width: rect.width },
           });
         }
       });
@@ -278,15 +496,18 @@ const Tool = ({ navigate }) => {
 
     // Envie as solicitações para a API usando os dados mapeados
     const requests = dataToPut.map(({ endpoint, data }) => {
-      const url = `http://localhost:3000/${endpoint}`;
+      const url = import.meta.env.VITE_BACKEND + `/${endpoint}`;
       return axios.put(url, data, putConfig);
     });
 
     // Execute todas as solicitações
     Promise.all(requests)
       .then(() => {
-        console.log("Dados salvos com sucesso!");
-        showAlert();
+        if (showMessage) {
+          console.log("Dados salvos com sucesso!");
+        } else {
+          setShowMessage(true)
+        }
       })
       .catch((error) => {
         console.error("Erro ao salvar os dados:", error);
@@ -307,7 +528,93 @@ const Tool = ({ navigate }) => {
     setEditedRowIndex(rectY);
     setButtonPopup(true); // Abre o popup
     setTextEdit(true); // Define a edição de texto como verdadeira
+
+
+    setMatrix((prevMatrix) => {
+      const updatedMatrix = prevMatrix.map((row) =>
+        row.map((rect) => {
+          const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
+
+          return (
+            rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex
+              ? { ...rect, x: Math.max(20, Math.min(1620, rect.x)) }
+              : rect
+          );
+        })
+      );
+
+      return updatedMatrix;
+    });
+
+
   };
+
+  const [tempWidth, setTempWidth] = useState()
+
+  const handleSaveHouse = async () => {
+    let tempMatrix = [];
+    let foundExtendedRect = null;
+
+    setMatrix((prevMatrix) => {
+      console.log('Previous Matrix:', prevMatrix);
+
+      tempMatrix = prevMatrix.map((row) => {
+        let rowUpdated = false;
+        let extendedRect; // To store the extended rectangle
+        let extendedIndex = -1; // To store the index of the extended rectangle
+
+        const updatedRow = row.map((rect, index) => {
+          const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
+          if (!type) return rect; // Skip if type is null
+
+          if (rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex) {
+            rowUpdated = true;
+            // Save the original X position before extending the width
+            const originalX = rect.x;
+            extendedRect = { ...rect, width: selectedHouses * 270 - 40, x: originalX }; // Maintain the original X position
+            extendedIndex = index;
+            console.log('Extended Rect:', extendedRect);
+            return extendedRect;
+          }
+          return rect;
+        });
+
+        // If the row was updated, adjust the X position of subsequent rectangles
+        if (rowUpdated) {
+          let adjustedX = extendedRect.x + extendedRect.width; // Start X position after the extended rectangle
+          updatedRow.forEach((rect, index) => {
+            if (rect && index > extendedIndex) {
+              rect.x = adjustedX + 40; // Adjust subsequent rectangles with the 40px gap
+              adjustedX += rect.width + 40; // Increment adjustedX by rect.width and 40px gap
+            }
+          });
+          console.log('Row Updated:', updatedRow);
+          foundExtendedRect = extendedRect; // Track the extended rectangle
+        }
+
+        return updatedRow;
+      });
+
+      console.log('Temporary Matrix:', tempMatrix);
+      return tempMatrix;
+    });
+
+    // Use a state variable to trigger saving the data after the state update completes
+    setSaveTriggered(true);
+    setShowMessage(false);
+    setSelectedHouses(1);
+  };
+
+  const [saveTriggered, setSaveTriggered] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+
+  useEffect(() => {
+    if (saveTriggered) {
+      handleSaveClick();
+      setSaveTriggered(false);
+    }
+  }, [saveTriggered, matrix]); // Run when saveTriggered or matrix changes
+
 
 
 
@@ -348,14 +655,15 @@ const Tool = ({ navigate }) => {
     console.log("editedText:", editedText);
     setMatrix(updatedMatrix);
     setEditedText("");
+    setSaveTriggered(true);
     setEditedRectId("");
   };
 
+  const [newSquareId, setNewSquareId] = useState(null);
 
-  const handleAddSquare = async (rowIndex, colIndex, prevMatrix, setMatrix) => {
-    console.log("handleAddSquare rowIndex, colIndex:", rowIndex, colIndex);
+  const handleAddSquare = async (rowIndex, colIndex, squarewidth) => {
+    console.log("handleAddSquare rowIndex, colIndex, squarewidth:", rowIndex, colIndex, squarewidth);
     try {
-      // Mapeia o rowIndex para o tipo correspondente
       const rowIndexToType = {
         0: 'journeyPhase',
         1: 'userAction',
@@ -364,110 +672,120 @@ const Tool = ({ navigate }) => {
         4: 'contactPoint'
       };
 
-      // Obtém o tipo com base no rowIndex
       const type = rowIndexToType[rowIndex];
 
-      const colIndexToType = {
-        0: 290,
-        1: 560,
-        2: 830,
-        3: 1100,
-        4: 1370
-      };
-
-      const novoX = colIndexToType[colIndex];
+      // Calculate novoX based on colIndex, handling cases beyond the predefined columns
+      let novoX;
+      if (colIndex !== undefined) {
+        novoX = 290 + colIndex * 270; // Ajuste a posição inicial se necessário
+      } else {
+        console.error("colIndex is undefined");
+        return;
+      }
 
       if (!type) {
         console.error(`Tipo não encontrado para o rowIndex ${rowIndex}`);
         return;
       }
 
-      let postData = {
-        "journeyMap_id": 3,
-        "linePos": 285,
-        "posX": novoX,
-        "length": 0,
-        "description": "",
-        "emojiTag": "Novo emoji"
-      };
+      console.log(novoX);
 
-      if (type === 'emotion') {
-        postData = {
-          "posX": novoX,
-          "lineY": 200,
-          "emojiTag": "Emoji 1",
-          "journeyMap_id": 3
-        };
-      }
+      // Check if there's a rect with the same novoX and type
+      const isOverlapping = matrix[rowIndex].some(rect =>
+        rect.type === type &&
+        rect.x === novoX
+      );
 
-      const response = await axios.post(`http://localhost:3000/${type}`, postData);
-
-      const newSquare = response.data;
-
-      console.log("id: " + newSquare.id);
-
-      console.log("Aqui passou uma vez fora do setMatrix");
-
-      const newMatrix = [...prevMatrix];
-
-      if (!newMatrix[rowIndex]) {
-        newMatrix[rowIndex] = [];
-      }
-
-      const color = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][0].color : "#a3defe";
-      console.log("Aqui passou mais uma vez dentro setMatrix");
-
-      if (colIndex !== undefined && colIndex < newMatrix[rowIndex].length) {
-        const sameColSquares = newMatrix[rowIndex].filter(square => square && square.x === newMatrix[rowIndex][colIndex].x);
-
-        if (sameColSquares.length > 1) {
-          newMatrix.forEach((row, rIndex) => {
-            row.forEach((square, cIndex) => {
-              if (rIndex === rowIndex && cIndex > colIndex) {
-                square.x += 260;
-              }
-            });
-          });
+      // If there is an overlap, push subsequent cards forward and update their positions on the backend
+      if (isOverlapping) {
+        for (let i = 0; i < matrix[rowIndex].length; i++) {
+          const card = matrix[rowIndex][i];
+          if (card.x >= novoX) {
+            card.x += 270; // Empurrar para frente
+            // Update the position of the card on the backend
+            const putData = {
+              [`${type}_id`]: card[`${type}_id`],
+              posX: card.x,
+              width: card.width,
+              lineY: card.lineY
+            };
+            if (type !== 'emotion') {
+              putData.description = card.text || "";
+            }
+            console.log(putData);
+            await axios.put(import.meta.env.VITE_BACKEND + `/${type}`, putData);
+          }
         }
-
-        const newSquareId = `${type}_${newSquare.id}`;
-        console.log("newSquareId: " + newSquareId);
-
-        newMatrix[rowIndex].splice(colIndex + 1, 0, {
-          id: newSquareId,
-          x: newMatrix[rowIndex][colIndex].x + 260,
-          y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-          width: 120,
-          height: 85,
-          color: color,
-        });
-        console.log("aqui criou um");
-      } else {
-        const newSquareId = `${type}_${newSquare.id}`;
-
-        const newX = newMatrix[rowIndex].length > 0 ? newMatrix[rowIndex][newMatrix[rowIndex].length - 1].x + 260 : 30;
-        newMatrix[rowIndex].push({
-          id: newSquareId,
-          x: newX + 260,
-          y: rowIndex * 170 + (rowIndex === 2 ? 116 : 61),
-          width: 120,
-          height: 85,
-          color: color,
-        });
-        console.log("aqui criou outro");
       }
 
-      newMatrix.forEach((row, rIndex) => {
-        console.log(`IDs dos quadrados na linha ${rIndex + 1}:`, row.map(square => square.id));
-      });
+      // If the type is 'emotion', open the Picker and wait for the user to select an emoji
+      if (type === 'emotion') {
+        setCurrentCellId('new');
+        setPickerVisible(true);
+        setPendingPostData({ novoX, rowIndex, colIndex, squarewidth });
+      } else {
+        await postNewCard({ novoX, rowIndex, colIndex, squarewidth }, type);
+      }
 
-      setMatrix(newMatrix);
-      return [...newMatrix];
     } catch (error) {
       console.error("Erro ao adicionar quadrado:", error);
     }
   };
 
+
+  const [pendingPostData, setPendingPostData] = useState(null);
+
+  const postNewCard = async ({ novoX, rowIndex, colIndex, squarewidth }, type, emojiTag = "Novo emoji") => {
+    const postData = {
+      "journeyMap_id": id_mapa,
+      "linePos": 285,
+      "posX": novoX,
+      "length": 230,
+      "description": "",
+      "emojiTag": emojiTag
+    };
+
+    if (type === 'emotion') {
+      postData.posX = novoX;
+      postData.journeyMap_id = id_mapa;
+      postData.lineY = -15;
+    }
+
+    console.log(postData);
+    const response = await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
+
+    fetchData();
+  };
+
+
+
+
+
+
+
+
+
+
+
+  useEffect(() => {
+    if (newSquareId && matrix) {
+      const [journeyPhase, userAction, emotions] = matrix;
+      console.log("[emotions]: ", emotions);
+      const emotionIds = emotions.map(emotion => emotion.emotion_id);
+      console.log("emotion ids: ", emotionIds);
+      console.log("newSquareID: ", newSquareId);
+
+      if (emotionIds.includes(newSquareId)) {
+        console.log("ID DO EMOJI", newSquareId);
+        handleCircleClick(newSquareId);
+        console.log("handleCircleClick chamado");
+      } else {
+        console.log("ID DO EMOJI não encontrado na lista de emoções");
+      }
+    } else {
+      console.log("newSquareId ou matrix estão ausentes");
+    }
+  }, [newSquareId, matrix]);
 
 
   const handleDeleteSquare = async (rowIndex, colIndex) => {
@@ -479,41 +797,25 @@ const Tool = ({ navigate }) => {
       console.log(`Iniciando exclusão do quadrado: ${squareId}`);
       console.log(`Iniciando exclusão do quadrado: ${squareType}`);
 
-      const response = await axios.delete(`http://localhost:3000/${squareType}/${squareId}`);
+      await axios.delete(import.meta.env.VITE_BACKEND + `/${squareType}/${squareId}`);
 
-      console.log(`Quadrado ${squareId} excluído com sucesso!`, response);
+      console.log(`Quadrado ${squareId} excluído com sucesso!`);
 
-
-      setMatrix((prevMatrix) => {
-        const newMatrix = [...prevMatrix];
-
-        if (newMatrix[rowIndex]) {
-          // Remove o quadrado da matriz
-          newMatrix[rowIndex].splice(colIndex, 1);
-
-          // Diminui o rowIndex dos quadrados subsequentes
-          newMatrix[rowIndex].forEach((square, index) => {
-            if (index >= colIndex) {
-              square.id = `${rowIndex + 1}_${index + 1}`;
-              console.log(`Quadrado ${square.id} teve seu rowIndex ajustado.`);
-            }
-          });
-
-          // Printa todos os IDs dos quadrados na linha
-          console.log(`IDs dos quadrados na linha ${rowIndex + 1}:`, newMatrix[rowIndex].map(square => square.id));
-
-          return [...newMatrix];
-        }
-
-        return prevMatrix;
-      });
+      // Atualizar a matriz com os novos dados após a exclusão
+      const newData = await fetchData();
+      if (newData) {
+        setMatrix(newData);
+      } else {
+        console.error("Erro ao obter os dados atualizados após a exclusão do quadrado.");
+      }
     } catch (error) {
       console.error("Erro ao excluir quadrado:", error);
     }
   };
 
 
-  const [isPickerAvailable, setPickerAvailable] = useState(false);
+
+
   const [currentCellId, setCurrentCellId] = useState("");
   const [isPickerVisible, setPickerVisible] = useState(false);
 
@@ -522,188 +824,322 @@ const Tool = ({ navigate }) => {
     console.log("Clicked on circle with ID: ", cellId);
     console.log("Matrix state: ", matrix); // Verifique se matrix está atualizada
     console.log("cellId: ", cellId);
-    setPickerAvailable(true);
     setCurrentCellId(cellId);
-    console.log("CurrentCellId: ", currentCellId);
-    setPickerVisible(true);
+  };
+
+  useEffect(() => {
+    if (currentCellId !== "") {
+      console.log("CurrentCellId: ", currentCellId);
+      setPickerVisible(true);
+    }
+  }, [currentCellId]);
+
+
+  const handlePickerClose = (selectedEmoji) => {
+    if (selectedEmoji) {
+      getEmojiDataFromNative(selectedEmoji).then((emojiData) => {
+        if (currentCellId === 'new' && pendingPostData) {
+          const { novoX, rowIndex, colIndex, squarewidth } = pendingPostData;
+          postNewCard({ novoX, rowIndex, colIndex, squarewidth }, 'emotion', emojiData.native);
+        } else {
+          setMatrix((prevMatrix) => {
+            const updatedMatrix = prevMatrix.map((row) =>
+              row.map((rect) => {
+                if (rect.emotion_id === currentCellId) {
+                  const updatedRect = {
+                    ...rect,
+                    emojiTag: emojiData.native,
+                  };
+
+                  axios.put(`${import.meta.env.VITE_BACKEND}/emotion`, {
+                    emotion_id: rect.emotion_id,
+                    posX: rect.x,
+                    lineY: rect.lineY,
+                    emojiTag: emojiData.native
+                  }).then(() => {
+                    console.log('Emoji atualizado no backend:', updatedRect);
+                  }).catch((error) => {
+                    console.error('Erro ao atualizar emoji no backend:', error);
+                  });
+
+                  return updatedRect;
+                }
+                return rect;
+              })
+            );
+
+            return updatedMatrix;
+          });
+
+          setEmojis((prevEmojis) => ({
+            ...prevEmojis,
+            [currentCellId]: emojiData.native,
+          }));
+        }
+      });
+    }
+    setPickerVisible(false);
+    setPendingPostData(null);
   };
 
 
+  const [scenario, setScenario] = useState(false)
+  const [sceneName, setSceneName] = useState("")
+  const [sceneDesc, setSceneDesc] = useState("")
+  const [scenarioExists, setScenarioExists] = useState(false);
 
+  const fetchScenarioData = async () => {
+    try {
+      const response = await axios.get(import.meta.env.VITE_BACKEND + `/scenario/${id_mapa}`);
+      const scenario = response.data;
+      if (scenario) {
+        setSceneName(scenario.name);
+        setSceneDesc(scenario.description);
+        setScenarioExists(true);
+      } else {
+        setScenarioExists(false);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar os dados do cenário:", error);
+    }
+  };
 
+  useEffect(() => {
+    if (scenario) {
+      fetchScenarioData();
+    }
+  }, [scenario]);
+
+  const handleSaveScenario = async () => {
+    try {
+      if (scenarioExists) {
+        await axios.put(import.meta.env.VITE_BACKEND + '/scenario', {
+          journeyMapId: id_mapa,
+          newName: sceneName,
+          newDescription: sceneDesc
+        });
+      } else {
+        await axios.post(import.meta.env.VITE_BACKEND + '/scenario', {
+          journeyMapId: id_mapa,
+          name: sceneName,
+          description: sceneDesc
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao salvar o cenário:", error);
+    }
+  };
 
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
-      <div className="scenario" style={{ textAlign: "left", padding: "31px", fontSize: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "50px", textAlign: "left" }} alt="cu"></img>
-        <span>Cenário 1 - X</span>
-        <div className="botoes">
-          <button className="button save" id="saveButton" onClick={() => { handleSaveClick(); }}>
-            Salvar
-          </button>
-          <button className="button info" id="infoButton" style={{ marginLeft: "3vh", marginRight: "3vh" }} onClick={() => { setButtonPopup(true); }}>
-            i
-          </button>
-          <button className="button logout" onClick={handleLogout}>
-            <LogOut />
-          </button>
-        </div>
-      </div>
-      <div className="separator1" style={{ marginTop: "61.9px" }}></div>
-      <Popup trigger={buttonPopup} setTrigger={setButtonPopup} setTextEdit={setTextEdit} style={{ borderRadius: "25px" }}>
-        {textEdit ? (
-          <>
-            <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-              <h1 style={{ fontSize: "50px", marginTop: "50px", marginBottom: "30px" }}>Editar card</h1>
+    <div className="scrollable-container">
+      <div style={{ width: "100vw", height: "100vh" }}>
+        <>
+          {loading && (
+            <div className="loading-overlay">
+              <div className="loading-spinner"></div>
             </div>
-            <div className="areatexto">
-              <textarea
-                type="text"
-                value={editedText}
-                placeholder="Texto vazio"
-                className="textolegal"
-                onChange={(e) => setEditedText(e.target.value)}
-                style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
-              />
+          )}
+          <Navbar
+            onSaveClick={() => { handleSaveClick(); showAlert() }}
+            onInfoClick={() => setButtonPopup(true)}
+            onScenarioClick={() => { setButtonPopup(true); setScenario(true) }}
+            onLogoutClick={handleLogout}
+            onMap={onMap}
+            onDownload={handleExport}
+            handlePostClick={handlePostClick}
+            dataLoaded={dataLoaded}
+            currentJourneyMap={id_mapa}
+          />
 
-              <div className="separarbotoes">
-
-                <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }}>
-                  Adicionar texto
-                </button>
-
-                <button className="buttonconf2" onClick={() => setEditedText('')}>
-                  Limpar texto
-                </button>
+          <div className="separator1" style={{ marginTop: "61.9px", width: calculateTotalWidth(matrix) + 2400 }}></div>
+          <Popup trigger={buttonPopup} setTrigger={setButtonPopup} setTextEdit={setTextEdit} setScenario={setScenario} style={{ borderRadius: "25px", padding: "20px", backgroundColor: "#f9f9f9", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
+            {textEdit ? (
+              <>
+                <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+                  <h1 style={{ fontSize: "36px", marginTop: "20px", marginBottom: "20px", color: "#333" }}>Editar card</h1>
+                </div>
+                <div className="areatexto">
+                  <textarea
+                    type="text"
+                    value={editedText}
+                    placeholder="Texto vazio"
+                    className="textolegal"
+                    onChange={(e) => setEditedText(e.target.value)}
+                    style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+                  />
+                  <div className="separarbotoes" style={{ marginTop: '20px' }}>
+                    <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }} style={{ backgroundColor: '#4caf50', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '22px', marginRight: '10px' }}>
+                      Adicionar texto
+                    </button>
+                    <button className="buttonconf2" onClick={() => setEditedText('')} style={{ backgroundColor: '#f44336', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '22px', marginRight: '10px' }}>
+                      Limpar texto
+                    </button>
+                    <div className="buttonconf3" style={{ display: 'flex', alignItems: 'center' }}>
+                      <input
+                        type="number"
+                        id="houseCount"
+                        value={selectedHouses}
+                        onChange={handleSelectChange}
+                        min={1}
+                        step={1}
+                        className="houseInput"
+                        style={{ width: '60px', height: '30px', borderRadius: '5px', border: '1px solid #ccc', marginRight: '10px', padding: '5px', fontSize: '16px' }}
+                      />
+                      <p style={{ margin: '0', fontSize: '30px', color: '#FFF' }}>Card(s)</p>
+                    </div>
+                    <button className="botaosavetamanho" onClick={handleSaveHouse} style={{ backgroundColor: '#4caf50', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '16px', marginLeft: '5px' }}>
+                      Definir
+                      Tamanho
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : scenario === true ? (
+              <>
+                <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+                  <h1 style={{ fontSize: "50px" }}>Cenário</h1>
+                </div>
+                <br />
+                <h2>Nome do cenário</h2>
+                <input
+                  type="text"
+                  className="input-texto"
+                  value={sceneName}
+                  onChange={(e) => setSceneName(e.target.value)}
+                  placeholder="Escreva o nome..."
+                />
+                <h2 style={{ marginBottom: "-20px" }}>Descreva o cenário</h2>
+                <div className="areatexto">
+                  <textarea
+                    type="text"
+                    className="textolegal"
+                    value={sceneDesc}
+                    onChange={(e) => setSceneDesc(e.target.value)}
+                    placeholder="Escreva o cenário..."
+                    style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+                  />
+                  <div className="separarbotoes">
+                    <button className="buttonconf" onClick={() => { setButtonPopup(false); setScenario(false); handleSaveScenario() }}>
+                      Salvar cenário
+                    </button>
+                    <button className="buttonconf2" onClick={() => { setSceneName(''); setSceneDesc('') }}>
+                      Limpar texto
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
+                  <h1 style={{ fontSize: "50px" }}>Mapas de jornada</h1>
+                  <button className="button info" style={{ marginLeft: "1.5vh", cursor: "auto" }}>
+                    i
+                  </button>
+                </div>
+                <div>
+                  <hr style={{ marginTop: "30px" }} />
+                  <p style={{ marginTop: "30px" }} >Mapas de jornada de usuário são representações visuais que ilustram as etapas pelas quais os usuários passam ao interagir com um produto ou serviço. Eles ajudam a entender a experiência do usuário, identificando pontos de contato, emoções e possíveis obstáculos. Essa ferramenta é essencial para empresas melhorarem seus processos, otimizando a satisfação e a retenção de clientes.</p>
+                  <div style={{ textAlign: "left", display: "flex", alignItems: "center", marginTop: "30px" }}>
+                    <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
+                    {/* <button className="button-download" style={{ marginLeft: "75%" }}  onClick={() => handleExport()} disabled={loading}>
+                      <><Download size={30} style={{ marginRight: "5px" }} /> Download <br />
+                        Mapa</>
+                    </button> */}
+                  </div>
+                  <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "5px", width: "70%", textAlign: "center", display: "flex", padding: "5px", marginLeft: "15px", }} >
+                    <Github style={{ marginTop: "px", marginRight: "5px" }} />
+                    <p>Source code</p>
+                  </a>
+                  {/* <button className="button-download" onClick={() => handleExport()} disabled={loading}>
+                    <><Download size={30} style={{ marginRight: "5px" }} /> Download <br />
+                    Mapa</>
+                  </button> */}
+                </div>
+              </>
+            )}
+          </Popup>
+          {isPickerVisible && (
+            <Popup trigger={isPickerVisible} setTrigger={setPickerVisible}>
+              <div className="PickerContainer">
+                <Picker
+                  className="Picker"
+                  data={data}
+                  emojiSize={30}
+                  emojiButtonSize={60}
+                  perLine={20}
+                  maxFrequentRows={10}
+                  previewPosition="none"
+                  navPosition="bottom"
+                  emojiButtonRadius="100%"
+                  theme="light"
+                  locale="pt"
+                  onEmojiSelect={(e) => handlePickerClose(e.native)}
+                />
               </div>
+            </Popup>
+          )}
+          {dataLoaded && (
+            <div className="stage-container">
+              <Stage width={calculateTotalWidth(matrix) + 1260} height={window.innerHeight} ref={stageRef}>
+                <Layer>
+                  <Matrix
+                    key={forceUpdate}
+                    matrix={matrix}
+                    handleTextSubmit={handleTextSubmit}
+                    handleTextChange={handleTextChange}
+                    handleAddSquare={handleAddSquare}
+                    handleDeleteSquare={handleDeleteSquare}
+                    handleDragEnd={handleDragEnd}
+                    handleCircleClick={handleCircleClick}
+                    emojis={emojis}
+                    handleRectClick={handleRectClick}
+                    setMatrix={setMatrix}
+                  />
+                </Layer>
+              </Stage>
             </div>
-          </>
-        ) : (
-          <>
-            <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-              <h1 style={{ fontSize: "50px" }}>Cenário</h1>
-              <button className="button info" style={{ marginLeft: "1.5vh" }}>
-                i
-              </button>
-            </div>
-            <div>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-              <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "20px", width: "70%", textAlign: "center", display: "flex", padding: "5px" }} >
-                <Github style={{ marginTop: "px", marginRight: "5px" }} />
-                <p>Repositório Git</p>
-              </a>
-              <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
-                <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
-                <button className="buttonconf" style={{ marginLeft: "5vh" }} onClick={() => setButtonPopup(false)}>OK</button>
-              </div>
-            </div>
-          </>
-        )}
-      </Popup>
-      {isPickerVisible && (
-        <Popup trigger={isPickerVisible} setTrigger={setPickerVisible}>
-          <div className="PickerContainer">
-            <Picker
-              className="Picker"
-              data={data}
-              emojiSize={30}
-              emojiButtonSize={50}
-              perLine={30}
-              maxFrequentRows={10}
-              previewPosition="none"
-              navPosition="bottom"
-              emojiButtonRadius="100%"
-              theme="light"
-              locale="pt"
-              emojiButtonColors="rgba(155,223,88,.7)"
-              onEmojiSelect={(e) => {
-                getEmojiDataFromNative(e.native).then((emojiData) => {
-                  setMatrix((prevMatrix) => {
-                    const updatedMatrix = prevMatrix.map((row) =>
-                      row.map((rect) =>
-                        rect.emotion_id === currentCellId
-                          ? {
-                            ...rect,
-                            emojiTag: emojiData.id,
-                          }
-                          : rect
-                      )
-                    );
+          )}
 
-                    setEmojis((prevEmojis) => ({
-                      ...prevEmojis,
-                      [currentCellId]: e.native,
-                    }));
-
-                    return updatedMatrix;
-                  });
-                  setPickerVisible(false);
-                });
-              }}
-            />
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+            <div className="barra1" />
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+              <div className="fases-text">Fases da Jornada</div>
+            </div>
           </div>
-        </Popup>
-      )}
-
-      <div className="stage-container">
-        <Stage width={window.innerWidth - 160} height={window.innerHeight + 180}>
-          <Layer>
-            <Matrix
-              key={forceUpdate}
-              matrix={matrix}
-              handleTextSubmit={handleTextSubmit}
-              handleTextChange={handleTextChange}
-              handleAddSquare={handleAddSquare}
-              handleDeleteSquare={handleDeleteSquare}
-              handleDragEnd={handleDragEnd}
-              handleCircleClick={handleCircleClick}
-              emojis={emojis}
-              handleRectClick={handleRectClick}
-              setMatrix={setMatrix}
-            />
-          </Layer>
-        </Stage>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+            <div className="barra2" />
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+              <div className="fases-text">Ações do Usuário</div>
+            </div>
+          </div>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+            <div className="barra3" />
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+              <div className="fases-text">Emoções</div>
+            </div>
+          </div>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+            <div className="barra4" />
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+              <div className="fases-text">Pensamentos</div>
+            </div>
+          </div>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+            <div className="barra5" />
+            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+              <div className="fases-text">Pontos de Contato</div>
+            </div>
+          </div>
+          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+        </>
       </div>
-
-
-
-      <div className="fases-container">
-        <div className="fases-content">
-          <div className="fases-text">Fases da Jornada</div>
-        </div>
-      </div>
-      <div className="separator1"></div>
-      <div className="fases-container">
-        <div className="fases-content">
-          <div className="fases-text">Ações do Usuário</div>
-        </div>
-      </div>
-      <div className="separator1"></div>
-      <div className="fases-container">
-        <div className="fases-content">
-          <div className="fases-text">Emoções</div>
-        </div>
-      </div>
-      <div className="separator1"></div>
-      <div className="fases-container">
-        <div className="fases-content">
-          <div className="fases-text">Pensamentos</div>
-        </div>
-      </div>
-      <div className="separator1"></div>
-      <div className="fases-container">
-        <div className="fases-content">
-          <div className="fases-text">Pontos de Contato</div>
-        </div>
-      </div>
-      {/* <div style={{ textAlign: "center", padding: "10px", background: "#d3d3d3", fontFamily: "sans-serif", fontSize: "30px" }}>
-        FasesX: {rects[0].x} | AçõesX: {rects[1].x} | EmoçõesX: {circle.x} | EmoçõesY: {circle.y} | PensamentosX: {rects[2].x} | PontosX: {rects[3].x}
-      </div> */}
-      {/*<div style={{ background: "repeating-linear-gradient(0deg,#d3d3d3,#d3d3d3 100px,white 100px,white 200px)" }} >*/}
-      <div className="separator1"></div>
     </div>
   );
-};
 
+};
 
 export default Tool;

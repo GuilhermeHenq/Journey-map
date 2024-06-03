@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Rect } from 'react-konva';
-import Modal from './Modal';
 
 const EditableRect = ({ x, y, width, height, color, text, onClick }) => {
   const [isEditing, setIsEditing] = useState(false);

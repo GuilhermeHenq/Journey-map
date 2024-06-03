@@ -3,6 +3,17 @@
 const db = require('./db');
 
 class ContactPointModel {
+  getAllItemsByJourneyMapId(journeyMapId) {
+    return db.query("SELECT * FROM contactpoint WHERE journeyMap_id = ?", [journeyMapId])
+      .then(([rows]) => {
+        return rows;
+      })
+      .catch((error) => {
+        console.error("Error fetching contactpoints by journeyMapId:", error);
+        throw error;
+      });
+  }
+
   getAllItems() {
     return db.query("SELECT * FROM contactpoint")
       .then(([rows]) => {
@@ -30,9 +41,9 @@ class ContactPointModel {
   }
 
   updateContactPoint(data) {
-    const { contactPoint_id, posX, description } = data;
+    const { contactPoint_id, posX, description, width } = data;
 
-    return db.execute("UPDATE contactpoint SET posX = ?, description = ? WHERE contactPoint_id = ?", [posX, description, contactPoint_id])
+    return db.execute("UPDATE contactpoint SET posX = ?, description = ?, length = ? WHERE contactPoint_id = ?", [posX, description, width, contactPoint_id])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating contactpoint:", error);
@@ -58,6 +69,15 @@ class ContactPointModel {
         console.error("Error getting last inserted ID:", error);
         throw error;
       });
+  }
+
+  deleteByJourneyMapId(journeyMapId) {
+    return db.execute("DELETE FROM contactpoint WHERE journeyMap_id = ?", [journeyMapId])
+    .then(() => true)
+    .catch((error) => {
+      console.error("Error deleting contactpoint:", error);
+      throw error;
+    });
   }
 }
 

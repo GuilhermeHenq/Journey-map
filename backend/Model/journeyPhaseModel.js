@@ -1,6 +1,17 @@
 const db = require('./db');
 
 class JourneyPhaseModel {
+  getAllItemsByJourneyMapId(journeyMapId) {
+    return db.query("SELECT * FROM journeyPhase WHERE journeyMap_id = ?", [journeyMapId])
+      .then(([rows]) => {
+        return rows;
+      })
+      .catch((error) => {
+        console.error("Error fetching journeyPhases by journeyMapId:", error);
+        throw error;
+      });
+  }
+
   getAllItems() {
     return db.query("SELECT * FROM journeyPhase")
       .then(([rows]) => {
@@ -29,9 +40,9 @@ class JourneyPhaseModel {
   
 
   updateJourneyPhase(data) {
-    const { journeyPhase_id, posX, description } = data;
+    const { journeyPhase_id, posX, description, width } = data;
   
-    return db.execute("UPDATE journeyPhase SET posX = ?, description = ? WHERE journeyPhase_id = ?", [posX, description, journeyPhase_id ])
+    return db.execute("UPDATE journeyPhase SET posX = ?, description = ?, length = ? WHERE journeyPhase_id = ?", [posX, description, width, journeyPhase_id ])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating journeyPhase:", error);
@@ -57,6 +68,15 @@ class JourneyPhaseModel {
         console.error("Error getting last inserted ID:", error);
         throw error;
       });
+  }
+
+  deleteByJourneyMapId(journeyMapId) {
+    return db.execute("DELETE FROM journeyPhase WHERE journeyMap_id = ?", [journeyMapId])
+    .then(() => true)
+    .catch((error) => {
+      console.error("Error deleting journeyPhase:", error);
+      throw error;
+    });
   }
   
 }

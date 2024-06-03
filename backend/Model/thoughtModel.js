@@ -1,6 +1,18 @@
 const db = require('./db');
 
 class ThoughtModel {
+  getAllItemsByJourneyMapId(journeyMapId) {
+    return db.query("SELECT * FROM thought WHERE journeyMap_id = ?", [journeyMapId])
+      .then(([rows]) => {
+        return rows;
+      })
+      .catch((error) => {
+        console.error("Error fetching thoughts by journeyMapId:", error);
+        throw error;
+      });
+  }
+
+
   getAllItems() {
     return db.query("SELECT * FROM thought")
       .then(([rows]) => {
@@ -29,9 +41,9 @@ class ThoughtModel {
   
 
   updateThought(data) {
-    const { thought_id, posX, description } = data;
+    const { thought_id, posX, description, width } = data;
   
-    return db.execute("UPDATE thought SET posX = ?, description = ? WHERE thought_id = ?", [posX, description, thought_id])
+    return db.execute("UPDATE thought SET posX = ?, description = ?, length = ? WHERE thought_id = ?", [posX, description, width, thought_id])
       .then(() => true)
       .catch((error) => {
         console.error("Error updating thought:", error);
@@ -57,6 +69,15 @@ class ThoughtModel {
         console.error("Error getting last inserted ID:", error);
         throw error;
       });
+  }
+
+  deleteByJourneyMapId(journeyMapId) {
+    return db.execute("DELETE FROM thought WHERE journeyMap_id = ?", [journeyMapId])
+    .then(() => true)
+    .catch((error) => {
+      console.error("Error deleting thought:", error);
+      throw error;
+    });
   }
   
 }

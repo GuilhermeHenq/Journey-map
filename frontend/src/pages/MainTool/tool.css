@@ -3,8 +3,9 @@ body {
   padding: 0;
   display: flex;
   flex-direction: column;
-  background-color: #d9d9d9;
+  background-color: #E6E6E6;
   max-height: 100vh;
+  /* overflow-y: hidden; */
   overflow-y: hidden;
   min-zoom: 70%;
 }
@@ -69,10 +70,49 @@ body {
     display: flex;
     z-index: 2;
   }
+
+  .novo-mapa {
+    display: flex;
+    align-items: center;    
+  }
+
+  .button-novo-mapa {
+    display: flex;
+    align-items: center;
+    justifycontent: center;
+    background-color: #06bd2d;
+    color: white;
+    padding-right: 10vh;
+    padding-left: 10vh;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 20px;
+    border-radius: 15px;
+  }
+
+  .button-novo-mapa:hover {
+    display: flex;
+    align-items: center;
+    justifycontent: center;
+    background-color: #06bd2d;
+    color: white;
+    border: white;
+    padding-right: 11vh;
+    padding-left: 11vh;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-size: 22px;
+    border-radius: 15px;
+  }
   
   .separator1 {
     background-color: #6E6E6E;
     height: 20px;
+  }
+
+  .separator2 {
+    background-color: #6E6E6E;
+    height: 200px;
   }
   
   .fases-container {
@@ -82,27 +122,57 @@ body {
     height: 150px;
     background-color: #B8B8B8;
     justify-content: center;
+    border-radius: 5px;
   }
   
   .fases-content {
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 15px;
+    margin-right: 15px;
   }
   
   .fases-text {
     color: black;
     font-size: 110%;
     font-family: Inter;
-    font-weight: 400;
+    font-weight: 500;
     text-align: center;
   }
 
+  .barra1 {
+    width: 250px;
+    height: 100%;
+    background-color: #FFAC81;
+  }
+
+  .barra2 {
+    width: 250px;
+    height: 100%;
+    background-color: #FF928B;
+  }
+
+  .barra3 {
+    width: 250px;
+    height: 100%;
+    background-color: #FEC3A6;
+  }
+
+  .barra4 {
+    width: 250px;
+    height: 100%;
+    background-color: #EFE9AE;
+  }
+
+  .barra5 {
+    width: 250px;
+    height: 100%;
+    background-color: #CDEAC0;
+  }
 
   .PickerContainer {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 50vh;
+    height: 70%;
 
   }
   
@@ -177,11 +247,12 @@ body {
   }
   
   .buttonconf {
+    width: 30%;
     border: none;       
     border-radius: 18px;
     background-color: #353535;
     color: white;
-    padding: 11px 120px;
+    padding: 11px 40px;
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
@@ -190,18 +261,151 @@ body {
     font-weight: 500;
   }
 
-  .buttonconf2 {
+  .buttonconfModal {
+    width: 10%;
     border: none;       
     border-radius: 18px;
     background-color: #353535;
     color: white;
-    padding: 11px 120px;
+    padding: 11px 40px;
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
     font-size: 32px;
     font-family: Inter;
     font-weight: 500;
+  }
+
+  .buttonconfModal:hover {
+    border: none;       
+    border-radius: 18px;
+    background-color: #00962A;
+    color: white;
+    padding: 11px 40px;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 32px;
+    font-family: Inter;
+    font-weight: 500;
+  }
+
+  .button-download {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0bcbe2;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 20px;
+    transition: background-color 0.3s ease;
+    position: relative;
+  }
+  
+  .button-download:disabled {
+    background-color: #9e9e9e;
+    cursor: not-allowed;
+  }
+  
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  
+  .loading-spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #fff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  
+  
+
+  .buttonconf2 {
+    width: 30%;
+    border: none;       
+    border-radius: 18px;
+    background-color: #353535;
+    color: white;
+    padding: 11px 40px;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 32px;
+    font-family: Inter;
+    font-weight: 500;
+  }
+
+  .buttonconf3 {
+    width: 20%;
+    border: none;
+    display: flex;
+    justify-content: center;    
+    align-items: center;   
+    border-radius: 18px;
+    background-color: #353535;
+    color: white;
+    padding: 11px 40px;
+    text-decoration: none;
+    font-size: 32px;
+    font-family: Inter;
+    font-weight: 500;
+  }
+
+  #houseCount {
+    margin-left: 10px;
+    width: 70px;
+    height: 40px;
+    background-color: #737373;
+    color: white;
+    font-size: 23px;
+    border-radius: 5px;
+    padding-left: 10px;
+    font-size: 25px;
+    margin-right: 10px;
+  }
+
+  .botaosavetamanho{
+    /* border: none; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    width: 8%;
+    background-color: #4caf50;
+    color: white;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .numerocasas {
+    margin-right: 7px;
   }
   
   .separarbotoes {
@@ -214,7 +418,7 @@ body {
     border-radius: 18px;
     background-color: #00962A;
     color: white;
-    padding: 11px 120px;
+    padding: 11px 40px;
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
@@ -228,7 +432,7 @@ body {
     border-radius: 18px;
     background-color: #FF454F;
     color: white;
-    padding: 11px 120px;
+    padding: 11px 40px;
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
@@ -250,3 +454,27 @@ body {
     padding-left: 10px;
     padding-bottom: 20px;
   }
+
+  .input-texto {
+    width: 100%;
+    height: 60px;
+    font-size: 30px;
+    align-items: top;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    border-radius: 20px;
+    font-family: Inter;
+    padding-top: 20px;
+    padding-left: 10px;
+    padding-bottom: 20px;
+  }
+
+  .scrollable-container {
+    width: 100%; /* Ocupa todo o espaço disponível na largura */
+    
+  }
+  
+  .stage-container {
+    display: inline-block; /* Permite que a div se ajuste ao tamanho do seu conteúdo */
+  }
+  
