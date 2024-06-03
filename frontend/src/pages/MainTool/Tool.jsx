@@ -46,28 +46,30 @@ const Tool = ({ }) => {
     try {
       // Capturar a imagem do stage Konva
       const stage = stageRef.current.getStage();
-      const konvaDataURL = stage.toDataURL({ pixelRatio: 2 });
+      const konvaDataURL = stage.toDataURL({ pixelRatio: 0.84 });
 
       const konvaImage = await new Promise((resolve, reject) => {
         const img = new Image();
+        img.crossOrigin = 'anonymous';
         img.onload = () => resolve(img);
         img.onerror = reject;
         img.src = konvaDataURL;
       });
 
       // Capturar a imagem de fundo
-      const backgroundCanvas = await html2canvas(document.querySelector('.stage-container'), {
+      const backgroundCanvas = await html2canvas(document.querySelector('.teste-1'), {
         backgroundColor: null,
       });
 
-      // Juntar as imagens capturadas em um único canvas
+      // Capturar a largura da div .teste-1
+      const teste1Div = document.querySelector('.teste-1');
+      const totalWidth = konvaImage.width; // Use offsetWidth para capturar a largura aplicada pelo CSS
+      const totalHeight = Math.max(backgroundCanvas.height, konvaImage.height);
+
       console.log("konva width: ", konvaImage.width);
       console.log("konva height: ", konvaImage.height);
       console.log("backgroundCanvas width: ", backgroundCanvas.width);
       console.log("backgroundCanvas height: ", backgroundCanvas.height);
-      const totalWidth = Math.max(backgroundCanvas.width, konvaImage.width + 200); // Ajuste a largura total
-      const totalHeight = Math.max(backgroundCanvas.height, konvaImage.height);
-
       console.log(totalWidth);
       console.log(totalHeight);
 
@@ -76,8 +78,21 @@ const Tool = ({ }) => {
       finalCanvas.height = totalHeight;
       const ctx = finalCanvas.getContext('2d');
 
+      // Preencher o fundo com a cor quase branca
+      ctx.fillStyle = "#f8f8f8";
+      ctx.fillRect(0, 0, totalWidth, totalHeight);
+
       // Desenhar a imagem de fundo
-      ctx.drawImage(konvaImage, 0, 0);
+      ctx.drawImage(backgroundCanvas, 0, 12);
+
+      // Desenhar a imagem do stage Konva
+      ctx.drawImage(konvaImage, 150, -35);
+
+      // Desenhar o texto
+      ctx.fillStyle = "#000000"; // Cor do texto
+      ctx.font = "40px Arial"; // Estilo da fonte
+      ctx.textAlign = "center"; // Centralizar o texto
+      ctx.fillText("JEM - JourneyEasyMap", totalWidth / 2, totalHeight - 20);
 
       // Exportar o canvas final como imagem
       const finalImage = finalCanvas.toDataURL('image/png');
@@ -140,7 +155,7 @@ const Tool = ({ }) => {
 
       await axios.post(import.meta.env.VITE_BACKEND + '/emotion', {
         posX: 20,
-        lineY: 0,
+        lineY: -15,
         emojiTag: '😀',
         journeyMap_id: id_mapa,
       });
@@ -316,6 +331,10 @@ const Tool = ({ }) => {
     console.log("newXStart:", newXStart);
     console.log("newXEnd:", newXEnd);
 
+    const tamanhoRectMovido = Math.round(length / 270);
+    console.log("length:", length);
+    console.log("tamanhoRectMovido:", tamanhoRectMovido);
+
     return matrix.map((row, rowIndex) => {
       console.log("Analisando linha:", rowIndex);
 
@@ -328,9 +347,9 @@ const Tool = ({ }) => {
 
       console.log("Rect encontrado na linha:", rowIndex);
 
-      // Verificar se há um retângulo no qual o usuário arrastou por cima com o mesmo width
+      // Verificar se há um retângulo no qual o usuário arrastou por cima
       const overlappingRect = row.find(rect => {
-        if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString() && rect.width === length) {
+        if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString()) {
           const rectStart = rect.x;
           const rectEnd = rect.x + rect.width;
           const isOverlapping = !(newXEnd <= rectStart || newXStart >= rectEnd);
@@ -342,19 +361,34 @@ const Tool = ({ }) => {
         return false;
       });
 
-      // Se há um retângulo com o mesmo width, trocar os X
+      // Se há um retângulo sobreposto, ajustar as posições
       if (overlappingRect) {
-        console.log("Encontrado retângulo sobreposto com o mesmo width:", overlappingRect);
-        const tempX = overlappingRect.x;
-        overlappingRect.x = xoriginal; // O rect que foi sobreposto assume a posição original do rect movido
+        console.log("Encontrado retângulo sobreposto:", overlappingRect);
 
         return row.map(rect => {
           if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
-            console.log("Trocando posições:", "Rect ID:", rect[tipo + "_id"], "Novo X:", tempX);
+            console.log("Atualizando rect movido:", rect, "Novo X:", newXStart);
             return {
               ...rect,
-              x: newXStart, // O rect movido assume a nova posição
+              x: Math.max(20, newXStart),
             };
+          }
+          if (updatedX < 0) {
+            if (rect.x >= newXStart && rect.x <= xoriginal) {
+              console.log("Movendo rect para frente (esquerda):", rect, "Novo X:", rect.x + 270 * tamanhoRectMovido);
+              return {
+                ...rect,
+                x: rect.x + 270 * tamanhoRectMovido,
+              };
+            }
+          } else {
+            if (rect.x >= newXStart) {
+              console.log("Movendo rect para frente (direita):", rect, "Novo X:", rect.x + 270 * tamanhoRectMovido);
+              return {
+                ...rect,
+                x: rect.x + 270 * tamanhoRectMovido,
+              };
+            }
           }
           return rect;
         });
@@ -413,22 +447,6 @@ const Tool = ({ }) => {
       });
     });
   };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -622,6 +640,8 @@ const Tool = ({ }) => {
     const newMatrix = [...matrix];
 
     // Se o novo texto tiver mais de 30 caracteres, abrevie com reticências
+    console.log(newText);
+    console.log(newText.length);
     const abbreviatedText = newText.length > 30 ? newText.slice(0, 27) + '...' : newText;
 
     // Crie uma nova constante que guarde o valor do texto original
@@ -967,14 +987,24 @@ const Tool = ({ }) => {
                     onChange={(e) => setEditedText(e.target.value)}
                     style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
                   />
-                  <div className="separarbotoes" style={{ marginTop: '20px' }}>
-                    <button className="buttonconf" onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }} style={{ backgroundColor: '#4caf50', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '22px', marginRight: '10px' }}>
-                      Adicionar texto
-                    </button>
-                    <button className="buttonconf2" onClick={() => setEditedText('')} style={{ backgroundColor: '#f44336', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '22px', marginRight: '10px' }}>
-                      Limpar texto
-                    </button>
-                    <div className="buttonconf3" style={{ display: 'flex', alignItems: 'center' }}>
+                  <div className="separarbotoes" style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex' }}>
+                      <button
+                        className="buttonconf"
+                        onClick={() => { handleTextSubmit(); setButtonPopup(false); setTextEdit(false) }}
+                        style={{ backgroundColor: '#4caf50', color: 'white', padding: '10px 40px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '22px', marginRight: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                      >
+                        Salvar texto
+                      </button>
+                      <button
+                        className="buttonconf2"
+                        onClick={() => setEditedText('')}
+                        style={{ backgroundColor: '#f44336', color: 'white', padding: '10px 40px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '22px', marginLeft: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                      >
+                        Limpar texto
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                       <input
                         type="number"
                         id="houseCount"
@@ -983,17 +1013,31 @@ const Tool = ({ }) => {
                         min={1}
                         step={1}
                         className="houseInput"
-                        style={{ width: '60px', height: '30px', borderRadius: '5px', border: '1px solid #ccc', marginRight: '10px', padding: '5px', fontSize: '16px' }}
+                        style={{
+                          width: '100px',
+                          height: '60px',
+                          borderRadius: '5px',
+                          border: '1px solid #ccc',
+                          marginRight: '10px',
+                          padding: '5px',
+                          fontSize: '28px',
+                          textAlign: 'center',
+                          position: 'relative'
+                        }}
                       />
-                      <p style={{ margin: '0', fontSize: '30px', color: '#FFF' }}>Card(s)</p>
+                      <p style={{ margin: '0', fontSize: '22px', color: '#333' }}>Card(s)</p>
+                      <button
+                        className="botaosavetamanho"
+                        onClick={handleSaveHouse}
+                        style={{ backgroundColor: '#4caf50', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '18px', marginLeft: '10px', width: '100px', height: "60px", display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                      >
+                        Salvar
+                      </button>
                     </div>
-                    <button className="botaosavetamanho" onClick={handleSaveHouse} style={{ backgroundColor: '#4caf50', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '16px', marginLeft: '5px' }}>
-                      Definir
-                      Tamanho
-                    </button>
                   </div>
                 </div>
               </>
+
             ) : scenario === true ? (
               <>
                 <div style={{ textAlign: "left", display: "flex", alignItems: "center" }}>
@@ -1006,7 +1050,7 @@ const Tool = ({ }) => {
                   className="input-texto"
                   value={sceneName}
                   onChange={(e) => setSceneName(e.target.value)}
-                  placeholder="Escreva o nome..."
+                  placeholder="Escreva o título..."
                 />
                 <h2 style={{ marginBottom: "-20px" }}>Descreva o cenário</h2>
                 <div className="areatexto">
@@ -1036,24 +1080,42 @@ const Tool = ({ }) => {
                     i
                   </button>
                 </div>
-                <div>
-                  <hr style={{ marginTop: "30px" }} />
-                  <p style={{ marginTop: "30px" }} >Mapas de jornada de usuário são representações visuais que ilustram as etapas pelas quais os usuários passam ao interagir com um produto ou serviço. Eles ajudam a entender a experiência do usuário, identificando pontos de contato, emoções e possíveis obstáculos. Essa ferramenta é essencial para empresas melhorarem seus processos, otimizando a satisfação e a retenção de clientes.</p>
-                  <div style={{ textAlign: "left", display: "flex", alignItems: "center", marginTop: "30px" }}>
-                    <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "13%", textAlign: "right" }} alt="cu"></img>
-                    {/* <button className="button-download" style={{ marginLeft: "75%" }}  onClick={() => handleExport()} disabled={loading}>
-                      <><Download size={30} style={{ marginRight: "5px" }} /> Download <br />
-                        Mapa</>
-                    </button> */}
+                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "50px" }}>
+                  <div style={{ marginRight: "20px", textAlign: "center", width: "80%" }}>
+                    <img
+                      src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true"
+                      style={{ width: "100%", maxWidth: "200px" }}
+                      alt="Mascote"
+                    />
+                    <button
+                      onClick={() => { handleExport(); }}
+                      style={{
+                        backgroundColor: "#4CAF50",
+                        color: "white",
+                        padding: "10px 25px",
+                        borderRadius: "5px",
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: "16px",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "10px",
+                        display: "flex",
+                        marginTop: "25px",
+                        marginLeft: "27%"
+                      }}
+                    >
+                      <Download size={40} />
+                      <p style={{fontSize: "18px", lineHeight: "1.6" }}>Download</p>
+                    </button>
                   </div>
-                  <a href="https://github.com/GuilhermeHenq/Journey-map" target="_blank" style={{ marginTop: "20px", marginBottom: "5px", width: "70%", textAlign: "center", display: "flex", padding: "5px", marginLeft: "15px", }} >
-                    <Github style={{ marginTop: "px", marginRight: "5px" }} />
-                    <p>Source code</p>
-                  </a>
-                  {/* <button className="button-download" onClick={() => handleExport()} disabled={loading}>
-                    <><Download size={30} style={{ marginRight: "5px" }} /> Download <br />
-                    Mapa</>
-                  </button> */}
+                  <div>
+                    <p style={{ fontSize: "25px", lineHeight: "1.6", marginLeft: "40px" }}>
+                      Mapas de jornada de usuário são representações visuais que ilustram as etapas pelas quais os usuários passam ao interagir com um produto ou serviço. Eles ajudam a entender a experiência do usuário, identificando pontos de contato, emoções e possíveis obstáculos.
+                      <br /> <br />
+                      <i>Você pode baixar o seu mapa clicando no botão de download!</i>
+                    </p>
+                  </div>
                 </div>
               </>
             )}
@@ -1099,42 +1161,43 @@ const Tool = ({ }) => {
               </Stage>
             </div>
           )}
-
-          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-            <div className="barra1" />
-            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-              <div className="fases-text">Fases da Jornada</div>
+          <div className="teste-1" style={{ width: calculateTotalWidth(matrix) + 200 }}>
+            <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+              <div className="barra1" />
+              <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+                <div className="fases-text">Fases da Jornada</div>
+              </div>
             </div>
-          </div>
-          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
-          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-            <div className="barra2" />
-            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-              <div className="fases-text">Ações do Usuário</div>
+            <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+            <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+              <div className="barra2" />
+              <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+                <div className="fases-text">Ações do Usuário</div>
+              </div>
             </div>
-          </div>
-          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
-          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-            <div className="barra3" />
-            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-              <div className="fases-text">Emoções</div>
+            <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+            <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+              <div className="barra3" />
+              <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+                <div className="fases-text">Emoções</div>
+              </div>
             </div>
-          </div>
-          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
-          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-            <div className="barra4" />
-            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-              <div className="fases-text">Pensamentos</div>
+            <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+            <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+              <div className="barra4" />
+              <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+                <div className="fases-text">Pensamentos</div>
+              </div>
             </div>
-          </div>
-          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
-          <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-            <div className="barra5" />
-            <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
-              <div className="fases-text">Pontos de Contato</div>
+            <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
+            <div className="fases-container" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+              <div className="barra5" />
+              <div className="fases-content" style={{ width: calculateTotalWidth(matrix) + 2400 }}>
+                <div className="fases-text">Pontos de Contato</div>
+              </div>
             </div>
+            <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
           </div>
-          <div className="separator1" style={{ width: calculateTotalWidth(matrix) + 2400 }}></div>
         </>
       </div>
     </div>
