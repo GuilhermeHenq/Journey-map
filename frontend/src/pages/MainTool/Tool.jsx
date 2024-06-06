@@ -42,7 +42,7 @@ const Tool = ({ }) => {
 
   const handleExport = async () => {
     setLoading(true);
-    //console.log("entrou em handleExport");
+    console.log("entrou em handleExport");
     try {
       // Capturar a imagem do stage Konva
       const stage = stageRef.current.getStage();
@@ -66,12 +66,12 @@ const Tool = ({ }) => {
       const totalWidth = konvaImage.width; // Use offsetWidth para capturar a largura aplicada pelo CSS
       const totalHeight = Math.max(backgroundCanvas.height, konvaImage.height);
 
-      //console.log("konva width: ", konvaImage.width);
-      //console.log("konva height: ", konvaImage.height);
-      //console.log("backgroundCanvas width: ", backgroundCanvas.width);
-      //console.log("backgroundCanvas height: ", backgroundCanvas.height);
-      //console.log(totalWidth);
-      //console.log(totalHeight);
+      console.log("konva width: ", konvaImage.width);
+      console.log("konva height: ", konvaImage.height);
+      console.log("backgroundCanvas width: ", backgroundCanvas.width);
+      console.log("backgroundCanvas height: ", backgroundCanvas.height);
+      console.log(totalWidth);
+      console.log(totalHeight);
 
       const finalCanvas = document.createElement('canvas');
       finalCanvas.width = totalWidth;
@@ -105,7 +105,7 @@ const Tool = ({ }) => {
   };
 
   const downloadURI = (uri, name) => {
-    //console.log("entrou em downloadURI");
+    console.log("entrou em downloadURI");
     const link = document.createElement('a');
     link.download = name;
     link.href = uri;
@@ -251,7 +251,7 @@ const Tool = ({ }) => {
       }));
 
       const newMatrix = [journeyMatrix, userActionMatrix, emotionMatrix, thoughtMatrix, contactPointMatrix];
-      //console.log(newMatrix);
+      console.log(newMatrix);
       setMatrix(newMatrix);
       // Verifique se pelo menos uma matriz tem dados
       if (newMatrix.some(matrix => matrix.length > 0)) {
@@ -263,20 +263,20 @@ const Tool = ({ }) => {
       const convertedEmojis = {};
 
       for (const item of emotionMatrix) {
-        ////console.log("emojiTag antes da pesquisa: " + item.emojiTag);
+        //console.log("emojiTag antes da pesquisa: " + item.emojiTag);
         const emojis = item.emojiTag;
-        ////console.log("Emojis após a pesquisa: " + emojis);
+        //console.log("Emojis após a pesquisa: " + emojis);
 
         if (emojis.length > 0) {
           // Pegar o primeiro native do array de skins
           const native = emojis;
-          ////console.log("NATIVE A SER INSERIDO: " + native);
+          //console.log("NATIVE A SER INSERIDO: " + native);
           convertedEmojis[item.emotion_id] = native;
         }
       }
 
       setEmojis(convertedEmojis);
-      ////console.log("Emojis após converter emojiTag to Native: " + JSON.stringify(convertedEmojis));
+      //console.log("Emojis após converter emojiTag to Native: " + JSON.stringify(convertedEmojis));
       return (newMatrix);
 
     } catch (error) {
@@ -313,8 +313,8 @@ const Tool = ({ }) => {
 
 
   const updateMatrixWithX = (matrix, id, newX, tipo, length, x, closeY, xoriginal) => {
-    //console.log("Iniciando updateMatrixWithX");
-    //console.log("Parâmetros: id:", id, "newX:", newX, "tipo:", tipo, "length:", length, "x:", x, "closeY:", closeY, "xoriginal:", xoriginal);
+    console.log("Iniciando updateMatrixWithX");
+    console.log("Parâmetros: id:", id, "newX:", newX, "tipo:", tipo, "length:", length, "x:", x, "closeY:", closeY, "xoriginal:", xoriginal);
 
     let updatedX;
 
@@ -322,30 +322,30 @@ const Tool = ({ }) => {
     const intervalCount = Math.floor(newX / 270);
     updatedX = intervalCount * 270;
 
-    //console.log("intervalCount:", intervalCount);
-    //console.log("updatedX:", updatedX);
+    console.log("intervalCount:", intervalCount);
+    console.log("updatedX:", updatedX);
 
     const newXStart = xoriginal + updatedX; // Atualize xoriginal em vez de x
     const newXEnd = newXStart + length;
 
-    //console.log("newXStart:", newXStart);
-    //console.log("newXEnd:", newXEnd);
+    console.log("newXStart:", newXStart);
+    console.log("newXEnd:", newXEnd);
 
     const tamanhoRectMovido = Math.round(length / 270);
-    //console.log("length:", length);
-    //console.log("tamanhoRectMovido:", tamanhoRectMovido);
+    console.log("length:", length);
+    console.log("tamanhoRectMovido:", tamanhoRectMovido);
 
     return matrix.map((row, rowIndex) => {
-      //console.log("Analisando linha:", rowIndex);
+      console.log("Analisando linha:", rowIndex);
 
       // Verificar se há sobreposição apenas na mesma linha
       const rectIndex = row.findIndex(rect => rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString());
       if (rectIndex === -1) {
-        //console.log("Rect não encontrado na linha:", rowIndex);
+        console.log("Rect não encontrado na linha:", rowIndex);
         return row;
       }
 
-      //console.log("Rect encontrado na linha:", rowIndex);
+      console.log("Rect encontrado na linha:", rowIndex);
 
       // Verificar se há um retângulo no qual o usuário arrastou por cima
       const overlappingRect = row.find(rect => {
@@ -354,7 +354,7 @@ const Tool = ({ }) => {
           const rectEnd = rect.x + rect.width;
           const isOverlapping = !(newXEnd <= rectStart || newXStart >= rectEnd);
           if (isOverlapping) {
-            //console.log("Sobreposição detectada com rect:", rect);
+            console.log("Sobreposição detectada com rect:", rect);
           }
           return isOverlapping;
         }
@@ -363,11 +363,11 @@ const Tool = ({ }) => {
 
       // Se há um retângulo sobreposto, ajustar as posições
       if (overlappingRect) {
-        //console.log("Encontrado retângulo sobreposto:", overlappingRect);
+        console.log("Encontrado retângulo sobreposto:", overlappingRect);
 
         return row.map(rect => {
           if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
-            //console.log("Atualizando rect movido:", rect, "Novo X:", newXStart);
+            console.log("Atualizando rect movido:", rect, "Novo X:", newXStart);
             return {
               ...rect,
               x: Math.max(20, newXStart),
@@ -375,7 +375,7 @@ const Tool = ({ }) => {
           }
           if (updatedX < 0) {
             if (rect.x >= newXStart && rect.x <= xoriginal) {
-              //console.log("Movendo rect para frente (esquerda):", rect, "Novo X:", rect.x + 270 * tamanhoRectMovido);
+              console.log("Movendo rect para frente (esquerda):", rect, "Novo X:", rect.x + 270 * tamanhoRectMovido);
               return {
                 ...rect,
                 x: rect.x + 270 * tamanhoRectMovido,
@@ -383,12 +383,26 @@ const Tool = ({ }) => {
             }
           } else {
             if (rect.x >= newXStart) {
-              //console.log("Movendo rect para frente (direita):", rect, "Novo X:", rect.x + 270 * tamanhoRectMovido);
+              console.log("Movendo rect para frente (direita):", rect, "Novo X:", rect.x + 270 * tamanhoRectMovido);
               return {
                 ...rect,
                 x: rect.x + 270 * tamanhoRectMovido,
               };
             }
+          } if (rect.x + rect.width >= newXStart && rect.x + rect.width <= xoriginal) {
+              console.log("Moveu por cima de um trem", rect, "Novo X:", rect.x);
+              return {
+                ...rect,
+                x: xoriginal,
+              };
+          } else {
+            if (rect.x + rect.width >= newXStart) {
+              console.log("Movendo rect para frente (direita):", rect, "Novo X:", xoriginal + overlappingRect.width + 310);
+              return {
+                ...rect,
+                x: xoriginal + overlappingRect.width + 310,
+              };
+            } 
           }
           return rect;
         });
@@ -401,7 +415,7 @@ const Tool = ({ }) => {
           const rectEnd = rect.x + rect.width;
           const isOverlapping = !(newXEnd <= rectStart || newXStart >= rectEnd);
           if (isOverlapping && rect.width !== length) {
-            //console.log("Sobreposição detectada com tamanho diferente para rect:", rect);
+            console.log("Sobreposição detectada com tamanho diferente para rect:", rect);
             return true;
           }
         }
@@ -409,7 +423,7 @@ const Tool = ({ }) => {
       });
 
       if (isOverlappingWithDifferentSize) {
-        //console.log("Sobreposição detectada com retângulo de tamanho diferente, operação não permitida.");
+        console.log("Sobreposição detectada com retângulo de tamanho diferente, operação não permitida.");
         return row;
       }
 
@@ -418,14 +432,14 @@ const Tool = ({ }) => {
           // Limita o valor de lineY aos valores permitidos
           const allowedValues = [35, -15, -60];
           const newLineY = allowedValues.reduce((prev, curr) => (Math.abs(curr - (rect.lineY + closeY)) < Math.abs(prev - (rect.lineY + closeY)) ? curr : prev));
-          //console.log("Atualizando rect de emotion:", rect, "Novo X:", newXStart, "Novo LineY:", newLineY);
+          console.log("Atualizando rect de emotion:", rect, "Novo X:", newXStart, "Novo LineY:", newLineY);
           return {
             ...rect,
             x: Math.max(20, newXStart),
             lineY: newLineY,
           };
         } else if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
-          //console.log("Atualizando rect:", rect, "Novo X:", newXStart);
+          console.log("Atualizando rect:", rect, "Novo X:", newXStart);
           return {
             ...rect,
             x: Math.max(20, newXStart),
@@ -439,7 +453,7 @@ const Tool = ({ }) => {
       const positions = new Set();
       return row.map((rect) => {
         if (positions.has(rect.x)) {
-          //console.log("Corrigindo posição duplicada para rect:", rect);
+          console.log("Corrigindo posição duplicada para rect:", rect);
           rect.x = newXStart;
         }
         positions.add(rect.x);
@@ -452,18 +466,38 @@ const Tool = ({ }) => {
 
   const handleDragEnd = (e, id, tipo, length, x, closeY, xoriginal) => {
     const newX = e.target.x();
-    //console.log(newX);
-    //console.log(x);
+    console.log(newX);
+    console.log(x);
     setMatrix((prevMatrix) => {
       const rearrangedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x, closeY, xoriginal);
-
+  
       const updatedMatrix = rearrangedMatrix.map((row) => {
-        return row.sort((a, b) => {
+        // Ajustar x para o intervalo mais próximo de 270 em 270, começando em 20
+        const adjustedRow = row.map((rect) => {
+          const intervalCount = Math.round((rect.x - 20) / 270);
+          const adjustedX = 20 + intervalCount * 270;
+          return {
+            ...rect,
+            x: adjustedX,
+          };
+        }).sort((a, b) => {
           return (a.x - 20) / 270 - (b.x - 20) / 270;
         });
+  
+        // Verificar e corrigir sobreposições na linha
+        for (let i = 0; i < adjustedRow.length - 1; i++) {
+          const currentRect = adjustedRow[i];
+          const nextRect = adjustedRow[i + 1];
+  
+          while (nextRect.x < currentRect.x + currentRect.width) {
+            nextRect.x = currentRect.x + currentRect.width + 40;
+          }
+        }
+  
+        return adjustedRow;
       });
-
-      //console.log(updatedMatrix)
+  
+      console.log(updatedMatrix);
       return updatedMatrix;
     });
     setEditedRectId(id);
@@ -471,14 +505,16 @@ const Tool = ({ }) => {
     setSaveTriggered(true);
     setShowMessage(false);
   };
+  
+  
 
   const handleSaveClick = () => {
     const putConfig = { method: "PUT" };
-    //console.log("Final matrix: ", matrix)
+    console.log("Final matrix: ", matrix)
     // Mapeie os dados da matriz para os dados necessários para cada tipo de entidade
     const dataToPut = matrix.reduce((acc, row) => {
       row.forEach((rect) => {
-        //console.log("Saving data for rect:", rect);
+        console.log("Saving data for rect:", rect);
 
         if (rect.contactPoint_id !== undefined) {
           acc.push({
@@ -510,7 +546,7 @@ const Tool = ({ }) => {
       return acc;
     }, []);
 
-    //console.log("Data to put:", dataToPut);
+    console.log("Data to put:", dataToPut);
 
     // Envie as solicitações para a API usando os dados mapeados
     const requests = dataToPut.map(({ endpoint, data }) => {
@@ -522,7 +558,7 @@ const Tool = ({ }) => {
     Promise.all(requests)
       .then(() => {
         if (showMessage) {
-          //console.log("Dados salvos com sucesso!");
+          console.log("Dados salvos com sucesso!");
         } else {
           setShowMessage(true)
         }
@@ -574,7 +610,7 @@ const Tool = ({ }) => {
     let foundExtendedRect = null;
 
     setMatrix((prevMatrix) => {
-      //console.log('Previous Matrix:', prevMatrix);
+      console.log('Previous Matrix:', prevMatrix);
 
       tempMatrix = prevMatrix.map((row) => {
         let rowUpdated = false;
@@ -591,7 +627,7 @@ const Tool = ({ }) => {
             const originalX = rect.x;
             extendedRect = { ...rect, width: selectedHouses * 270 - 40, x: originalX }; // Maintain the original X position
             extendedIndex = index;
-            //console.log('Extended Rect:', extendedRect);
+            console.log('Extended Rect:', extendedRect);
             return extendedRect;
           }
           return rect;
@@ -606,14 +642,14 @@ const Tool = ({ }) => {
               adjustedX += rect.width + 40; // Increment adjustedX by rect.width and 40px gap
             }
           });
-          //console.log('Row Updated:', updatedRow);
+          console.log('Row Updated:', updatedRow);
           foundExtendedRect = extendedRect; // Track the extended rectangle
         }
 
         return updatedRow;
       });
 
-      //console.log('Temporary Matrix:', tempMatrix);
+      console.log('Temporary Matrix:', tempMatrix);
       return tempMatrix;
     });
 
@@ -640,8 +676,8 @@ const Tool = ({ }) => {
     const newMatrix = [...matrix];
 
     // Se o novo texto tiver mais de 30 caracteres, abrevie com reticências
-    //console.log(newText);
-    //console.log(newText.length);
+    console.log(newText);
+    console.log(newText.length);
     const abbreviatedText = newText.length > 30 ? newText.slice(0, 27) + '...' : newText;
 
     // Crie uma nova constante que guarde o valor do texto original
@@ -656,8 +692,8 @@ const Tool = ({ }) => {
   };
 
   const handleTextSubmit = () => {
-    //console.log("rectid:", editedRectId);
-    //console.log("editedRowIndex:", editedRowIndex);
+    console.log("rectid:", editedRectId);
+    console.log("editedRowIndex:", editedRowIndex);
 
     // Salvar o texto editado quando o usuário confirmar
     const updatedMatrix = matrix.map((row) =>
@@ -672,7 +708,7 @@ const Tool = ({ }) => {
       })
     );
 
-    //console.log("editedText:", editedText);
+    console.log("editedText:", editedText);
     setMatrix(updatedMatrix);
     setEditedText("");
     setSaveTriggered(true);
@@ -682,7 +718,7 @@ const Tool = ({ }) => {
   const [newSquareId, setNewSquareId] = useState(null);
 
   const handleAddSquare = async (rowIndex, colIndex, squarewidth) => {
-    //console.log("handleAddSquare rowIndex, colIndex, squarewidth:", rowIndex, colIndex, squarewidth);
+    console.log("handleAddSquare rowIndex, colIndex, squarewidth:", rowIndex, colIndex, squarewidth);
     try {
       const rowIndexToType = {
         0: 'journeyPhase',
@@ -708,7 +744,7 @@ const Tool = ({ }) => {
         return;
       }
 
-      //console.log(novoX);
+      console.log(novoX);
 
       // Check if there's a rect with the same novoX and type
       const isOverlapping = matrix[rowIndex].some(rect =>
@@ -732,7 +768,7 @@ const Tool = ({ }) => {
             if (type !== 'emotion') {
               putData.description = card.text || "";
             }
-            //console.log(putData);
+            console.log(putData);
             await axios.put(import.meta.env.VITE_BACKEND + `/${type}`, putData);
           }
         }
@@ -771,7 +807,7 @@ const Tool = ({ }) => {
       postData.lineY = -15;
     }
 
-    //console.log(postData);
+    console.log(postData);
     const response = await axios.post(import.meta.env.VITE_BACKEND + `/${type}`, postData);
 
     fetchData();
@@ -790,20 +826,20 @@ const Tool = ({ }) => {
   useEffect(() => {
     if (newSquareId && matrix) {
       const [journeyPhase, userAction, emotions] = matrix;
-      //console.log("[emotions]: ", emotions);
+      console.log("[emotions]: ", emotions);
       const emotionIds = emotions.map(emotion => emotion.emotion_id);
-      //console.log("emotion ids: ", emotionIds);
-      //console.log("newSquareID: ", newSquareId);
+      console.log("emotion ids: ", emotionIds);
+      console.log("newSquareID: ", newSquareId);
 
       if (emotionIds.includes(newSquareId)) {
-        //console.log("ID DO EMOJI", newSquareId);
+        console.log("ID DO EMOJI", newSquareId);
         handleCircleClick(newSquareId);
-        //console.log("handleCircleClick chamado");
+        console.log("handleCircleClick chamado");
       } else {
-        //console.log("ID DO EMOJI não encontrado na lista de emoções");
+        console.log("ID DO EMOJI não encontrado na lista de emoções");
       }
     } else {
-      //console.log("newSquareId ou matrix estão ausentes");
+      console.log("newSquareId ou matrix estão ausentes");
     }
   }, [newSquareId, matrix]);
 
@@ -814,12 +850,12 @@ const Tool = ({ }) => {
       const squareType = square.type;
       const squareId = square[`${squareType}_id`];
 
-      //console.log(`Iniciando exclusão do quadrado: ${squareId}`);
-      //console.log(`Iniciando exclusão do quadrado: ${squareType}`);
+      console.log(`Iniciando exclusão do quadrado: ${squareId}`);
+      console.log(`Iniciando exclusão do quadrado: ${squareType}`);
 
       await axios.delete(import.meta.env.VITE_BACKEND + `/${squareType}/${squareId}`);
 
-      //console.log(`Quadrado ${squareId} excluído com sucesso!`);
+      console.log(`Quadrado ${squareId} excluído com sucesso!`);
 
       // Atualizar a matriz com os novos dados após a exclusão
       const newData = await fetchData();
@@ -841,15 +877,15 @@ const Tool = ({ }) => {
 
 
   const handleCircleClick = (cellId) => {
-    //console.log("Clicked on circle with ID: ", cellId);
-    //console.log("Matrix state: ", matrix); // Verifique se matrix está atualizada
-    //console.log("cellId: ", cellId);
+    console.log("Clicked on circle with ID: ", cellId);
+    console.log("Matrix state: ", matrix); // Verifique se matrix está atualizada
+    console.log("cellId: ", cellId);
     setCurrentCellId(cellId);
   };
 
   useEffect(() => {
     if (currentCellId !== "") {
-      //console.log("CurrentCellId: ", currentCellId);
+      console.log("CurrentCellId: ", currentCellId);
       setPickerVisible(true);
     }
   }, [currentCellId]);
@@ -877,7 +913,7 @@ const Tool = ({ }) => {
                     lineY: rect.lineY,
                     emojiTag: emojiData.native
                   }).then(() => {
-                    //console.log('Emoji atualizado no backend:', updatedRect);
+                    console.log('Emoji atualizado no backend:', updatedRect);
                   }).catch((error) => {
                     console.error('Erro ao atualizar emoji no backend:', error);
                   });
@@ -1106,7 +1142,7 @@ const Tool = ({ }) => {
                       }}
                     >
                       <Download size={40} />
-                      <p style={{fontSize: "18px", lineHeight: "1.6" }}>Download</p>
+                      <p style={{ fontSize: "18px", lineHeight: "1.6" }}>Download</p>
                     </button>
                   </div>
                   <div>
