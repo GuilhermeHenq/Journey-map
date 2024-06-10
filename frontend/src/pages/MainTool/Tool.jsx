@@ -651,13 +651,13 @@ const Tool = ({ }) => {
   
         // If the row was updated, adjust the X position of subsequent rectangles
         if (rowUpdated) {
-          let adjustedX = extendedRect.x + extendedRect.width + 40; // Start X position after the extended rectangle
+          let adjustedXrect = extendedRect.x + extendedRect.width + 40; // Start X position after the extended rectangle
           updatedRow.forEach((rect) => {
             if (rect.x > extendedRect.x) {
-              if (rect.x < adjustedX) {
-                rect.x = adjustedX; // Adjust subsequent rectangles with the updatedX
-                adjustedX += rect.width ; 
-              }
+                console.log("rect: ", rect);
+                rect.x = adjustedXrect; // Adjust subsequent rectangles with the updatedX
+                adjustedXrect += rect.width + 40; 
+
             }
           });
           console.log('Row Updated:', updatedRow);
