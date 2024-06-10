@@ -143,7 +143,7 @@ const Matrix = ({ matrix, emojis, setMatrix, handleRectClick, handleTextChange, 
                                             color={square.color}
                                             onClick={() => {
                                                 const id = square.journeyPhase_id || square.userAction_id || square.emotion_id || square.thought_id || square.contactPoint_id;
-                                                handleRectClick(square.text, id, square.y);
+                                                handleRectClick(square.text, id, square.y, square.width);
                                             }}
                                             onTextChange={(newText) => handleTextChange(rowIndex, colIndex, newText)}
                                         />

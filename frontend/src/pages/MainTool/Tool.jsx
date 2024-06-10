@@ -576,7 +576,9 @@ const Tool = ({ }) => {
   const [editedRectId, setEditedRectId] = useState("");
   const [textEdit, setTextEdit] = useState(false)
 
-  const handleRectClick = (currentText, id, rectY) => {
+  const handleRectClick = (currentText, id, rectY, tamanho) => {
+    const tamanhorect = (tamanho + 40) / 270;
+    setSelectedHouses(tamanhorect);
     setEditedText(currentText); // Define o texto atual para edição no popup
     setEditedRectId(id);
     setEditedRowIndex(rectY);
@@ -606,21 +608,35 @@ const Tool = ({ }) => {
   const [tempWidth, setTempWidth] = useState()
 
   const handleSaveHouse = async () => {
+    // Fetch the most up-to-date data
+    const fetchedData = await fetchData();
     let tempMatrix = [];
     let foundExtendedRect = null;
-
+  
+    // Function to adjust the X position of rectangles
+    const adjustRowXPositions = (row) => {
+      return row.map((rect) => {
+        const intervalCount = Math.round((rect.x - 20) / 270);
+        const adjustedX = 20 + intervalCount * 270;
+        return {
+          ...rect,
+          x: adjustedX,
+        };
+      });
+    };
+  
     setMatrix((prevMatrix) => {
       console.log('Previous Matrix:', prevMatrix);
-
+  
       tempMatrix = prevMatrix.map((row) => {
         let rowUpdated = false;
         let extendedRect; // To store the extended rectangle
         let extendedIndex = -1; // To store the index of the extended rectangle
-
+  
         const updatedRow = row.map((rect, index) => {
           const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
           if (!type) return rect; // Skip if type is null
-
+  
           if (rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex) {
             rowUpdated = true;
             // Save the original X position before extending the width
@@ -632,32 +648,39 @@ const Tool = ({ }) => {
           }
           return rect;
         });
-
+  
         // If the row was updated, adjust the X position of subsequent rectangles
         if (rowUpdated) {
-          let adjustedX = extendedRect.x + extendedRect.width; // Start X position after the extended rectangle
-          updatedRow.forEach((rect, index) => {
-            if (rect && index > extendedIndex) {
-              rect.x = adjustedX + 40; // Adjust subsequent rectangles with the 40px gap
-              adjustedX += rect.width + 40; // Increment adjustedX by rect.width and 40px gap
+          let adjustedX = extendedRect.x + extendedRect.width + 40; // Start X position after the extended rectangle
+          updatedRow.forEach((rect) => {
+            if (rect.x > extendedRect.x) {
+              if (rect.x < adjustedX) {
+                rect.x = adjustedX; // Adjust subsequent rectangles with the updatedX
+                adjustedX += rect.width ; 
+              }
             }
           });
           console.log('Row Updated:', updatedRow);
           foundExtendedRect = extendedRect; // Track the extended rectangle
         }
-
+  
         return updatedRow;
       });
-
+  
       console.log('Temporary Matrix:', tempMatrix);
+  
+      // Adjust X positions of all rectangles in all rows
+      tempMatrix = tempMatrix.map(adjustRowXPositions);
+  
       return tempMatrix;
     });
-
+  
     // Use a state variable to trigger saving the data after the state update completes
     setSaveTriggered(true);
     setShowMessage(false);
-    setSelectedHouses(1);
+
   };
+  
 
   const [saveTriggered, setSaveTriggered] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
