@@ -1,6 +1,6 @@
 // contactPointController.js
 
-const ContactPointModel = require('../Model/ContactPointModel');
+const ContactPointModel = require('../Model/contactPointModel');
 
 const contactPointController = {
   getAllItems: async (req, res) => {
