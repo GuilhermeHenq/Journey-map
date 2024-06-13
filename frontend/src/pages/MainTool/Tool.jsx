@@ -46,8 +46,15 @@ const Tool = ({ }) => {
     try {
       // Capturar a imagem do stage Konva
       const stage = stageRef.current.getStage();
-      const konvaDataURL = stage.toDataURL({ pixelRatio: 0.84 });
-
+      
+      // Salvar a escala atual
+      const originalScale = stage.scaleX();
+      
+      // Redefinir a escala para 1 (tamanho original)
+      stage.scale({ x: 1, y: 1 });
+      
+      const konvaDataURL = stage.toDataURL({ pixelRatio: 2 }); // Usar uma resolução maior para melhor qualidade
+  
       const konvaImage = await new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = 'anonymous';
@@ -55,45 +62,49 @@ const Tool = ({ }) => {
         img.onerror = reject;
         img.src = konvaDataURL;
       });
-
+  
+      // Restaurar a escala original
+      stage.scale({ x: originalScale, y: originalScale });
+      
       // Capturar a imagem de fundo
       const backgroundCanvas = await html2canvas(document.querySelector('.teste-1'), {
         backgroundColor: null,
+        scale: 2, // Capturar com uma resolução maior
       });
-
+  
       // Capturar a largura da div .teste-1
       const teste1Div = document.querySelector('.teste-1');
       const totalWidth = konvaImage.width; // Use offsetWidth para capturar a largura aplicada pelo CSS
       const totalHeight = Math.max(backgroundCanvas.height, konvaImage.height);
-
+  
       console.log("konva width: ", konvaImage.width);
       console.log("konva height: ", konvaImage.height);
       console.log("backgroundCanvas width: ", backgroundCanvas.width);
       console.log("backgroundCanvas height: ", backgroundCanvas.height);
       console.log(totalWidth);
       console.log(totalHeight);
-
+  
       const finalCanvas = document.createElement('canvas');
       finalCanvas.width = totalWidth;
       finalCanvas.height = totalHeight;
       const ctx = finalCanvas.getContext('2d');
-
+  
       // Preencher o fundo com a cor quase branca
       ctx.fillStyle = "#f8f8f8";
       ctx.fillRect(0, 0, totalWidth, totalHeight);
-
+  
       // Desenhar a imagem de fundo
       ctx.drawImage(backgroundCanvas, 0, 12);
-
+  
       // Desenhar a imagem do stage Konva
-      ctx.drawImage(konvaImage, 150, -35);
-
+      ctx.drawImage(konvaImage, 330, -95);
+  
       // Desenhar o texto
       ctx.fillStyle = "#000000"; // Cor do texto
       ctx.font = "40px Arial"; // Estilo da fonte
       ctx.textAlign = "center"; // Centralizar o texto
       ctx.fillText("JEM - JourneyEasyMap", totalWidth / 2, totalHeight - 20);
-
+  
       // Exportar o canvas final como imagem
       const finalImage = finalCanvas.toDataURL('image/png');
       downloadURI(finalImage, 'mapa_de_jornada.png');
@@ -103,7 +114,7 @@ const Tool = ({ }) => {
       setLoading(false);
     }
   };
-
+  
   const downloadURI = (uri, name) => {
     console.log("entrou em downloadURI");
     const link = document.createElement('a');
@@ -113,6 +124,8 @@ const Tool = ({ }) => {
     link.click();
     document.body.removeChild(link);
   };
+  
+  
 
 
   const handlePostClick = async () => {
@@ -315,38 +328,38 @@ const Tool = ({ }) => {
   const updateMatrixWithX = (matrix, id, newX, tipo, length, x, closeY, xoriginal) => {
     console.log("Iniciando updateMatrixWithX");
     console.log("Parâmetros: id:", id, "newX:", newX, "tipo:", tipo, "length:", length, "x:", x, "closeY:", closeY, "xoriginal:", xoriginal);
-
+  
     let updatedX;
-
+  
     // Verificar quantos intervalos de 270 cabem em newX
     const intervalCount = Math.floor(newX / 270);
     updatedX = intervalCount * 270;
-
+  
     console.log("intervalCount:", intervalCount);
     console.log("updatedX:", updatedX);
-
-    const newXStart = xoriginal + updatedX; // Atualize xoriginal em vez de x
+  
+    const newXStart = xoriginal + updatedX;
     const newXEnd = newXStart + length;
-
+  
     console.log("newXStart:", newXStart);
     console.log("newXEnd:", newXEnd);
-
+  
     const tamanhoRectMovido = Math.round(length / 270);
     console.log("length:", length);
     console.log("tamanhoRectMovido:", tamanhoRectMovido);
-
+  
     return matrix.map((row, rowIndex) => {
       console.log("Analisando linha:", rowIndex);
-
+  
       // Verificar se há sobreposição apenas na mesma linha
       const rectIndex = row.findIndex(rect => rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString());
       if (rectIndex === -1) {
         console.log("Rect não encontrado na linha:", rowIndex);
         return row;
       }
-
+  
       console.log("Rect encontrado na linha:", rowIndex);
-
+  
       // Verificar se há um retângulo no qual o usuário arrastou por cima
       const overlappingRect = row.find(rect => {
         if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString()) {
@@ -360,11 +373,11 @@ const Tool = ({ }) => {
         }
         return false;
       });
-
+  
       // Se há um retângulo sobreposto, ajustar as posições
       if (overlappingRect) {
         console.log("Encontrado retângulo sobreposto:", overlappingRect);
-
+  
         return row.map(rect => {
           if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
             console.log("Atualizando rect movido:", rect, "Novo X:", newXStart);
@@ -389,25 +402,11 @@ const Tool = ({ }) => {
                 x: rect.x + 270 * tamanhoRectMovido,
               };
             }
-          } if (rect.x + rect.width >= newXStart && rect.x + rect.width <= xoriginal) {
-              console.log("Moveu por cima de um trem", rect, "Novo X:", rect.x);
-              return {
-                ...rect,
-                x: xoriginal,
-              };
-          } else {
-            if (rect.x + rect.width >= newXStart) {
-              console.log("Movendo rect para frente (direita):", rect, "Novo X:", xoriginal + overlappingRect.width + 310);
-              return {
-                ...rect,
-                x: xoriginal + overlappingRect.width + 310,
-              };
-            } 
           }
           return rect;
         });
       }
-
+  
       // Caso contrário, verifique se há sobreposição com tamanho diferente e, se houver, retorne a matriz original
       const isOverlappingWithDifferentSize = row.some(rect => {
         if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString()) {
@@ -421,12 +420,12 @@ const Tool = ({ }) => {
         }
         return false;
       });
-
+  
       if (isOverlappingWithDifferentSize) {
         console.log("Sobreposição detectada com retângulo de tamanho diferente, operação não permitida.");
         return row;
       }
-
+  
       return row.map((rect) => {
         if (rect.type === 'emotion' && rect.emotion_id.toString() === id.toString()) {
           // Limita o valor de lineY aos valores permitidos
@@ -461,6 +460,7 @@ const Tool = ({ }) => {
       });
     });
   };
+  
 
 
 
@@ -1150,6 +1150,7 @@ const Tool = ({ }) => {
                       onClick={() => { handleExport(); }}
                       style={{
                         backgroundColor: "#4CAF50",
+                        width: "100%", 
                         color: "white",
                         padding: "10px 25px",
                         borderRadius: "5px",
@@ -1158,10 +1159,6 @@ const Tool = ({ }) => {
                         fontSize: "16px",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: "10px",
-                        display: "flex",
-                        marginTop: "25px",
-                        marginLeft: "27%"
                       }}
                     >
                       <Download size={40} />
