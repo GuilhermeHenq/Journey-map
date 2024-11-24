@@ -230,7 +230,7 @@ const MapCreation = () => {
       {maps.length > 0 ? (
         <div className="margem">
           <div className="input-wrapper">
-            <h1 className="mapasuser">Mapas de jornadas:</h1>
+            <h1 className="mapasuser">Seus mapas</h1>
             <input
               type="text"
               value={filterText}
