@@ -1,33 +1,16 @@
-<b><h1>EasyJourneyMap</h1></b>
+# **JourneyEasyMap (JEM)**
 
-Front-end made with React Native + Vite, utilizing the React Konva library, a popular shape-manipulation tool, as its main structural point for the tool build. Back-end made with Node.JS using Express framework, a very popular web structured framework, coded in JavaScript that runs over the Node.JS environment in execution time. Utilizing a MySQL database, with schema <i>mapjourney</i> to store all info.
+**JourneyEasyMap (JEM)** is a powerful User Journey Map (UJM) creation tool designed for efficiency and ease of use.
 
-<b><h2>How to start front-end interface:</h2></b>
+- **Frontend**: Built with React Native and Vite, leveraging the **React Konva** library for advanced shape manipulation and visualization.  
+- **Backend**: Developed using Node.js with the **Express** framework, ensuring robust and scalable server-side operations.  
+- **Database**: Utilizes a **MySQL** database, with the schema `mapjourney` to store and manage all application data.
 
-- cd .\frontend\
-- npm i
-- npm run dev
+---
 
-React should start running on port 5173.
+## **Getting Started**
 
-<b><h2>How to start Node.JS server:</h2></b>
-
-- cd .\backend\
-- npm i
-- npm run dev
-
-Server should start running on port 3000.
-
-<b><h2>Configure your database MySql</h2></b>
-
-- cd .\backend\
-- create .env
-- DB_HOST= your host (localhost probably)
-- DB_USER= your user
-- DB_PASSWORD= your pass
-- DB_DATABASE= your databasename (mapjourney probably)
-
-
-<b><h2>How to create <i>mapjourney</i> table in MySQL:</h2></b>
-
-- Import the mapjourneyDB.sql file to configure and create your database
+### **Frontend Interface Setup**
+1. Navigate to the frontend directory:  
+   ```bash
+   cd ./frontend/
