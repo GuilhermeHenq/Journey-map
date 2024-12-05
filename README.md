@@ -1,4 +1,4 @@
-<span><img src="https://raw.githubusercontent.com/GuilhermeHenq/Journey-map/refs/heads/main/frontend/src/assets/mascote.png" width="30px"></img> # **JourneyEasyMap (JEM)**</span>
+# **JourneyEasyMap (JEM)** <img src="https://raw.githubusercontent.com/GuilhermeHenq/Journey-map/refs/heads/main/frontend/src/assets/mascote.png" width="30px"></img>
 
 **JourneyEasyMap (JEM)** is a powerful User Journey Map (UJM) creation tool designed for efficiency and ease of use.
 
