@@ -35,16 +35,15 @@ By default, React will run on <b>port 5173.</b>
 The server will run on <b>port 3000.</b>
 
 ---
-
-### **Database Configuration**
-1. Navigate to the frontend directory:  
+<h2><strong>Database Configuration</strong></h2>
+### **Setup MySQL**
+1. Navigate to the backend directory:  
    ```bash
-   cd ./frontend/
-2. Install dependencies:  
+   cd ./backend/
+2. Create a .env file with the following configuration:  
    ```bash
-   npm install
-3. Start the development server:  
-   ```bash
-   npm run dev
-By default, React will run on <b>port 5173.</b>
-
+   DB_HOST=your_host (e.g., localhost)
+   DB_USER=your_username
+   DB_PASSWORD=your_password
+   DB_DATABASE=mapjourney
+Replace the placeholders with your MySQL credentials.
