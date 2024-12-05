@@ -55,7 +55,7 @@ The server will run on <b>port 3000.</b>
 Replace the placeholders with your MySQL credentials.
 
 ### **Create the <i>mapjourney</i> Database**
-1. Import the <i>mapjourneyDB.sql</i> file into MySQL to configure and create the required database schema.
+1. Import the `mapjourneyDB.sql` file into MySQL to configure and create the required database schema.
 
 ---
 
