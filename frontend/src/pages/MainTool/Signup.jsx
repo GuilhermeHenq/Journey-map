@@ -19,14 +19,14 @@ function Signup() {
   const [theme, setTheme] = useState("light");
 
 
-  useEffect(() => {
-    console.log("Current theme:", theme);
-  }, [theme]);
+  // useEffect(() => {
+  //   // console.log("Current theme:", theme);
+  // }, [theme]);
 
   const toggleTheme = () => {
     setTheme((prevTheme) => {
       const newTheme = prevTheme === "dark" ? "light" : "dark";
-      console.log("Theme changed to:", newTheme);  // Log the new theme
+      // // console.log("Theme changed to:", newTheme);  // Log the new theme
       return newTheme;
     });
   };
@@ -66,7 +66,7 @@ function Signup() {
 
     try { 
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        //console.log(userCredential);
+        //// console.log(userCredential);
         const user = userCredential.user;
         localStorage.setItem("token", user.accessToken);
         localStorage.setItem("user", JSON.stringify(user));

@@ -19,14 +19,14 @@ function Login() {
   const [googleUser, setGoogleUser] = useState(null);
   const [theme, setTheme] = useState("light");
 
-  useEffect(() => {
-    console.log("Current theme:", theme);
-  }, [theme]);
+  // useEffect(() => {
+  //   // console.log("Current theme:", theme);
+  // }, [theme]);
 
   const toggleTheme = () => {
     setTheme((prevTheme) => {
       const newTheme = prevTheme === "dark" ? "light" : "dark";
-      console.log("Theme changed to:", newTheme);  // Log the new theme
+      // // console.log("Theme changed to:", newTheme);  // Log the new theme
       return newTheme;
     });
   };

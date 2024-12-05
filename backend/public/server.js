@@ -69,6 +69,6 @@ app.put('/scenario', scenarioController.updateScenario);
 
 app.listen(port, 'localhost', () => {
   console.log(`---------------------------------------------`);
-  console.log(`  Server listening at http://192.168.1.210:${port}`);
+  console.log(`  Server listening at http://localhost:${port}`);
   console.log(`---------------------------------------------`);
 });
