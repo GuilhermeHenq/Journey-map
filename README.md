@@ -35,7 +35,8 @@ By default, React will run on <b>port 5173.</b>
 The server will run on <b>port 3000.</b>
 
 ---
-<h2><strong>Database Configuration</strong></h2>
+
+## Database Configuration
 ### **Setup MySQL**
 1. Navigate to the backend directory:  
    ```bash
@@ -47,3 +48,13 @@ The server will run on <b>port 3000.</b>
    DB_PASSWORD=your_password
    DB_DATABASE=mapjourney
 Replace the placeholders with your MySQL credentials.
+
+### **Create the <i>mapjourney</i> Database**
+1. Import the <i>mapjourneyDB.sql</i> file into MySQL to configure and create the required database schema.
+
+---
+
+Feel free to customize further as needed! If you encounter any issues, please consult the project documentation or contact the development team.
+
+✉ luca.oliveira@sou.unifal-mg.edu.br
+✉ guilherme.serafini@sou.unifal-mg.edu.br
