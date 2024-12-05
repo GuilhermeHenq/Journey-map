@@ -54,7 +54,7 @@ Replace the placeholders with your MySQL credentials.
 
 ---
 
-Feel free to customize further as needed! If you encounter any issues, please consult the project documentation or contact the development team.
+We hope you enjoy JourneyEasyMap! If you encounter any issues, please consult the project documentation or contact the development team.
 
-✉ luca.oliveira@sou.unifal-mg.edu.br
+✉ luca.oliveira@sou.unifal-mg.edu.br<br>
 ✉ guilherme.serafini@sou.unifal-mg.edu.br
