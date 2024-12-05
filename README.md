@@ -6,7 +6,7 @@
 - **Backend**: Developed using Node.js with the **Express** framework, ensuring robust and scalable server-side operations.  
 - **Database**: Utilizes a **MySQL** database, with the schema `mapjourney` to store and manage all application data.
 
-<img src="https://raw.githubusercontent.com/luca-ferro/images/refs/heads/main/WhatsApp%20Image%202024-12-04%20at%2020.08.09.jpeg" width="90px"></img>
+<img src="https://raw.githubusercontent.com/luca-ferro/images/refs/heads/main/WhatsApp%20Image%202024-12-04%20at%2020.08.09.jpeg"></img><br>
 <b>Figure 1.</b> Example of a User Journey Map in the JEM tool.
 
 ---
