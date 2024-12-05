@@ -1,34 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Github, LogOut } from 'lucide-react';
-import axios from 'axios';
 import './Navbar.css';
 
-const Navbar = ({ onSaveClick, onDownload, onMap, onInfoClick, onScenarioClick, onLogoutClick, dataLoaded, currentJourneyMap, handlePostClick }) => {
-  
+const Navbar = ({ 
+  onSaveClick, 
+  onDownload, 
+  onMap, 
+  onInfoClick, 
+  onScenarioClick, 
+  onLogoutClick, 
+  dataLoaded, 
+  currentJourneyMap, 
+  handlePostClick,
+  scenarioName
+}) => {
   const [nameTrue, setNameTrue] = useState(false);
   const [journeyMapName, setJourneyMapName] = useState("Clique aqui");
   const [editedName, setEditedName] = useState(journeyMapName);
-  const [scenarioName, setScenarioName] = useState("Nome do Cenário");
 
   const usuario = JSON.parse(localStorage.getItem('user'));
-
-  useEffect(() => {
-    const fetchScenarioName = async () => {
-      try {
-        const response = await axios.get(import.meta.env.VITE_BACKEND + `/scenario/${currentJourneyMap}`);
-        const scenario = response.data;
-        if (scenario.name) {
-          setScenarioName(scenario.name);
-        } else {
-          setScenarioName("Nome do Cenário");
-        }
-      } catch (error) {
-        console.error("Erro ao buscar o nome do cenário:", error);
-      }
-    };
-
-    fetchScenarioName();
-  }, []); // Execute apenas na montagem do componente
 
   const handleInputBlur = () => {
     setNameTrue(false);
@@ -46,17 +36,16 @@ const Navbar = ({ onSaveClick, onDownload, onMap, onInfoClick, onScenarioClick, 
   return (
     <div className="scenario" style={{ textAlign: "left", padding: "31px", fontSize: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-      <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "50px", textAlign: "left", marginRight: "20px" }} alt="Mascote"></img>
-      <p>JEM</p>
+        <img src="https://github.com/luca-ferro/imagestest/blob/main/mascote.png?raw=true" style={{ width: "50px", textAlign: "left", marginRight: "20px" }} alt="Mascote"></img>
+        <p>JEM</p>
       </div>
       {!dataLoaded ? (
         <button className="button-novo-mapa" onClick={handlePostClick}>
           <p>Novo Mapa de Jornada</p>
         </button>
-
       ) : (
         <>
-        <span onClick={onScenarioClick}>Cenário - {scenarioName}</span>
+          <span onClick={onScenarioClick}>Cenário - {scenarioName || "Nome do Cenário"}</span>
         </>
       )}
       <div className="botoes">
@@ -72,7 +61,11 @@ const Navbar = ({ onSaveClick, onDownload, onMap, onInfoClick, onScenarioClick, 
         <button className="button logout" onClick={onLogoutClick}>
           <LogOut />
         </button>
-        <img src={usuario.providerData[0].photoURL || "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG.png"} alt="Profile" style={{ marginLeft: "20px", width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover", marginRight: "10px" }} />
+        <img 
+          src={usuario.providerData[0]?.photoURL || "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG.png"} 
+          alt="Profile" 
+          style={{ marginLeft: "20px", width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover", marginRight: "10px" }} 
+        />
       </div>
     </div>
   );

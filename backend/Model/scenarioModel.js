@@ -39,17 +39,24 @@ class ScenarioModel {
       throw error;
     }
   }
-  
+
 
   async updateScenario(journeyMapId, newName, newDescription) {
     try {
-      const result = await db.execute("UPDATE scenario SET name = ?, description = ? WHERE journeyMap_id = ?", [newName, newDescription, journeyMapId]);
+      console.log("Updating scenario in database:", { journeyMapId, newName, newDescription });
+      const result = await db.execute(
+        "UPDATE scenario SET name = ?, description = ? WHERE journeyMap_id = ?", 
+        [newName, newDescription, journeyMapId]
+      );
+      console.log("SQL update result:", result);
       return result.affectedRows > 0;
     } catch (error) {
       console.error("Error updating scenario:", error);
       throw error;
     }
   }
+  
+
 }
 
 module.exports = ScenarioModel;

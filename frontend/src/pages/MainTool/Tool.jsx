@@ -46,15 +46,15 @@ const Tool = ({ }) => {
     try {
       // Capturar a imagem do stage Konva
       const stage = stageRef.current.getStage();
-      
+
       // Salvar a escala atual
       const originalScale = stage.scaleX();
-      
+
       // Redefinir a escala para 1 (tamanho original)
       stage.scale({ x: 1, y: 1 });
-      
+
       const konvaDataURL = stage.toDataURL({ pixelRatio: 2 }); // Usar uma resolução maior para melhor qualidade
-  
+
       const konvaImage = await new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = 'anonymous';
@@ -62,49 +62,49 @@ const Tool = ({ }) => {
         img.onerror = reject;
         img.src = konvaDataURL;
       });
-  
+
       // Restaurar a escala original
       stage.scale({ x: originalScale, y: originalScale });
-      
+
       // Capturar a imagem de fundo
       const backgroundCanvas = await html2canvas(document.querySelector('.teste-1'), {
         backgroundColor: null,
         scale: 2, // Capturar com uma resolução maior
       });
-  
+
       // Capturar a largura da div .teste-1
       const teste1Div = document.querySelector('.teste-1');
       const totalWidth = konvaImage.width; // Use offsetWidth para capturar a largura aplicada pelo CSS
       const totalHeight = Math.max(backgroundCanvas.height, konvaImage.height);
-  
+
       console.log("konva width: ", konvaImage.width);
       console.log("konva height: ", konvaImage.height);
       console.log("backgroundCanvas width: ", backgroundCanvas.width);
       console.log("backgroundCanvas height: ", backgroundCanvas.height);
       console.log(totalWidth);
       console.log(totalHeight);
-  
+
       const finalCanvas = document.createElement('canvas');
       finalCanvas.width = totalWidth;
       finalCanvas.height = totalHeight;
       const ctx = finalCanvas.getContext('2d');
-  
+
       // Preencher o fundo com a cor quase branca
       ctx.fillStyle = "#f8f8f8";
       ctx.fillRect(0, 0, totalWidth, totalHeight);
-  
+
       // Desenhar a imagem de fundo
       ctx.drawImage(backgroundCanvas, 0, 12);
-  
+
       // Desenhar a imagem do stage Konva
       ctx.drawImage(konvaImage, 330, -95);
-  
+
       // Desenhar o texto
       ctx.fillStyle = "#000000"; // Cor do texto
       ctx.font = "40px Arial"; // Estilo da fonte
       ctx.textAlign = "center"; // Centralizar o texto
       ctx.fillText("JEM - JourneyEasyMap", totalWidth / 2, totalHeight - 20);
-  
+
       // Exportar o canvas final como imagem
       const finalImage = finalCanvas.toDataURL('image/png');
       downloadURI(finalImage, 'mapa_de_jornada.png');
@@ -114,7 +114,7 @@ const Tool = ({ }) => {
       setLoading(false);
     }
   };
-  
+
   const downloadURI = (uri, name) => {
     console.log("entrou em downloadURI");
     const link = document.createElement('a');
@@ -124,8 +124,8 @@ const Tool = ({ }) => {
     link.click();
     document.body.removeChild(link);
   };
-  
-  
+
+
 
 
   const handlePostClick = async () => {
@@ -328,38 +328,38 @@ const Tool = ({ }) => {
   const updateMatrixWithX = (matrix, id, newX, tipo, length, x, closeY, xoriginal) => {
     console.log("Iniciando updateMatrixWithX");
     console.log("Parâmetros: id:", id, "newX:", newX, "tipo:", tipo, "length:", length, "x:", x, "closeY:", closeY, "xoriginal:", xoriginal);
-  
+
     let updatedX;
-  
+
     // Verificar quantos intervalos de 270 cabem em newX
     const intervalCount = Math.floor(newX / 270);
     updatedX = intervalCount * 270;
-  
+
     console.log("intervalCount:", intervalCount);
     console.log("updatedX:", updatedX);
-  
+
     const newXStart = xoriginal + updatedX;
     const newXEnd = newXStart + length;
-  
+
     console.log("newXStart:", newXStart);
     console.log("newXEnd:", newXEnd);
-  
+
     const tamanhoRectMovido = Math.round(length / 270);
     console.log("length:", length);
     console.log("tamanhoRectMovido:", tamanhoRectMovido);
-  
+
     return matrix.map((row, rowIndex) => {
       console.log("Analisando linha:", rowIndex);
-  
+
       // Verificar se há sobreposição apenas na mesma linha
       const rectIndex = row.findIndex(rect => rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString());
       if (rectIndex === -1) {
         console.log("Rect não encontrado na linha:", rowIndex);
         return row;
       }
-  
+
       console.log("Rect encontrado na linha:", rowIndex);
-  
+
       // Verificar se há um retângulo no qual o usuário arrastou por cima
       const overlappingRect = row.find(rect => {
         if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString()) {
@@ -373,11 +373,11 @@ const Tool = ({ }) => {
         }
         return false;
       });
-  
+
       // Se há um retângulo sobreposto, ajustar as posições
       if (overlappingRect) {
         console.log("Encontrado retângulo sobreposto:", overlappingRect);
-  
+
         return row.map(rect => {
           if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() === id.toString()) {
             console.log("Atualizando rect movido:", rect, "Novo X:", newXStart);
@@ -406,7 +406,7 @@ const Tool = ({ }) => {
           return rect;
         });
       }
-  
+
       // Caso contrário, verifique se há sobreposição com tamanho diferente e, se houver, retorne a matriz original
       const isOverlappingWithDifferentSize = row.some(rect => {
         if (rect[tipo + "_id"] !== undefined && rect[tipo + "_id"].toString() !== id.toString()) {
@@ -420,12 +420,12 @@ const Tool = ({ }) => {
         }
         return false;
       });
-  
+
       if (isOverlappingWithDifferentSize) {
         console.log("Sobreposição detectada com retângulo de tamanho diferente, operação não permitida.");
         return row;
       }
-  
+
       return row.map((rect) => {
         if (rect.type === 'emotion' && rect.emotion_id.toString() === id.toString()) {
           // Limita o valor de lineY aos valores permitidos
@@ -460,7 +460,7 @@ const Tool = ({ }) => {
       });
     });
   };
-  
+
 
 
 
@@ -470,7 +470,7 @@ const Tool = ({ }) => {
     console.log(x);
     setMatrix((prevMatrix) => {
       const rearrangedMatrix = updateMatrixWithX(prevMatrix, id, newX, tipo, length, x, closeY, xoriginal);
-  
+
       const updatedMatrix = rearrangedMatrix.map((row) => {
         // Ajustar x para o intervalo mais próximo de 270 em 270, começando em 20
         const adjustedRow = row.map((rect) => {
@@ -483,20 +483,20 @@ const Tool = ({ }) => {
         }).sort((a, b) => {
           return (a.x - 20) / 270 - (b.x - 20) / 270;
         });
-  
+
         // Verificar e corrigir sobreposições na linha
         for (let i = 0; i < adjustedRow.length - 1; i++) {
           const currentRect = adjustedRow[i];
           const nextRect = adjustedRow[i + 1];
-  
+
           while (nextRect.x < currentRect.x + currentRect.width) {
             nextRect.x = currentRect.x + currentRect.width + 40;
           }
         }
-  
+
         return adjustedRow;
       });
-  
+
       console.log(updatedMatrix);
       return updatedMatrix;
     });
@@ -505,8 +505,8 @@ const Tool = ({ }) => {
     setSaveTriggered(true);
     setShowMessage(false);
   };
-  
-  
+
+
 
   const handleSaveClick = () => {
     const putConfig = { method: "PUT" };
@@ -612,7 +612,7 @@ const Tool = ({ }) => {
     const fetchedData = await fetchData();
     let tempMatrix = [];
     let foundExtendedRect = null;
-  
+
     // Function to adjust the X position of rectangles
     const adjustRowXPositions = (row) => {
       return row.map((rect) => {
@@ -624,19 +624,19 @@ const Tool = ({ }) => {
         };
       });
     };
-  
+
     setMatrix((prevMatrix) => {
       console.log('Previous Matrix:', prevMatrix);
-  
+
       tempMatrix = prevMatrix.map((row) => {
         let rowUpdated = false;
         let extendedRect; // To store the extended rectangle
         let extendedIndex = -1; // To store the index of the extended rectangle
-  
+
         const updatedRow = row.map((rect, index) => {
           const type = rect.y === 61 ? 'journeyPhase' : rect.y === 231 ? 'userAction' : rect.y === 467 ? 'emotion' : rect.y === 571 ? 'thought' : rect.y === 741 ? 'contactPoint' : null;
           if (!type) return rect; // Skip if type is null
-  
+
           if (rect[`${type}_id`] === editedRectId && type === rect.type && rect.y === editedRowIndex) {
             rowUpdated = true;
             // Save the original X position before extending the width
@@ -648,39 +648,39 @@ const Tool = ({ }) => {
           }
           return rect;
         });
-  
+
         // If the row was updated, adjust the X position of subsequent rectangles
         if (rowUpdated) {
           let adjustedXrect = extendedRect.x + extendedRect.width + 40; // Start X position after the extended rectangle
           updatedRow.forEach((rect) => {
             if (rect.x > extendedRect.x) {
-                console.log("rect: ", rect);
-                rect.x = adjustedXrect; // Adjust subsequent rectangles with the updatedX
-                adjustedXrect += rect.width + 40; 
+              console.log("rect: ", rect);
+              rect.x = adjustedXrect; // Adjust subsequent rectangles with the updatedX
+              adjustedXrect += rect.width + 40;
 
             }
           });
           console.log('Row Updated:', updatedRow);
           foundExtendedRect = extendedRect; // Track the extended rectangle
         }
-  
+
         return updatedRow;
       });
-  
+
       console.log('Temporary Matrix:', tempMatrix);
-  
+
       // Adjust X positions of all rectangles in all rows
       tempMatrix = tempMatrix.map(adjustRowXPositions);
-  
+
       return tempMatrix;
     });
-  
+
     // Use a state variable to trigger saving the data after the state update completes
     setSaveTriggered(true);
     setShowMessage(false);
 
   };
-  
+
 
   const [saveTriggered, setSaveTriggered] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
@@ -966,48 +966,67 @@ const Tool = ({ }) => {
   const [sceneName, setSceneName] = useState("")
   const [sceneDesc, setSceneDesc] = useState("")
   const [scenarioExists, setScenarioExists] = useState(false);
+  const [scenarioName, setScenarioName] = useState("Nome do Cenário");
 
   const fetchScenarioData = async () => {
     try {
-      const response = await axios.get(import.meta.env.VITE_BACKEND + `/scenario/${id_mapa}`);
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND}/scenario/${id_mapa}`);
       const scenario = response.data;
+
       if (scenario) {
         setSceneName(scenario.name);
         setSceneDesc(scenario.description);
+        setScenarioName(scenario.name); 
         setScenarioExists(true);
       } else {
         setScenarioExists(false);
+        setScenarioName("Nome do Cenário"); 
       }
     } catch (error) {
       console.error("Erro ao buscar os dados do cenário:", error);
     }
   };
 
+
+
+  useEffect(() => {
+    fetchScenarioData(); 
+  }, []);
+  
   useEffect(() => {
     if (scenario) {
-      fetchScenarioData();
+      fetchScenarioData(); 
     }
   }, [scenario]);
+  
+
 
   const handleSaveScenario = async () => {
     try {
-      if (scenarioExists) {
-        await axios.put(import.meta.env.VITE_BACKEND + '/scenario', {
-          journeyMapId: id_mapa,
-          newName: sceneName,
-          newDescription: sceneDesc
-        });
-      } else {
-        await axios.post(import.meta.env.VITE_BACKEND + '/scenario', {
-          journeyMapId: id_mapa,
-          name: sceneName,
-          description: sceneDesc
-        });
+      const response = await axios.put(`${import.meta.env.VITE_BACKEND}/scenario`, {
+        journeyMapId: id_mapa,
+        newName: sceneName,
+        newDescription: sceneDesc
+      });
+
+      if (response.status === 200) {
+        toast.success(response.data.message || "Cenário atualizado com sucesso!");
+
+        
+        setScenarioName(sceneName); 
+        await fetchScenarioData(); 
       }
     } catch (error) {
-      console.error("Erro ao salvar o cenário:", error);
+      console.error("Erro ao salvar o cenário:", error.response?.data || error.message);
+      toast.error("Erro ao salvar o cenário. Tente novamente.");
     }
   };
+
+
+
+
+
+
 
   return (
     <div className="scrollable-container">
@@ -1019,15 +1038,16 @@ const Tool = ({ }) => {
             </div>
           )}
           <Navbar
-            onSaveClick={() => { handleSaveClick(); showAlert() }}
+            onSaveClick={() => { handleSaveClick(); showAlert(); }}
             onInfoClick={() => setButtonPopup(true)}
-            onScenarioClick={() => { setButtonPopup(true); setScenario(true) }}
+            onScenarioClick={() => { setButtonPopup(true); setScenario(true); }}
             onLogoutClick={handleLogout}
             onMap={onMap}
             onDownload={handleExport}
             handlePostClick={handlePostClick}
             dataLoaded={dataLoaded}
             currentJourneyMap={id_mapa}
+            scenarioName={scenarioName} 
           />
 
           <div className="separator1" style={{ marginTop: "61.9px", width: calculateTotalWidth(matrix) + 2400 }}></div>
@@ -1150,7 +1170,7 @@ const Tool = ({ }) => {
                       onClick={() => { handleExport(); }}
                       style={{
                         backgroundColor: "#4CAF50",
-                        width: "100%", 
+                        width: "100%",
                         color: "white",
                         padding: "10px 25px",
                         borderRadius: "5px",

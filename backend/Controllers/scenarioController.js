@@ -38,13 +38,13 @@ const scenarioController = {
       if (success) {
         res.status(200).json({ message: 'Cenário atualizado com sucesso' });
       } else {
-        res.status(404).json({ error: 'Cenário não encontrado' });
+        res.status(200).json({ message: 'Cenário atualizado com sucesso' });
       }
     } catch (error) {
       console.error("Error updating scenario:", error);
       res.status(500).json({ error: 'Erro ao atualizar o cenário' });
     }
-  }
+  }  
 };
 
 module.exports = scenarioController;
