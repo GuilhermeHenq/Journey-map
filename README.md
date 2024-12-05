@@ -14,3 +14,6 @@
 1. Navigate to the frontend directory:  
    ```bash
    cd ./frontend/
+1. Navigate to the frontend directory:  
+   ```bash
+   cd ./frontend/
