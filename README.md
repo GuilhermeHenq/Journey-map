@@ -1,6 +1,6 @@
 # **JourneyEasyMap (JEM)** <img src="https://raw.githubusercontent.com/GuilhermeHenq/Journey-map/refs/heads/main/frontend/src/assets/mascote.png" width="40px"></img>
 
-**JourneyEasyMap (JEM)** is a powerful User Journey Map (UJM) creation tool designed for efficiency and ease of use.
+**JourneyEasyMap (JEM)** is a User Journey Map (UJM) creation tool, designed for a Undergraduate thesis in the Federal University of Alfenas (UNIFAL-MG).
 
 - **Frontend**: Built with React.JS and Vite, leveraging the **React Konva** library for advanced shape manipulation and visualization.  
 - **Backend**: Developed using Node.js with the **Express** framework, ensuring robust and scalable server-side operations.  
