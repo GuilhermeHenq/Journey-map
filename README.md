@@ -20,4 +20,31 @@
 3. Start the development server:  
    ```bash
    npm run dev
-By default, React will run on port 5173.
+By default, React will run on <b>port 5173.</b>
+
+### **Backend Server Setup**
+1. Navigate to the backend directory:  
+   ```bash
+   cd ./backend/
+2. Install dependencies:  
+   ```bash
+   npm install
+3. Start the development server:  
+   ```bash
+   npm run dev
+The server will run on <b>port 3000.</b>
+
+---
+
+### **Database Configuration**
+1. Navigate to the frontend directory:  
+   ```bash
+   cd ./frontend/
+2. Install dependencies:  
+   ```bash
+   npm install
+3. Start the development server:  
+   ```bash
+   npm run dev
+By default, React will run on <b>port 5173.</b>
+
